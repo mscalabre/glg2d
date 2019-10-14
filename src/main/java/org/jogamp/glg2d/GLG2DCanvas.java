@@ -205,8 +205,11 @@ public class GLG2DCanvas extends JComponent {
       if (sideContext != null) {
         sideContext.addGLEventListener(g2dglListener);
       }
-
-      add(drawableComponent);
+      try{
+          add(drawableComponent);
+      }catch(Throwable th){
+          th.printStackTrace();
+      }
     }
   }
 
