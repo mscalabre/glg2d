@@ -24,6 +24,16 @@ import javax.swing.RepaintManager;
 public class GLAwareRepaintManager extends RepaintManager {
   public static RepaintManager INSTANCE = new GLAwareRepaintManager();
 
+  private GLG2DCanvas canvas = null;
+    public GLAwareRepaintManager() {
+        super();
+    }
+  
+    public GLAwareRepaintManager(GLG2DCanvas canvas) {
+        super();
+        this.canvas = canvas;
+    }
+    
   @Override
   public void addDirtyRegion(JComponent c, int x, int y, int w, int h) {
     GLG2DCanvas canvas = getGLParent(c);
@@ -35,6 +45,9 @@ public class GLAwareRepaintManager extends RepaintManager {
   }
 
   protected GLG2DCanvas getGLParent(JComponent component) {
+      if(this.canvas instanceof GLG2DCanvas){
+          return this.canvas;
+      }
     Container c = component.getParent();
     while (true) {
       if (c == null) {

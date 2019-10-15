@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -103,5 +104,11 @@ public class DepthSimExample {
 
       gl = g2d.getGLContext().getGL().getGL2();
     }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
+
   }
 }

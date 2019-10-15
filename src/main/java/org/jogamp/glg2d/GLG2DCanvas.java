@@ -39,6 +39,18 @@ import javax.swing.JViewport;
 import javax.swing.RepaintManager;
 
 import com.jogamp.opengl.util.Animator;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.nio.ByteBuffer;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -97,6 +109,12 @@ public class GLG2DCanvas extends JComponent {
     caps.setSampleBuffers(true);
     return caps;
   }
+
+    public GLAutoDrawable getCanvas() {
+        return canvas;
+    }
+  
+  
 
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
@@ -273,7 +291,7 @@ public class GLG2DCanvas extends JComponent {
         canvas.setSharedContext(shareWith);
     }
 
-    canvas.setEnabled(false);
+    canvas.setEnabled(true);
     chosenCapabilities = (GLCapabilitiesImmutable) capabilities.cloneMutable();
     return canvas;
   }
@@ -349,6 +367,13 @@ public class GLG2DCanvas extends JComponent {
       super.paint(g);
     }
   }
+
+    @Override
+    public void setSize(Dimension d) {
+        super.setSize(d); 
+    }
+  
+  
 
   @Override
   protected void paintChildren(Graphics g) {

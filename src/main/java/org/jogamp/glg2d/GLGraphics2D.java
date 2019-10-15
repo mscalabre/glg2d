@@ -52,6 +52,7 @@ import java.util.logging.Logger;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLDrawable;
+import com.jogamp.opengl.Threading;
 
 import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
 import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
@@ -190,12 +191,16 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     return colorHelper;
   }
 
-  protected void setCanvas(GLContext context) {
-    glDrawable = context.getGLDrawable();
+  public void setCanvas(GLContext context) {
+      setCanvas(context.getGLDrawable(), context);
+  }
+
+  public void setCanvas(GLDrawable drawable, final GLContext context) {
+    glDrawable = drawable;
     glContext = context;
 
     for (G2DDrawingHelper helper : helpers) {
-      helper.setG2D(this);
+      helper.setG2D(GLGraphics2D.this, context);
     }
   }
 

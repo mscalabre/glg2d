@@ -21,6 +21,8 @@ import java.awt.geom.AffineTransform;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES1;
+import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.Threading;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
@@ -33,10 +35,39 @@ public class GL2ImageDrawer extends AbstractImageHelper {
   protected AffineTransform savedTransform;
 
   @Override
-  public void setG2D(GLGraphics2D g2d) {
+  public void setG2D(final GLGraphics2D g2d) {
     super.setG2D(g2d);
-    gl = g2d.getGLContext().getGL().getGL2();
+    Runnable work = new Runnable() {
+      @Override
+      public void run() {
+        gl = g2d.getGLContext().getGL().getGL2();
+      }
+    };
+
+    if (Threading.isOpenGLThread()) {
+      work.run();
+    } else {
+      Threading.invokeOnOpenGLThread(false, work);
+    }
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, final GLContext context) {
+    super.setG2D(g2d);
+    Runnable work = new Runnable() {
+      @Override
+      public void run() {
+        gl = context.getGL().getGL2();
+      }
+    };
+
+    if (Threading.isOpenGLThread()) {
+      work.run();
+    } else {
+      Threading.invokeOnOpenGLThread(false, work);
+    }
+    }
+  
 
   @Override
   protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {

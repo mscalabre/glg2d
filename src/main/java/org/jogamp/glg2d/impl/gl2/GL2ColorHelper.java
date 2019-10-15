@@ -26,6 +26,7 @@ import java.awt.Paint;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractColorHelper;
@@ -38,6 +39,13 @@ public class GL2ColorHelper extends AbstractColorHelper {
     super.setG2D(g2d);
     gl = g2d.getGLContext().getGL().getGL2();
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+    super.setG2D(g2d);
+    gl = context.getGL().getGL2();
+    }
+  
 
   @Override
   public void setPaint(Paint paint) {

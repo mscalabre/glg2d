@@ -24,6 +24,7 @@ import java.awt.Stroke;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractShapeHelper;
@@ -54,7 +55,26 @@ public class GL2ShapeDrawer extends AbstractShapeHelper {
     fastLineVisitor.setGLContext(gl);
 
     this.gl = gl.getGL2();
+    if(this.gl==null){
+        System.out.println("GRAVE SEVERE");
+    }
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        super.setG2D(g2d);
+        GL gl = context.getGL();
+        simpleFillVisitor.setGLContext(gl);
+        complexFillVisitor.setGLContext(gl);
+        simpleStrokeVisitor.setGLContext(gl);
+        fastLineVisitor.setGLContext(gl);
+
+        this.gl = gl.getGL2();
+        if(this.gl==null){
+            System.out.println("GRAVE SEVERE");
+        }
+    }
+  
 
   @Override
   public void setHint(Key key, Object value) {

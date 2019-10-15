@@ -26,6 +26,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLG2DColorHelper;
 import org.jogamp.glg2d.GLGraphics2D;
@@ -42,6 +43,12 @@ public abstract class AbstractColorHelper implements GLG2DColorHelper {
     stack.clear();
     stack.push(new ColorState());
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
+  
 
   @Override
   public void push(GLGraphics2D newG2d) {

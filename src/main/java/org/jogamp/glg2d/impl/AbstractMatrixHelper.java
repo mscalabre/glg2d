@@ -15,6 +15,7 @@
  */
 package org.jogamp.glg2d.impl;
 
+import com.jogamp.opengl.GLContext;
 import java.awt.RenderingHints.Key;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayDeque;
@@ -35,6 +36,12 @@ public abstract class AbstractMatrixHelper implements GLG2DTransformHelper {
     stack.clear();
     stack.push(new AffineTransform());
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
+  
 
   @Override
   public void push(GLGraphics2D newG2d) {

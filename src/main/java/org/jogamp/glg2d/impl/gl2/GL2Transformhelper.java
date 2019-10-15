@@ -19,6 +19,7 @@ import java.awt.geom.AffineTransform;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 
 import org.jogamp.glg2d.GLGraphics2D;
@@ -37,6 +38,16 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     setupGLView();
     flushTransformToOpenGL();
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        super.setG2D(g2d);
+        gl = context.getGL().getGL2();
+
+        setupGLView();
+        flushTransformToOpenGL();
+    }
+  
 
   protected void setupGLView() {
     int[] viewportDimensions = new int[4];
