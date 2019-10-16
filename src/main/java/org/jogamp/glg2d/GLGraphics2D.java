@@ -52,7 +52,8 @@ import java.util.logging.Logger;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLDrawable;
-import com.jogamp.opengl.Threading;
+import com.jogamp.opengl.util.texture.Texture;
+import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
 import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
@@ -725,4 +726,13 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       throw new AssertionError(exception);
     }
   }
+
+    public Texture invalidateImage(BufferedImage image) {
+        for(G2DDrawingHelper helper : helpers){
+            if(helper instanceof AbstractImageHelper){
+                return ((AbstractImageHelper)helper).invalidateImage(image);
+            }
+        }
+        return null;
+    }
 }

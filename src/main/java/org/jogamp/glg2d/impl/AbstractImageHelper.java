@@ -63,7 +63,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       float sx1, float sy1, float sx2, float sy2);
 
   protected abstract void end(Texture texture);
-
+  
   @Override
   public void setG2D(GLGraphics2D g2d) {
     this.g2d = g2d;
@@ -255,7 +255,9 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   public void drawImage(RenderableImage img, AffineTransform xform) {
     notImplemented("drawImage(RenderableImage, AffineTransform)");
   }
-
+    public Texture invalidateImage(BufferedImage image){
+        return this.imageCache.remove(image);
+    }
   /**
    * We could use a WeakHashMap here, but we want access to the ReferenceQueue
    * so we can dispose the Textures when the Image is no longer referenced.
@@ -280,6 +282,12 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       expungeStaleEntries();
       WeakKey<Image> key = new WeakKey<Image>(image, null);
       return get(key);
+    }
+    
+    public Texture remove(Image image) {
+      expungeStaleEntries();
+      WeakKey<Image> key = new WeakKey<Image>(image, null);
+      return super.remove(key);
     }
 
     public Texture put(Image image, Texture texture) {
