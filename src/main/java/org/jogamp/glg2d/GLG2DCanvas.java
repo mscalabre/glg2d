@@ -33,24 +33,13 @@ import com.jogamp.opengl.GLOffscreenAutoDrawable;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.Threading;
 import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.awt.GLJPanel;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
 import javax.swing.RepaintManager;
 
 import com.jogamp.opengl.util.Animator;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-import java.nio.ByteBuffer;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -152,6 +141,10 @@ public class GLG2DCanvas extends JComponent {
     this();
     setDrawableComponent(drawableComponent);
   }
+  public GLG2DCanvas(JComponent drawableComponent, GLEventListener listener) {
+    this();
+    setDrawableComponent(drawableComponent, listener);
+  }
 
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
@@ -160,6 +153,10 @@ public class GLG2DCanvas extends JComponent {
   public GLG2DCanvas(GLCapabilities capabilities, JComponent drawableComponent) {
     this(capabilities);
     setDrawableComponent(drawableComponent);
+  }
+  public GLG2DCanvas(GLCapabilities capabilities, JComponent drawableComponent, GLEventListener listener) {
+    this(capabilities);
+    setDrawableComponent(drawableComponent, listener);
   }
 
   /**
@@ -230,6 +227,38 @@ public class GLG2DCanvas extends JComponent {
       }
     }
   }
+  public void setDrawableComponent(JComponent component, GLEventListener listener) {
+    if (component == drawableComponent) {
+      return;
+    }
+
+    if (g2dglListener != null) {
+      canvas.removeGLEventListener(g2dglListener);
+      if (sideContext != null) {
+        sideContext.removeGLEventListener(g2dglListener);
+      }
+    }
+
+    if (drawableComponent != null) {
+      remove(drawableComponent);
+    }
+
+    drawableComponent = component;
+    if (drawableComponent != null) {
+      verifyHierarchy(drawableComponent);
+
+      g2dglListener = listener;
+      canvas.addGLEventListener(g2dglListener);
+      if (sideContext != null) {
+        sideContext.addGLEventListener(g2dglListener);
+      }
+      try{
+          add(drawableComponent);
+      }catch(Throwable th){
+          th.printStackTrace();
+      }
+    }
+  }
 
   /**
    * Checks the component and all children to ensure that everything is pure
@@ -286,7 +315,7 @@ public class GLG2DCanvas extends JComponent {
    * though it is disabled. A {@code GLJPanel} supports this better.
    */
   protected GLAutoDrawable createGLComponent(GLCapabilitiesImmutable capabilities, GLContext shareWith) {
-    GLCanvas canvas = new GLCanvas(capabilities);
+    GLJPanel canvas = new GLJPanel(capabilities);
     if (shareWith != null) {
         canvas.setSharedContext(shareWith);
     }
@@ -362,7 +391,11 @@ public class GLG2DCanvas extends JComponent {
   @Override
   public void paint(Graphics g) {
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
-      canvas.display();
+        if(this.canvas instanceof GLJPanel){
+            ((GLJPanel)canvas).paint(g);
+        }else{
+            canvas.display();
+        }
     } else {
       super.paint(g);
     }

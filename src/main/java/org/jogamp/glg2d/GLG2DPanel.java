@@ -22,6 +22,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLCapabilitiesImmutable;
 import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import javax.swing.JComponent;
 
@@ -50,9 +51,15 @@ public class GLG2DPanel extends GLG2DCanvas {
     public GLG2DPanel(GLCapabilities capabilities, JComponent drawableComponent) {
         super(capabilities, drawableComponent);
     }
+    public GLG2DPanel(GLCapabilities capabilities, JComponent drawableComponent, GLEventListener listener) {
+        super(capabilities, drawableComponent, listener);
+    }
 
     public GLG2DPanel(JComponent drawableComponent) {
         super(drawableComponent);
+    }
+    public GLG2DPanel(JComponent drawableComponent, GLEventListener listener) {
+        super(drawableComponent, listener);
     }
 
     @Override
@@ -67,6 +74,27 @@ public class GLG2DPanel extends GLG2DCanvas {
         }
 
         super.setDrawableComponent(component);
+
+        if (getDrawableComponent() != null && canvas instanceof Component) {
+            mouseListener = new AWTMouseEventTranslator(getDrawableComponent());
+
+            Component c = (Component) canvas;
+            c.addMouseListener(mouseListener);
+            c.addMouseMotionListener(mouseListener);
+            c.addMouseWheelListener(mouseListener);
+        }
+    }
+    public void setDrawableComponent(JComponent component, GLEventListener listener) {
+        if (mouseListener != null) {
+            mouseListener = null;
+
+            Component c = (Component) canvas;
+            c.removeMouseListener(mouseListener);
+            c.removeMouseMotionListener(mouseListener);
+            c.removeMouseWheelListener(mouseListener);
+        }
+
+        super.setDrawableComponent(component, listener);
 
         if (getDrawableComponent() != null && canvas instanceof Component) {
             mouseListener = new AWTMouseEventTranslator(getDrawableComponent());
