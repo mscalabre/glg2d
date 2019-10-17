@@ -51,15 +51,12 @@ public class GLG2DPanel extends GLG2DCanvas {
     public GLG2DPanel(GLCapabilities capabilities, JComponent drawableComponent) {
         super(capabilities, drawableComponent);
     }
-    public GLG2DPanel(GLCapabilities capabilities, JComponent drawableComponent, GLEventListener listener) {
-        super(capabilities, drawableComponent, listener);
-    }
 
     public GLG2DPanel(JComponent drawableComponent) {
         super(drawableComponent);
     }
-    public GLG2DPanel(JComponent drawableComponent, GLEventListener listener) {
-        super(drawableComponent, listener);
+    public GLG2DPanel(JComponent drawableComponent, GLAutoDrawable canvas) {
+        super(drawableComponent, canvas);
     }
 
     @Override

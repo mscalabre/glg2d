@@ -99,12 +99,6 @@ public class GLG2DCanvas extends JComponent {
     return caps;
   }
 
-    public GLAutoDrawable getCanvas() {
-        return canvas;
-    }
-  
-  
-
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
    * from {@link #getDefaultCapabalities()}.
@@ -131,6 +125,20 @@ public class GLG2DCanvas extends JComponent {
 
     RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
+  public GLG2DCanvas(GLCapabilities capabilities, GLAutoDrawable canvas) {
+    this.canvas = canvas;
+
+    /*
+     * Set both canvas and drawableComponent to be the same size, but we never
+     * draw the drawableComponent except into the canvas.
+     */
+    setLayout(new GLOverlayLayout());
+    add((Component) canvas);
+
+    setGLDrawing(true);
+
+    RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
+  }
 
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
@@ -141,9 +149,9 @@ public class GLG2DCanvas extends JComponent {
     this();
     setDrawableComponent(drawableComponent);
   }
-  public GLG2DCanvas(JComponent drawableComponent, GLEventListener listener) {
-    this();
-    setDrawableComponent(drawableComponent, listener);
+  public GLG2DCanvas(JComponent drawableComponent, GLAutoDrawable canvas) {
+    this(getDefaultCapabalities(), canvas);
+    setDrawableComponent(drawableComponent);
   }
 
   /**
@@ -154,11 +162,7 @@ public class GLG2DCanvas extends JComponent {
     this(capabilities);
     setDrawableComponent(drawableComponent);
   }
-  public GLG2DCanvas(GLCapabilities capabilities, JComponent drawableComponent, GLEventListener listener) {
-    this(capabilities);
-    setDrawableComponent(drawableComponent, listener);
-  }
-
+  
   /**
    * Returns {@code true} if the {@code drawableComonent} is drawn using OpenGL
    * libraries. If {@code false}, it is using normal Java2D drawing routines.
@@ -196,7 +200,13 @@ public class GLG2DCanvas extends JComponent {
    * Sets the {@code JComponent} that will be drawn to the OpenGL canvas.
    */
   public void setDrawableComponent(JComponent component) {
-    if (component == drawableComponent) {
+      setDrawableComponent(component, false);
+  }
+  /**
+   * Sets the {@code JComponent} that will be drawn to the OpenGL canvas.
+   */
+  public void setDrawableComponent(JComponent component, boolean force) {
+    if (!force && component == drawableComponent) {
       return;
     }
 
@@ -315,7 +325,7 @@ public class GLG2DCanvas extends JComponent {
    * though it is disabled. A {@code GLJPanel} supports this better.
    */
   protected GLAutoDrawable createGLComponent(GLCapabilitiesImmutable capabilities, GLContext shareWith) {
-    GLJPanel canvas = new GLJPanel(capabilities);
+    GLCanvas canvas = new GLCanvas(capabilities);
     if (shareWith != null) {
         canvas.setSharedContext(shareWith);
     }
@@ -418,6 +428,26 @@ public class GLG2DCanvas extends JComponent {
       super.paintChildren(g);
     }
   }
+
+    public GLAutoDrawable getCanvas() {
+        return canvas;
+    }
+
+    public void setCanvas(GLAutoDrawable canvas) {
+        remove((Component)this.canvas);
+        this.canvas.destroy();
+        
+        this.canvas = canvas;
+        
+        setLayout(new GLOverlayLayout());
+        add((Component) canvas);
+
+        setGLDrawing(true);
+
+        RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
+        
+        setDrawableComponent(drawableComponent, true);
+    }
 
   @Override
   protected void addImpl(Component comp, Object constraints, int index) {
