@@ -15,9 +15,20 @@
  */
 package org.jogamp.glg2d;
 
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.util.glsl.ShaderUtil;
+import java.awt.Dimension;
+import java.io.InputStream;
+import java.util.Scanner;
 import javax.swing.JComponent;
+import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
+import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
+import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
+import org.jogamp.glg2d.impl.shader.GL2ES2ImageDrawer;
+import org.jogamp.glg2d.impl.shader.GL2ES2ShapeDrawer;
+import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 
 /**
  * Wraps a {@code JComponent} and paints it using a {@code GLGraphics2D}. This
@@ -53,7 +64,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     paintGL(g2d);
     postPaint(drawable);
   }
-
+  public Dimension getSize(){
+      return new Dimension(1024,800);
+  }
   /**
    * Called before any painting is done. This should setup the matrices and ask
    * the {@code GLGraphics2D} object to setup any client state.
@@ -70,7 +83,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   /**
    * Defines the viewport to paint into.
    */
-  protected static void setupViewport(GLAutoDrawable drawable) {
+  protected void setupViewport(GLAutoDrawable drawable) {
     drawable.getGL().glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
   }
 
@@ -113,7 +126,25 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    * calls.
    */
   protected GLGraphics2D createGraphics2D(GLAutoDrawable drawable) {
-    return new GLGraphics2D();
+    return new GLShaderGraphics2D() {
+        @Override
+        protected void createDrawingHelpers() {
+            
+          shapeHelper = new GL2ES2ShapeDrawer();
+
+          imageHelper = new GL2ES2ImageDrawer();
+          stringHelper = new GL2StringDrawer();
+
+          colorHelper = new GL2ColorHelper();
+          matrixHelper = new GL2Transformhelper();
+
+          addG2DDrawingHelper(shapeHelper);
+          addG2DDrawingHelper(imageHelper);
+          addG2DDrawingHelper(stringHelper);
+          addG2DDrawingHelper(colorHelper);
+          addG2DDrawingHelper(matrixHelper);
+        }
+      };
   }
 
   @Override
@@ -121,6 +152,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     if (g2d != null) {
       g2d.glDispose();
       g2d = null;
-    }
+    } 
   }
+  
 }

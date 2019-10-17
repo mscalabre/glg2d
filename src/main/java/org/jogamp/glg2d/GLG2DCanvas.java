@@ -40,6 +40,9 @@ import javax.swing.JViewport;
 import javax.swing.RepaintManager;
 
 import com.jogamp.opengl.util.Animator;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -81,6 +84,8 @@ public class GLG2DCanvas extends JComponent {
   private JComponent drawableComponent;
 
   private boolean drawGL;
+
+  private BufferedImage imageRender = null;
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -397,9 +402,26 @@ public class GLG2DCanvas extends JComponent {
       Threading.invokeOnOpenGLThread(false, work);
     }
   }
+  
+  public boolean isUseUpscale(){
+      return true;
+  }
 
   @Override
   public void paint(Graphics g) {
+        
+    long time = System.currentTimeMillis();
+    
+    Graphics oldG = g;
+    
+    if(isUseUpscale()){
+        if(imageRender == null){
+            imageRender = new BufferedImage(1000, 500, BufferedImage.TYPE_INT_ARGB);
+            imageRender.createGraphics();
+        }
+//        g = imageRender.getGraphics();
+    }
+//    ((Graphics2D)g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);
@@ -409,8 +431,18 @@ public class GLG2DCanvas extends JComponent {
     } else {
       super.paint(g);
     }
+    
+    oldG.drawImage(imageRender, getWidth(), getHeight(), this);
+    
+    if(isShowFPS()){
+        System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
+    }
   }
 
+  public boolean isShowFPS(){
+    return true;
+  }
+  
     @Override
     public void setSize(Dimension d) {
         super.setSize(d); 
