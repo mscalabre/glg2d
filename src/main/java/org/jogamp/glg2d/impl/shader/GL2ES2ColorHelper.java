@@ -16,6 +16,7 @@
 package org.jogamp.glg2d.impl.shader;
 
 
+import com.jogamp.opengl.GLContext;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
@@ -49,7 +50,12 @@ public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook 
     super.setG2D(g2d);
   }
 
-  @Override
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
+
+    @Override
   public void setColorNoRespectComposite(Color c) {
     foregroundRGBA[0] = c.getRed() / 255f;
     foregroundRGBA[1] = c.getGreen() / 255f;

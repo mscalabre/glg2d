@@ -21,6 +21,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.PathVisitor;
@@ -57,6 +58,11 @@ public class GL2ES2ShapeDrawer extends AbstractShapeHelper {
           + GLShaderGraphics2D.class.getSimpleName());
     }
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
 
   public void draw(Shape shape) {
     Stroke stroke = getStroke();

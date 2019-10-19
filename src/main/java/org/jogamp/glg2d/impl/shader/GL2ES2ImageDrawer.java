@@ -27,6 +27,7 @@ import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.util.texture.Texture;
 
 public class GL2ES2ImageDrawer extends AbstractImageHelper {
@@ -62,6 +63,11 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
       shader.setup(gl);
     }
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
 
   @Override
   public void dispose() {

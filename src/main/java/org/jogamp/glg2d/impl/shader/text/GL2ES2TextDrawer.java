@@ -23,6 +23,7 @@ import java.awt.geom.Point2D;
 import java.text.AttributedCharacterIterator;
 
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractTextDrawer;
@@ -60,6 +61,11 @@ public class GL2ES2TextDrawer extends AbstractTextDrawer {
     super.setG2D(g2d);
   }
 
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        this.setG2D(g2d);
+    }
+  
   @Override
   public void dispose() {
     pipeline.delete(gl);

@@ -18,6 +18,7 @@ package org.jogamp.glg2d.impl.shader;
 import java.awt.geom.AffineTransform;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractMatrixHelper;
@@ -47,6 +48,11 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
           + GLShaderGraphics2D.class.getSimpleName());
     }
   }
+
+    @Override
+    public void setG2D(GLGraphics2D g2d, GLContext context) {
+        setG2D(g2d);
+    }
 
   @Override
   public float[] getGLMatrixData() {

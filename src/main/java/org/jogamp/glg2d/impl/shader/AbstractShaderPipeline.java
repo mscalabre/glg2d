@@ -168,6 +168,7 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
       }
       
       if (stream == null) {
+          System.out.println(name + " is null :((((");
         stream = AbstractShaderPipeline.class.getResourceAsStream(name);
       }
 
