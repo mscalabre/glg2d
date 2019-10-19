@@ -52,12 +52,16 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    * The component to paint.
    */
   protected JComponent comp;
+  private boolean useGL2ES2;
 
   public GLG2DSimpleEventListener(JComponent component) {
+      this(component, false);
+  }
+  public GLG2DSimpleEventListener(JComponent component, boolean useGL2ES2) {
     if (component == null) {
       throw new NullPointerException("component is null");
     }
-
+    this.useGL2ES2 = useGL2ES2;
     this.comp = component;
   }
 
@@ -67,9 +71,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     paintGL(g2d);
     postPaint(drawable);
   }
-  public Dimension getSize(){
-      return new Dimension(1024,800);
-  }
+  
   /**
    * Called before any painting is done. This should setup the matrices and ask
    * the {@code GLGraphics2D} object to setup any client state.
@@ -79,7 +81,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     g2d.prePaint(drawable.getContext());
 
     // clip to only the component we're painting
-    g2d.translate(comp.getX(), comp.getY());
+//    g2d.translate(comp.getX(), comp.getY());
     g2d.clipRect(0, 0, comp.getWidth(), comp.getHeight());
   }
 
@@ -129,25 +131,29 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    * calls.
    */
   protected GLGraphics2D createGraphics2D(GLAutoDrawable drawable) {
-    return new GLShaderGraphics2D() {
-        @Override
-        protected void createDrawingHelpers() {
-            
-          shapeHelper = new GL2ES2ShapeDrawer();
+      if(useGL2ES2){
+        return new GLShaderGraphics2D() {
+            @Override
+            protected void createDrawingHelpers() {
 
-          imageHelper = new GL2ES2ImageDrawer();
-          stringHelper = new GL2ES2TextDrawer();
+              shapeHelper = new GL2ES2ShapeDrawer();
 
-          colorHelper = new GL2ES2ColorHelper();
-          matrixHelper = new GL2ES2TransformHelper();
+              imageHelper = new GL2ES2ImageDrawer();
+              stringHelper = new GL2ES2TextDrawer();
 
-          addG2DDrawingHelper(shapeHelper);
-          addG2DDrawingHelper(imageHelper);
-          addG2DDrawingHelper(stringHelper);
-          addG2DDrawingHelper(colorHelper);
-          addG2DDrawingHelper(matrixHelper);
-        }
-      };
+              colorHelper = new GL2ES2ColorHelper();
+              matrixHelper = new GL2ES2TransformHelper();
+
+              addG2DDrawingHelper(shapeHelper);
+              addG2DDrawingHelper(imageHelper);
+              addG2DDrawingHelper(stringHelper);
+              addG2DDrawingHelper(colorHelper);
+              addG2DDrawingHelper(matrixHelper);
+            }
+          };
+      }else{
+          return new GLGraphics2D();
+      }
   }
 
   @Override

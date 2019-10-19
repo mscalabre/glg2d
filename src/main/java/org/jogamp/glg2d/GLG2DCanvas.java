@@ -86,6 +86,8 @@ public class GLG2DCanvas extends JComponent {
   private boolean drawGL;
 
   private BufferedImage imageRender = null;
+  
+  private boolean useGL2ES2; 
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -157,6 +159,11 @@ public class GLG2DCanvas extends JComponent {
   public GLG2DCanvas(JComponent drawableComponent, GLAutoDrawable canvas) {
     this(getDefaultCapabalities(), canvas);
     setDrawableComponent(drawableComponent);
+  }
+  public GLG2DCanvas(JComponent drawableComponent, GLAutoDrawable canvas, boolean useGL2ES2) {
+    this(getDefaultCapabalities(), canvas);
+    setDrawableComponent(drawableComponent);
+    this.useGL2ES2 = useGL2ES2;
   }
 
   /**
@@ -345,7 +352,7 @@ public class GLG2DCanvas extends JComponent {
    * canvas.
    */
   protected GLEventListener createG2DListener(JComponent drawingComponent) {
-    return new GLG2DSimpleEventListener(drawingComponent);
+    return new GLG2DSimpleEventListener(drawingComponent, this.useGL2ES2);
   }
 
   /**
@@ -432,7 +439,7 @@ public class GLG2DCanvas extends JComponent {
       super.paint(g);
     }
     
-    oldG.drawImage(imageRender, getWidth(), getHeight(), this);
+//    oldG.drawImage(imageRender, getWidth(), getHeight(), this);
     
     if(isShowFPS()){
         System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
