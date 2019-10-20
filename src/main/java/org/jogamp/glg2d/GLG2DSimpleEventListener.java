@@ -73,6 +73,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
         boolean useGears = false;
         if(gears!=null){
             useGears = true;
+            gears.getRenderStream().setGL(drawable.getGL());
+            gears.setupOpenGL();
+            gears.setupQuad();
         }
         if(useGears){
             gears.getRenderStream().bind();
@@ -81,6 +84,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
         paintGL(g2d);
         postPaint(drawable);
         if(useGears){
+            gears.test();
             gears.getRenderStream().swapBuffers();
         }
   }

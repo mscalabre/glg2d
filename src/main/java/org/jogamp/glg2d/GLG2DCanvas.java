@@ -42,6 +42,7 @@ import javax.swing.RepaintManager;
 import com.jogamp.opengl.util.Animator;
 import java.awt.image.BufferedImage;
 import org.lwjglfx.Gears;
+import org.lwjglfx.util.stream.RenderStream;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -105,6 +106,7 @@ public class GLG2DCanvas extends JComponent {
     return caps;
   }
     private Gears gears;
+    private RenderStream renderStream;
 
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
@@ -184,13 +186,32 @@ public class GLG2DCanvas extends JComponent {
   }
   
   public void setGears(Gears gears){
+      if(canvas.getGL() != null){
+        int error = canvas.getGL().glGetError();
+        System.out.println("setGears error0 : " + error);
+      }
       if(this.g2dglListener!=null && this.g2dglListener instanceof GLG2DSimpleEventListener){
           ((GLG2DSimpleEventListener)this.g2dglListener).setGears(gears);
       }else{
           System.out.println("No listener, can't set gear");
       }
-      gears.getRenderStream().setGL(this.getCanvas().getGL());
+      if(canvas.getGL() != null){
+        int error = canvas.getGL().glGetError();
+        System.out.println("setGears error1 : " + error);
+      }
+      gears.getRenderStream().setGL(canvas.getGL());
       this.gears = gears;
+  }
+  
+  public void setRenderStream(RenderStream renderStream){
+      this.renderStream = renderStream;
+      if(getCanvas().getGL()!=null){
+            int error = canvas.getGL().glGetError();
+            System.out.println("setRenderStream error0 : " + error);
+            renderStream.setGL(getCanvas().getGL());
+            error = canvas.getGL().glGetError();
+            System.out.println("setRenderStream error1 : " + error);
+      }
   }
 
   /**
@@ -448,13 +469,21 @@ public class GLG2DCanvas extends JComponent {
             Runnable work = new Runnable() {
               @Override
               public void run() {
-                if(gears!=null && canvas.getGL()!=null){
-                    gears.getRenderStream().setGL(canvas.getGL());
-                    gears.getRenderStream().bind();
-                }
-                canvas.display();
-                if(gears!=null && canvas.getGL()!=null){
-                    gears.getRenderStream().swapBuffers();
+                boolean gearsOK = false;
+                if(renderStream!=null && canvas.getGL()!=null){
+                    gearsOK = true;
+                    int error = canvas.getGL().glGetError();
+                    System.out.println("error0 : " + error);
+                    renderStream.setGL(canvas.getGL());
+                    error = canvas.getGL().glGetError();
+                    System.out.println("error0.5 : " + error);
+                    renderStream.bind();
+                    error = canvas.getGL().glGetError();
+                    System.out.println("error : " + error);
+                    canvas.display();
+                    renderStream.swapBuffers();
+                    error = canvas.getGL().glGetError();
+                    System.out.println("error2 : " + error);
                 }
               }
             };
