@@ -40,9 +40,8 @@ import javax.swing.JViewport;
 import javax.swing.RepaintManager;
 
 import com.jogamp.opengl.util.Animator;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import org.lwjglfx.Gears;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -105,6 +104,7 @@ public class GLG2DCanvas extends JComponent {
     caps.setSampleBuffers(true);
     return caps;
   }
+    private Gears gears;
 
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
@@ -181,6 +181,16 @@ public class GLG2DCanvas extends JComponent {
    */
   public boolean isGLDrawing() {
     return drawGL;
+  }
+  
+  public void setGears(Gears gears){
+      if(this.g2dglListener!=null && this.g2dglListener instanceof GLG2DSimpleEventListener){
+          ((GLG2DSimpleEventListener)this.g2dglListener).setGears(gears);
+      }else{
+          System.out.println("No listener, can't set gear");
+      }
+      gears.getRenderStream().setGL(this.getCanvas().getGL());
+      this.gears = gears;
   }
 
   /**
@@ -414,32 +424,53 @@ public class GLG2DCanvas extends JComponent {
       return true;
   }
 
+    @Override
+    public void repaint() {
+        this.paint(getGraphics());
+    }
+  
   @Override
   public void paint(Graphics g) {
         
     long time = System.currentTimeMillis();
     
-    Graphics oldG = g;
-    
-    if(isUseUpscale()){
-        if(imageRender == null){
-            imageRender = new BufferedImage(1000, 500, BufferedImage.TYPE_INT_ARGB);
-            imageRender.createGraphics();
-        }
-//        g = imageRender.getGraphics();
-    }
-//    ((Graphics2D)g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+//    boolean useGears = false;
+//    if(gears!=null && this.canvas.getGL()!=null && false){
+//        useGears = true;
+//    }
+//    if(useGears){
+//        gears.getRenderStream().bind();
+//    }
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);
         }else{
-            canvas.display();
+            Runnable work = new Runnable() {
+              @Override
+              public void run() {
+                if(gears!=null && canvas.getGL()!=null){
+                    gears.getRenderStream().setGL(canvas.getGL());
+                    gears.getRenderStream().bind();
+                }
+                canvas.display();
+                if(gears!=null && canvas.getGL()!=null){
+                    gears.getRenderStream().swapBuffers();
+                }
+              }
+            };
+
+            if (Threading.isOpenGLThread()) {
+              work.run();
+            } else {
+              Threading.invokeOnOpenGLThread(false, work);
+            }
         }
     } else {
       super.paint(g);
     }
-    
-//    oldG.drawImage(imageRender, getWidth(), getHeight(), this);
+//    if(useGears){
+//        gears.getRenderStream().swapBuffers();
+//    }
     
     if(isShowFPS()){
         System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));

@@ -32,6 +32,7 @@ import org.jogamp.glg2d.impl.shader.GL2ES2ShapeDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2TransformHelper;
 import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 import org.jogamp.glg2d.impl.shader.text.GL2ES2TextDrawer;
+import org.lwjglfx.Gears;
 
 /**
  * Wraps a {@code JComponent} and paints it using a {@code GLGraphics2D}. This
@@ -53,6 +54,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    */
   protected JComponent comp;
   private boolean useGL2ES2;
+    private Gears gears;
 
   public GLG2DSimpleEventListener(JComponent component) {
       this(component, false);
@@ -67,9 +69,20 @@ public class GLG2DSimpleEventListener implements GLEventListener {
 
   @Override
   public void display(GLAutoDrawable drawable) {
-    prePaint(drawable);
-    paintGL(g2d);
-    postPaint(drawable);
+      
+        boolean useGears = false;
+        if(gears!=null){
+            useGears = true;
+        }
+        if(useGears){
+            gears.getRenderStream().bind();
+        }
+        prePaint(drawable);
+        paintGL(g2d);
+        postPaint(drawable);
+        if(useGears){
+            gears.getRenderStream().swapBuffers();
+        }
   }
   
   /**
@@ -120,6 +133,10 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   @Override
   public void init(GLAutoDrawable drawable) {
     g2d = createGraphics2D(drawable);
+    
+    if(gears!=null){
+        gears.getRenderStream().setGL(drawable.getGL());
+    }
   }
 
   @Override
@@ -163,5 +180,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
       g2d = null;
     } 
   }
+
+    public void setGears(Gears gears) {
+        this.gears = gears;
+    }
   
 }
