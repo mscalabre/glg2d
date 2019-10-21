@@ -17,11 +17,14 @@ package org.jogamp.glg2d;
 
 import java.nio.FloatBuffer;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.fixedfunc.GLPointerFunc;
 
 import com.jogamp.common.nio.Buffers;
+import static org.lwjgl.opengl.GL11.glDisableClientState;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glEnableClientState;
+import static org.lwjgl.opengl.GL11.glVertexPointer;
 
 /**
  * Wraps a simple {@code FloatBuffer} and makes it easier to push 2-D vertices
@@ -148,11 +151,11 @@ public class VertexBuffer {
     int count = buffer.position();
     buffer.rewind();
 
-    gl.glVertexPointer(2, GL.GL_FLOAT, 0, buffer);
+    glVertexPointer(2, 0, buffer);
 
-    gl.glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
-    gl.glDrawArrays(mode, 0, count / 2);
-    gl.glDisableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
+   glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
+   glDrawArrays(mode, 0, count / 2);
+   glDisableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
 
     buffer.position(count);
   }

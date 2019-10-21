@@ -15,23 +15,16 @@
  */
 package org.jogamp.glg2d;
 
-import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.util.glsl.ShaderUtil;
-import java.awt.Dimension;
-import java.io.InputStream;
-import java.util.Scanner;
 import javax.swing.JComponent;
-import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
-import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
-import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
 import org.jogamp.glg2d.impl.shader.GL2ES2ColorHelper;
 import org.jogamp.glg2d.impl.shader.GL2ES2ImageDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2ShapeDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2TransformHelper;
 import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 import org.jogamp.glg2d.impl.shader.text.GL2ES2TextDrawer;
+import static org.lwjgl.opengl.GL11.glViewport;
 import org.lwjglfx.Gears;
 
 /**
@@ -69,32 +62,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
 
   @Override
   public void display(GLAutoDrawable drawable) {
-      
-        boolean useGears = false;
-//        if(gears!=null){
-//            useGears = true;
-//            gears.getRenderStream().setGL(drawable.getGL());
-//            gears.setupOpenGL();
-//            gears.setupQuad();
-//        }
-//        if(useGears){
-//            gears.getRenderStream().bind();
-//        }
-//        prePaint(drawable);
-//        paintGL(g2d);
-//        postPaint(drawable);
-//        if(useGears){
-//            gears.test();
-//            gears.getRenderStream().swapBuffers();
-//        }
-        if(gears!=null){
-            gears.getRenderStream().setGL(drawable.getGL());
-            prePaint(drawable);
-            gears.getRenderStream().bind();
-            paintGL(g2d);
-            gears.getRenderStream().swapBuffers();
-            postPaint(drawable);
-        }
+        prePaint(drawable);
+        paintGL(g2d);
+        postPaint(drawable);
   }
   
   /**
@@ -103,7 +73,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    */
   protected void prePaint(GLAutoDrawable drawable) {
     setupViewport(drawable);
-    g2d.prePaint(drawable.getContext());
+    g2d.prePaint();
 
     // clip to only the component we're painting
     g2d.translate(comp.getX(), comp.getY());
@@ -114,7 +84,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    * Defines the viewport to paint into.
    */
   protected void setupViewport(GLAutoDrawable drawable) {
-    drawable.getGL().glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+    glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
   }
 
   /**
@@ -147,8 +117,14 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   public void init(GLAutoDrawable drawable) {
     g2d = createGraphics2D(drawable);
     
+    g2d.setCanvas(drawable, null);
+    
     isInit=true;
   }
+
+    public GLGraphics2D getG2D() {
+        return g2d;
+    }
 
   @Override
   public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {

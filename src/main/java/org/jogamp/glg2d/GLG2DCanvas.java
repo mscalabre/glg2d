@@ -41,6 +41,7 @@ import javax.swing.RepaintManager;
 
 import com.jogamp.opengl.util.Animator;
 import java.awt.image.BufferedImage;
+import org.lwjgl.opengl.Display;
 import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
 
@@ -466,32 +467,17 @@ public class GLG2DCanvas extends JComponent {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);
         }else{
-            Runnable work = new Runnable() {
-              @Override
-              public void run() {
-                boolean gearsOK = false;
-                if(renderStream!=null && canvas.getGL()!=null){
-                    gearsOK = true;
-                    int error = canvas.getGL().glGetError();
-                    System.out.println("error0 : " + error);
-                    renderStream.setGL(canvas.getGL());
-                    error = canvas.getGL().glGetError();
-                    System.out.println("error0.5 : " + error);
-                    renderStream.bind();
-                    error = canvas.getGL().glGetError();
-                    System.out.println("error : " + error);
-                    canvas.display();
-                    renderStream.swapBuffers();
-                    error = canvas.getGL().glGetError();
-                    System.out.println("error2 : " + error);
+            if(useLWJGL()){
+                if(g2dglListener instanceof GLG2DSimpleEventListener){
+                    if(((GLG2DSimpleEventListener)g2dglListener).getG2D()==null){
+                        g2dglListener.init(canvas);
+                        System.out.println("init ok");
+                    }
+                    g2dglListener.display(canvas);
                 }
-              }
-            };
-
-            if (Threading.isOpenGLThread()) {
-              work.run();
-            } else {
-              Threading.invokeOnOpenGLThread(false, work);
+                Display.update();
+            }else{
+                canvas.display();
             }
         }
     } else {
@@ -528,6 +514,10 @@ public class GLG2DCanvas extends JComponent {
     }
   }
 
+  private boolean useLWJGL(){
+      return true;
+  }
+  
     public GLAutoDrawable getCanvas() {
         return canvas;
     }

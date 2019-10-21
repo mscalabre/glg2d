@@ -16,17 +16,19 @@
 package org.jogamp.glg2d.impl.shader;
 
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GLContext;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
+import java.nio.FloatBuffer;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractColorHelper;
 import org.jogamp.glg2d.impl.shader.UniformBufferObject.ColorHook;
 
 public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook {
-  protected float[] foregroundRGBA = new float[4];
+  protected FloatBuffer foregroundRGBA = Buffers.newDirectFloatBuffer(4);
 
   protected GL2ES2ImagePipeline pipeline;
 
@@ -57,19 +59,19 @@ public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook 
 
     @Override
   public void setColorNoRespectComposite(Color c) {
-    foregroundRGBA[0] = c.getRed() / 255f;
-    foregroundRGBA[1] = c.getGreen() / 255f;
-    foregroundRGBA[2] = c.getBlue() / 255f;
-    foregroundRGBA[3] = c.getAlpha() / 255f;
+    foregroundRGBA.put(0, c.getRed() / 255f);
+    foregroundRGBA.put(1, c.getGreen() / 255f);
+    foregroundRGBA.put(2, c.getBlue() / 255f);
+    foregroundRGBA.put(3, c.getAlpha() / 255f);
   }
 
   @Override
   public void setColorRespectComposite(Color c) {
     float alpha = getAlpha();
-    foregroundRGBA[0] = c.getRed() / 255f;
-    foregroundRGBA[1] = c.getGreen() / 255f;
-    foregroundRGBA[2] = c.getBlue() / 255f;
-    foregroundRGBA[3] = (c.getAlpha() / 255f) * alpha;
+    foregroundRGBA.put(0, c.getRed() / 255f);
+    foregroundRGBA.put(1, c.getGreen() / 255f);
+    foregroundRGBA.put(2, c.getBlue() / 255f);
+    foregroundRGBA.put(3, (c.getAlpha() / 255f) * alpha);
   }
 
   @Override
@@ -123,23 +125,23 @@ public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook 
 //    int glX = x;
 //    int glY = g2d.getCanvasHeight() - (y + height);
 //
-//    gl.glReadPixels(glX, glY, width, height, GL.GL_RGBA, GL.GL_FLOAT, data);
+//   glReadPixels(glX, glY, width, height, GL.GL_RGBA, GL.GL_FLOAT, data);
 //
-//    gl.glEnable(GL.GL_TEXTURE_2D);
-//    gl.glActiveTexture(GL.GL_TEXTURE0);
+//   glEnable(GL.GL_TEXTURE_2D);
+//   glActiveTexture(GL.GL_TEXTURE0);
 //
 //    int[] ids = new int[1];
-//    gl.glGenTextures(1, ids, 0);
+//   glGenTextures(1, ids, 0);
 //
-//    gl.glBindTexture(GL.GL_TEXTURE_2D, ids[0]);
+//   glBindTexture(GL.GL_TEXTURE_2D, ids[0]);
 //
-//    gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-//    gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+//   glTexParameteri(GL.GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+//   glTexParameteri(GL.GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 //
 //    /*
 //     * TODO This will need to be power-of-2
 //     */
-//    gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_FLOAT, data);
+//   glTexImage2D(GL.GL_TEXTURE_2D, 0,GL_RGBA, width, height, 0,GL_RGBA,GL_FLOAT, data);
 //
 //    data.clear();
 //
@@ -172,9 +174,9 @@ public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook 
 //
 //    pipeline.draw(gl, data);
 //
-//    gl.glDeleteTextures(1, ids, 0);
+//   glDeleteTextures(1, ids, 0);
 //
-//    gl.glDisable(GL.GL_TEXTURE_2D);
+//   glDisable(GL.GL_TEXTURE_2D);
 //
 //    pipeline.use(gl, false);
   }
@@ -191,7 +193,7 @@ public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook 
   }
 
   @Override
-  public float[] getRGBA() {
+  public FloatBuffer getRGBA() {
     return foregroundRGBA;
   }
 }

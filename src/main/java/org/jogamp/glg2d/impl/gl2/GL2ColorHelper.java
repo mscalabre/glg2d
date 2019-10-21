@@ -30,6 +30,9 @@ import com.jogamp.opengl.GLContext;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractColorHelper;
+import static org.lwjgl.opengl.GL11.glColor4ub;
+import static org.lwjgl.opengl.GL11.glCopyPixels;
+import static org.lwjgl.opengl.GL11.glRasterPos2i;
 
 public class GL2ColorHelper extends AbstractColorHelper {
   protected GL2 gl;
@@ -43,7 +46,7 @@ public class GL2ColorHelper extends AbstractColorHelper {
     @Override
     public void setG2D(GLGraphics2D g2d, GLContext context) {
     super.setG2D(g2d);
-    gl = context.getGL().getGL2();
+//    gl = context.getGL().getGL2();
     }
   
 
@@ -93,7 +96,7 @@ public class GL2ColorHelper extends AbstractColorHelper {
 
   private void setColor(GL2 gl, Color c, float preMultiplyAlpha) {
     int rgb = c.getRGB();
-    gl.glColor4ub((byte) (rgb >> 16 & 0xFF), (byte) (rgb >> 8 & 0xFF), (byte) (rgb & 0xFF), (byte) ((rgb >> 24 & 0xFF) * preMultiplyAlpha));
+   glColor4ub((byte) (rgb >> 16 & 0xFF), (byte) (rgb >> 8 & 0xFF), (byte) (rgb & 0xFF), (byte) ((rgb >> 24 & 0xFF) * preMultiplyAlpha));
   }
 
   @Override
@@ -113,10 +116,10 @@ public class GL2ColorHelper extends AbstractColorHelper {
     // glRasterPos* is transformed, but CopyPixels is not
     int x2 = x + dx;
     int y2 = y + dy + height;
-    gl.glRasterPos2i(x2, y2);
+   glRasterPos2i(x2, y2);
 
     int x1 = x;
     int y1 = g2d.getCanvasHeight() - (y + height);
-    gl.glCopyPixels(x1, y1, width, height, GL2GL3.GL_COLOR);
+   glCopyPixels(x1, y1, width, height, GL2GL3.GL_COLOR);
   }
 }

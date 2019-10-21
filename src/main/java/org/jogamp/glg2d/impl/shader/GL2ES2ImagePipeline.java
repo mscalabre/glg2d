@@ -23,6 +23,17 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
 
 import com.jogamp.common.nio.Buffers;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glDeleteBuffers;
+import static org.lwjgl.opengl.GL15.glIsBuffer;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glGetAttribLocation;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.glUniform1i;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 public class GL2ES2ImagePipeline extends AbstractShaderPipeline {
   protected int vertexBufferId = -1;
@@ -41,51 +52,51 @@ public class GL2ES2ImagePipeline extends AbstractShaderPipeline {
 
   public void setTextureUnit(GL2ES2 gl, int unit) {
     if (textureLocation >= 0) {
-      gl.glUniform1i(textureLocation, unit);
+     glUniform1i(textureLocation, unit);
     }
   }
 
   protected void bufferData(GL2ES2 gl, FloatBuffer buffer) {
     vertexBufferId = ensureIsGLBuffer(gl, vertexBufferId);
 
-    gl.glEnableVertexAttribArray(vertCoordLocation);
-    gl.glEnableVertexAttribArray(texCoordLocation);
+   glEnableVertexAttribArray(vertCoordLocation);
+   glEnableVertexAttribArray(texCoordLocation);
 
-    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBufferId);
-    gl.glBufferData(GL.GL_ARRAY_BUFFER, Buffers.SIZEOF_FLOAT * 16, buffer, GL.GL_STATIC_DRAW);
+   glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBufferId);
+   glBufferData(GL.GL_ARRAY_BUFFER, buffer, GL.GL_STATIC_DRAW);
 
-    gl.glVertexAttribPointer(vertCoordLocation, 2, GL.GL_FLOAT, false, 4 * Buffers.SIZEOF_FLOAT, 0);
-    gl.glVertexAttribPointer(texCoordLocation, 2, GL.GL_FLOAT, false, 4 * Buffers.SIZEOF_FLOAT, 2 * Buffers.SIZEOF_FLOAT);
+   glVertexAttribPointer(vertCoordLocation, 2, GL.GL_FLOAT, false, 4 * Buffers.SIZEOF_FLOAT, 0);
+   glVertexAttribPointer(texCoordLocation, 2, GL.GL_FLOAT, false, 4 * Buffers.SIZEOF_FLOAT, 2 * Buffers.SIZEOF_FLOAT);
   }
 
   public void draw(GL2ES2 gl, FloatBuffer interleavedVertTexBuffer) {
     bufferData(gl, interleavedVertTexBuffer);
 
-    gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
+   glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
 
-    gl.glDisableVertexAttribArray(vertCoordLocation);
-    gl.glDisableVertexAttribArray(texCoordLocation);
-    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+   glDisableVertexAttribArray(vertCoordLocation);
+   glDisableVertexAttribArray(texCoordLocation);
+   glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
   }
 
   @Override
   protected void setupUniformsAndAttributes(GL2ES2 gl) {
     super.setupUniformsAndAttributes(gl);
 
-    transformLocation = gl.glGetUniformLocation(programId, "u_transform");
-    colorLocation = gl.glGetUniformLocation(programId, "u_color");
-    textureLocation = gl.glGetUniformLocation(programId, "u_tex");
+    transformLocation =glGetUniformLocation(programId, "u_transform");
+    colorLocation =glGetUniformLocation(programId, "u_color");
+    textureLocation =glGetUniformLocation(programId, "u_tex");
 
-    vertCoordLocation = gl.glGetAttribLocation(programId, "a_vertCoord");
-    texCoordLocation = gl.glGetAttribLocation(programId, "a_texCoord");
+    vertCoordLocation =glGetAttribLocation(programId, "a_vertCoord");
+    texCoordLocation =glGetAttribLocation(programId, "a_texCoord");
   }
 
   @Override
   public void delete(GL2ES2 gl) {
     super.delete(gl);
 
-    if (gl.glIsBuffer(vertexBufferId)) {
-      gl.glDeleteBuffers(1, new int[] { vertexBufferId }, 0);
+    if( glIsBuffer(vertexBufferId)) {
+     glDeleteBuffers(1);
     }
   }
 }

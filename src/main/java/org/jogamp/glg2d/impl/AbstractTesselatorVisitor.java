@@ -20,12 +20,13 @@ import java.awt.BasicStroke;
 import java.awt.geom.PathIterator;
 
 import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.GLUtessellator;
-import com.jogamp.opengl.glu.GLUtessellatorCallback;
-import com.jogamp.opengl.glu.GLUtessellatorCallbackAdapter;
-
 import org.jogamp.glg2d.VertexBuffer;
+
+import org.lwjgl.util.glu.GLU;
+import static org.lwjgl.util.glu.GLU.gluNewTess;
+import org.lwjgl.util.glu.GLUtessellator;
+import org.lwjgl.util.glu.GLUtessellatorCallback;
+import org.lwjgl.util.glu.GLUtessellatorCallbackAdapter;
 
 /**
  * Fills a shape by tesselating it with the GLU library. This is a slower
@@ -34,7 +35,6 @@ import org.jogamp.glg2d.VertexBuffer;
  */
 public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
   protected GLUtessellator tesselator;
-
   protected GLUtessellatorCallback callback;
 
   /**
@@ -47,7 +47,6 @@ public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
   protected VertexBuffer vBuffer = new VertexBuffer(1024);
   
   public AbstractTesselatorVisitor() {
-    callback = new TessellatorCallback();
   }
 
   @Override
@@ -57,29 +56,29 @@ public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
 
   @Override
   public void beginPoly(int windingRule) {
-    tesselator = GLU.gluNewTess();
+    tesselator = gluNewTess();
     configureTesselator(windingRule);
 
-    GLU.gluTessBeginPolygon(tesselator, null);
+    tesselator.gluTessBeginPolygon(null);
   }
 
   protected void configureTesselator(int windingRule) {
     switch (windingRule) {
     case PathIterator.WIND_EVEN_ODD:
-      GLU.gluTessProperty(tesselator, GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_ODD);
+      tesselator.gluTessProperty(GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_ODD);
       break;
 
     case PathIterator.WIND_NON_ZERO:
-      GLU.gluTessProperty(tesselator, GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_NONZERO);
+      tesselator.gluTessProperty(GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_NONZERO);
       break;
     }
 
-    GLU.gluTessCallback(tesselator, GLU.GLU_TESS_VERTEX, callback);
-    GLU.gluTessCallback(tesselator, GLU.GLU_TESS_BEGIN, callback);
-    GLU.gluTessCallback(tesselator, GLU.GLU_TESS_END, callback);
-    GLU.gluTessCallback(tesselator, GLU.GLU_TESS_ERROR, callback);
-    GLU.gluTessCallback(tesselator, GLU.GLU_TESS_COMBINE, callback);
-    GLU.gluTessNormal(tesselator, 0, 0, -1);
+    tesselator.gluTessCallback(GLU.GLU_TESS_VERTEX, callback);
+    tesselator.gluTessCallback(GLU.GLU_TESS_BEGIN, callback);
+    tesselator.gluTessCallback(GLU.GLU_TESS_END, callback);
+    tesselator.gluTessCallback(GLU.GLU_TESS_ERROR, callback);
+    tesselator.gluTessCallback(GLU.GLU_TESS_COMBINE, callback);
+    tesselator.gluTessNormal(0, 0, -1);
 
   }
 
@@ -100,7 +99,7 @@ public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
     double[] v = new double[3];
     v[0] = vertex[0];
     v[1] = vertex[1];
-    GLU.gluTessVertex(tesselator, v, 0, v);
+    tesselator.gluTessVertex(v, 0, v);
   }
 
   @Override
@@ -113,13 +112,13 @@ public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
     // shapes may just end on the starting point without calling closeLine
     endIfRequired();
 
-    GLU.gluTessEndPolygon(tesselator);
-    GLU.gluDeleteTess(tesselator);
+    tesselator.gluTessEndPolygon();
+    tesselator.gluDeleteTess();
   }
 
   private void startIfRequired() {
     if (!drawing) {
-      GLU.gluTessBeginContour(tesselator);
+      tesselator.gluTessBeginContour();
       addVertex(drawStart);
       drawing = true;
     }
@@ -127,7 +126,7 @@ public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
 
   private void endIfRequired() {
 	if (drawing) {
-      GLU.gluTessEndContour(tesselator);
+      tesselator.gluTessEndContour();
       drawing = false;
     }
   }

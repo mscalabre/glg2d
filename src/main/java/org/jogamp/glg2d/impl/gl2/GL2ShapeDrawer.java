@@ -29,6 +29,8 @@ import com.jogamp.opengl.GLContext;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractShapeHelper;
 import org.jogamp.glg2d.impl.SimpleOrTesselatingVisitor;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 
 public class GL2ShapeDrawer extends AbstractShapeHelper {
   protected GL2 gl;
@@ -54,7 +56,7 @@ public class GL2ShapeDrawer extends AbstractShapeHelper {
     simpleStrokeVisitor.setGLContext(gl);
     fastLineVisitor.setGLContext(gl);
 
-    this.gl = gl.getGL2();
+    this.gl =gl.getGL2();
     if(this.gl==null){
         System.out.println("GRAVE SEVERE");
     }
@@ -63,16 +65,13 @@ public class GL2ShapeDrawer extends AbstractShapeHelper {
     @Override
     public void setG2D(GLGraphics2D g2d, GLContext context) {
         super.setG2D(g2d);
-        GL gl = context.getGL();
+        GL gl = null;
         simpleFillVisitor.setGLContext(gl);
         complexFillVisitor.setGLContext(gl);
         simpleStrokeVisitor.setGLContext(gl);
         fastLineVisitor.setGLContext(gl);
 
-        this.gl = gl.getGL2();
-        if(this.gl==null){
-            System.out.println("GRAVE SEVERE");
-        }
+//        this.gl =gl.getGL2();
     }
   
 
@@ -82,9 +81,9 @@ public class GL2ShapeDrawer extends AbstractShapeHelper {
 
     if (key == RenderingHints.KEY_ANTIALIASING) {
       if (value == RenderingHints.VALUE_ANTIALIAS_ON) {
-        gl.glEnable(GL.GL_MULTISAMPLE);
+       glEnable(GL.GL_MULTISAMPLE);
       } else {
-        gl.glDisable(GL.GL_MULTISAMPLE);
+       glDisable(GL.GL_MULTISAMPLE);
       }
     }
   }

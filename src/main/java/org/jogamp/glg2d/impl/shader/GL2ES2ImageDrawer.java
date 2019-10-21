@@ -27,8 +27,12 @@ import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import com.jogamp.common.nio.Buffers;
+import static com.jogamp.opengl.GL.GL_NEAREST;
+import static com.jogamp.opengl.GL.GL_TEXTURE_MAG_FILTER;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.util.texture.Texture;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class GL2ES2ImageDrawer extends AbstractImageHelper {
   protected GLShaderGraphics2D g2d;
@@ -37,7 +41,7 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
   protected FloatBuffer vertTexCoords = Buffers.newDirectFloatBuffer(16);
   protected GL2ES2ImagePipeline shader;
 
-  private float[] white = new float[] { 1, 1, 1, 1 };
+  private FloatBuffer white = Buffers.newDirectFloatBuffer(4);
 
   public GL2ES2ImageDrawer() {
     this(new GL2ES2ImagePipeline());
@@ -45,6 +49,7 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
 
   public GL2ES2ImageDrawer(GL2ES2ImagePipeline shader) {
     this.shader = shader;
+    this.white.put(new float[]{1,1,1,1});
   }
 
   @Override
@@ -84,20 +89,20 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
      */
     g2d.setComposite(g2d.getComposite());
 
-    gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-    gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+   glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+   glTexParameteri(GL.GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
-    gl.glActiveTexture(GL.GL_TEXTURE0);
+   glActiveTexture(GL.GL_TEXTURE0);
     texture.enable(gl);
     texture.bind(gl);
 
     shader.use(gl, true);
 
     if (bgcolor == null) {
-      white[3] = g2d.getUniformsObject().colorHook.getAlpha();
+      white.put(3, g2d.getUniformsObject().colorHook.getAlpha());
       shader.setColor(gl, white);
     } else {
-      float[] rgba = g2d.getUniformsObject().colorHook.getRGBA();
+      FloatBuffer rgba = g2d.getUniformsObject().colorHook.getRGBA();
       shader.setColor(gl, rgba);
     }
 

@@ -28,6 +28,11 @@ import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import org.jogamp.glg2d.impl.AbstractTextDrawer;
 
 import com.jogamp.opengl.util.awt.TextRenderer;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glScalef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
 
 /**
  * Draws text for the {@code GLGraphics2D} class.
@@ -62,6 +67,9 @@ public class GL2StringDrawer extends AbstractTextDrawer {
 
   @Override
   public void drawString(String string, int x, int y) {
+      if(true){
+          return;
+      }
     TextRenderer renderer = getRenderer(getFont());
 
     begin(renderer);
@@ -94,10 +102,10 @@ public class GL2StringDrawer extends AbstractTextDrawer {
     setTextColorRespectComposite(renderer);
 
     GL2 gl = g2d.getGLContext().getGL().getGL2();
-    gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-    gl.glPushMatrix();
-    gl.glScalef(1, -1, 1);
-    gl.glTranslatef(0, -g2d.getCanvasHeight(), 0);
+   glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+   glPushMatrix();
+   glScalef(1, -1, 1);
+   glTranslatef(0, -g2d.getCanvasHeight(), 0);
 
     renderer.begin3DRendering();
   }
@@ -106,7 +114,7 @@ public class GL2StringDrawer extends AbstractTextDrawer {
     renderer.end3DRendering();
 
     GL2 gl = g2d.getGLContext().getGL().getGL2();
-    gl.glPopMatrix();
+   glPopMatrix();
   }
 
   @SuppressWarnings("serial")

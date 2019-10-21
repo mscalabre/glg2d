@@ -18,6 +18,8 @@ package org.jogamp.glg2d.impl.shader.text;
 import com.jogamp.opengl.GL2ES2;
 
 import org.jogamp.glg2d.impl.shader.AnyModePipeline;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.glUniform1f;
 
 
 public class TextPipeline extends AnyModePipeline {
@@ -34,11 +36,11 @@ public class TextPipeline extends AnyModePipeline {
 
   public void setLocation(GL2ES2 gl, float x, float y) {
     if (xOffsetLocation >= 0) {
-      gl.glUniform1f(xOffsetLocation, x);
+     glUniform1f(xOffsetLocation, x);
     }
 
     if (yOffsetLocation >= 0) {
-      gl.glUniform1f(yOffsetLocation, y);
+     glUniform1f(yOffsetLocation, y);
     }
   }
 
@@ -46,7 +48,7 @@ public class TextPipeline extends AnyModePipeline {
   protected void setupUniformsAndAttributes(GL2ES2 gl) {
     super.setupUniformsAndAttributes(gl);
 
-    xOffsetLocation = gl.glGetUniformLocation(programId, "u_xoffset");
-    yOffsetLocation = gl.glGetUniformLocation(programId, "u_yoffset");
+    xOffsetLocation =glGetUniformLocation(programId, "u_xoffset");
+    yOffsetLocation =glGetUniformLocation(programId, "u_yoffset");
   }
 }

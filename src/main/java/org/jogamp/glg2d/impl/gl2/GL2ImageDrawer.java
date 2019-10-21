@@ -28,6 +28,12 @@ import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import com.jogamp.opengl.util.texture.Texture;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glTexCoord2f;
+import static org.lwjgl.opengl.GL11.glTexEnvi;
+import static org.lwjgl.opengl.GL11.glTexParameterf;
+import static org.lwjgl.opengl.GL11.glVertex2i;
 
 public class GL2ImageDrawer extends AbstractImageHelper {
   protected GL2 gl;
@@ -54,25 +60,13 @@ public class GL2ImageDrawer extends AbstractImageHelper {
     @Override
     public void setG2D(GLGraphics2D g2d, final GLContext context) {
     super.setG2D(g2d);
-    Runnable work = new Runnable() {
-      @Override
-      public void run() {
-        gl = context.getGL().getGL2();
-      }
-    };
-
-    if (Threading.isOpenGLThread()) {
-      work.run();
-    } else {
-      Threading.invokeOnOpenGLThread(false, work);
-    }
     }
   
 
   @Override
   protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {
-    gl.glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
-    gl.glTexParameterf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
+   glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
+   glTexParameterf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
 
     /*
      * FIXME This is unexpected since we never disable blending, but in some
@@ -105,21 +99,21 @@ public class GL2ImageDrawer extends AbstractImageHelper {
 
   @Override
   protected void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2) {
-    gl.glBegin(GL2.GL_QUADS);
+   glBegin(GL2.GL_QUADS);
 
     // SW
-    gl.glTexCoord2f(sx1, sy2);
-    gl.glVertex2i(dx1, dy2);
+   glTexCoord2f(sx1, sy2);
+   glVertex2i(dx1, dy2);
     // SE
-    gl.glTexCoord2f(sx2, sy2);
-    gl.glVertex2i(dx2, dy2);
+   glTexCoord2f(sx2, sy2);
+   glVertex2i(dx2, dy2);
     // NE
-    gl.glTexCoord2f(sx2, sy1);
-    gl.glVertex2i(dx2, dy1);
+   glTexCoord2f(sx2, sy1);
+   glVertex2i(dx2, dy1);
     // NW
-    gl.glTexCoord2f(sx1, sy1);
-    gl.glVertex2i(dx1, dy1);
+   glTexCoord2f(sx1, sy1);
+   glVertex2i(dx1, dy1);
 
-    gl.glEnd();
+   glEnd();
   }
 }

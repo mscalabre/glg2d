@@ -16,6 +16,7 @@
 package org.jogamp.glg2d.impl.gl2;
 
 
+import com.jogamp.common.nio.Buffers;
 import java.awt.BasicStroke;
 import java.nio.FloatBuffer;
 
@@ -24,6 +25,18 @@ import com.jogamp.opengl.GL2;
 
 import org.jogamp.glg2d.VertexBuffer;
 import org.jogamp.glg2d.impl.SimplePathVisitor;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glGetFloat;
+import static org.lwjgl.opengl.GL11.glLineStipple;
+import static org.lwjgl.opengl.GL11.glLineWidth;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glPointSize;
+import static org.lwjgl.opengl.GL11.glPopAttrib;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+import static org.lwjgl.opengl.GL11.glPushAttrib;
+import static org.lwjgl.opengl.GL11.glPushMatrix;
+import static org.lwjgl.opengl.GL11.glTranslatef;
 
 /**
  * Draws a line using the native GL implementation of a line. This is only
@@ -33,7 +46,7 @@ import org.jogamp.glg2d.impl.SimplePathVisitor;
  * useful criteria.
  */
 public class FastLineVisitor extends SimplePathVisitor {
-  protected float[] testMatrix = new float[16];
+  protected FloatBuffer testMatrix = Buffers.newDirectFloatBuffer(16);
 
   protected VertexBuffer buffer = VertexBuffer.getSharedBuffer();
 
@@ -45,13 +58,13 @@ public class FastLineVisitor extends SimplePathVisitor {
 
   @Override
   public void setGLContext(GL context) {
-    gl = context.getGL2();
+//    gl = context.getGL2();
   }
 
   @Override
   public void setStroke(BasicStroke stroke) {
-    gl.glLineWidth(glLineWidth);
-    gl.glPointSize(glLineWidth);
+   glLineWidth(glLineWidth);
+   glPointSize(glLineWidth);
     
     /*
      * Not perfect copy of the BasicStroke implementation, but it does get
@@ -84,11 +97,11 @@ public class FastLineVisitor extends SimplePathVisitor {
        * XXX Should actually use the stroke phase, but not sure how yet.
        */
 
-      gl.glEnable(GL2.GL_LINE_STIPPLE);
+     glEnable(GL2.GL_LINE_STIPPLE);
       int factor = (int) totalLength;
-      gl.glLineStipple(factor >> 4, (short) mask);
+     glLineStipple(factor >> 4, (short) mask);
     } else {
-      gl.glDisable(GL2.GL_LINE_STIPPLE);
+     glDisable(GL2.GL_LINE_STIPPLE);
     }
 
     this.stroke = stroke;
@@ -112,10 +125,10 @@ public class FastLineVisitor extends SimplePathVisitor {
       return false;
     }
 
-    gl.glGetFloatv(GL2.GL_MODELVIEW_MATRIX, testMatrix, 0);
+    glGetFloat(GL2.GL_MODELVIEW_MATRIX, testMatrix);
 
-    float scaleX = Math.abs(testMatrix[0]);
-    float scaleY = Math.abs(testMatrix[5]);
+    float scaleX = Math.abs(testMatrix.get(0));
+    float scaleY = Math.abs(testMatrix.get(5));
 
     // scales are different, we can't get a good line width
     if (Math.abs(scaleX - scaleY) > 1e-6) {
@@ -173,19 +186,19 @@ public class FastLineVisitor extends SimplePathVisitor {
     /*
      * pen hangs down and to the right. See java.awt.Graphics
      */
-    gl.glMatrixMode(GL2.GL_MODELVIEW);
-    gl.glPushMatrix();
-    gl.glTranslatef(0.5f, 0.5f, 0);
+   glMatrixMode(GL2.GL_MODELVIEW);
+   glPushMatrix();
+   glTranslatef(0.5f, 0.5f, 0);
 
-    gl.glPushAttrib(GL2.GL_LINE_BIT | GL2.GL_POINT_BIT);
+   glPushAttrib(GL2.GL_LINE_BIT | GL2.GL_POINT_BIT);
   }
 
   @Override
   public void endPoly() {
     drawLine(false);
-    gl.glDisable(GL2.GL_LINE_STIPPLE);
-    gl.glPopMatrix();
+   glDisable(GL2.GL_LINE_STIPPLE);
+   glPopMatrix();
 
-    gl.glPopAttrib();
+   glPopAttrib();
   }
 }

@@ -44,14 +44,14 @@ public class AutoTester implements Tester {
 
   public double getSimilarityScore(Painter painter) {
     BufferedImage gl = drawGL(painter);
-    Raster rasterGl = gl.getData();
+    Raster rasterGl =gl.getData();
     BufferedImage g2d = drawG2D(painter);
     Raster rasterG2d = g2d.getData();
 
     // very naive for now
     for (int band = 0; band < rasterGl.getNumBands(); band++) {
-      for (int row = 0; row < gl.getWidth(); row++) {
-        for (int col = 0; col < gl.getHeight(); col++) {
+      for (int row = 0; row <gl.getWidth(); row++) {
+        for (int col = 0; col <gl.getHeight(); col++) {
           if (rasterGl.getSample(row, col, band) != rasterG2d.getSample(row, col, band)) {
             return 0;
           }

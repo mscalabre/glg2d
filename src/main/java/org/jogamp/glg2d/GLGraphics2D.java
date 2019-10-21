@@ -61,6 +61,9 @@ import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glScissor;
 
 /**
  * Implements the standard {@code Graphics2D} functionality, but instead draws
@@ -209,15 +212,14 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * Sets up the graphics object in preparation for drawing. Initialization such
    * as getting the viewport
    */
-  public void prePaint(GLContext context) {
-    canvasHeight = GLG2DUtils.getViewportHeight(context.getGL());
-    setCanvas(context);
+  public void prePaint() {
+    canvasHeight = GLG2DUtils.getViewportHeight();
     setDefaultState();
   }
 
   protected void setDefaultState() {
-    setBackground(Color.WHITE);
-    setColor(Color.BLACK);
+    setBackground(Color.PINK);
+    setColor(Color.PINK);
     setFont(Font.getFont(Font.SANS_SERIF));
     setStroke(new BasicStroke());
     setComposite(AlphaComposite.SrcOver);
@@ -549,13 +551,13 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected void scissor(boolean enable) {
-    GL gl = getGLContext().getGL();
+//    GL gl = getGLContext().getGL();
     if (enable) {
-      gl.glScissor(clip.x, canvasHeight - clip.y - clip.height, Math.max(clip.width, 0), Math.max(clip.height, 0));
-      gl.glEnable(GL.GL_SCISSOR_TEST);
+     glScissor(clip.x, canvasHeight - clip.y - clip.height, Math.max(clip.width, 0), Math.max(clip.height, 0));
+     glEnable(GL.GL_SCISSOR_TEST);
     } else {
       clip = null;
-      gl.glDisable(GL.GL_SCISSOR_TEST);
+     glDisable(GL.GL_SCISSOR_TEST);
     }
   }
 

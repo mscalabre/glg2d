@@ -23,6 +23,7 @@ import com.jogamp.opengl.GL2;
 
 import org.jogamp.glg2d.VertexBuffer;
 import org.jogamp.glg2d.impl.SimplePathVisitor;
+import static org.lwjgl.opengl.GL11.glDisable;
 
 /**
  * Fills a simple convex polygon. This class does not test to determine if the
@@ -35,7 +36,7 @@ public class FillSimpleConvexPolygonVisitor extends SimplePathVisitor {
 
   @Override
   public void setGLContext(GL context) {
-    gl = context.getGL2();
+//    gl = context.getGL2();
   }
 
   @Override
@@ -50,7 +51,7 @@ public class FillSimpleConvexPolygonVisitor extends SimplePathVisitor {
     /*
      * We don't care what the winding rule is, we disable face culling.
      */
-    gl.glDisable(GL.GL_CULL_FACE);
+   glDisable(GL.GL_CULL_FACE);
   }
 
   @Override

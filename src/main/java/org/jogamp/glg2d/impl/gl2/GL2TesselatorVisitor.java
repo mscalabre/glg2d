@@ -26,7 +26,7 @@ public class GL2TesselatorVisitor extends AbstractTesselatorVisitor {
 
   @Override
   public void setGLContext(GL context) {
-    gl = context.getGL2();
+//    gl = context.getGL2();
   }
 
   @Override

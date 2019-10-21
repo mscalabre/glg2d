@@ -18,6 +18,7 @@ import org.jogamp.glg2d.GLG2DCanvas;
 import org.jogamp.glg2d.GLG2DSimpleEventListener;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.UIDemo;
+import static org.lwjgl.opengl.GL11.glTranslated;
 
 @SuppressWarnings("serial")
 public class DepthSimExample {
@@ -80,12 +81,12 @@ public class DepthSimExample {
 
     @Override
     public void pop(GLGraphics2D parentG2d) {
-      gl.glTranslated(-shiftX, -shiftY, 0);
+     glTranslated(-shiftX, -shiftY, 0);
     }
 
     @Override
     public void push(GLGraphics2D newG2d) {
-      gl.glTranslated(shiftX, shiftY, 0);
+     glTranslated(shiftX, shiftY, 0);
     }
 
     @Override

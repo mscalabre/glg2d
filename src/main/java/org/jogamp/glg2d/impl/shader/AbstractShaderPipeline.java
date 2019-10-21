@@ -15,6 +15,7 @@
  */
 package org.jogamp.glg2d.impl.shader;
 
+import com.jogamp.common.nio.Buffers;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +25,28 @@ import java.util.List;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GL3ES3;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import static org.lwjgl.opengl.GL11.glGetError;
+import static org.lwjgl.opengl.GL20.glAttachShader;
+import static org.lwjgl.opengl.GL20.glCompileShader;
+import static org.lwjgl.opengl.GL20.glCreateProgram;
+import static org.lwjgl.opengl.GL20.glCreateShader;
+import static org.lwjgl.opengl.GL20.glDeleteProgram;
+import static org.lwjgl.opengl.GL20.glDeleteShader;
+import static org.lwjgl.opengl.GL20.glGetProgramInfoLog;
+import static org.lwjgl.opengl.GL20.glGetProgrami;
+import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
+import static org.lwjgl.opengl.GL20.glGetShaderi;
+import static org.lwjgl.opengl.GL20.glIsProgram;
+import static org.lwjgl.opengl.GL20.glIsShader;
+import static org.lwjgl.opengl.GL20.glLinkProgram;
+import static org.lwjgl.opengl.GL20.glShaderSource;
+import static org.lwjgl.opengl.GL20.glUniform4;
+import static org.lwjgl.opengl.GL20.glUniformMatrix4;
+import static org.lwjgl.opengl.GL20.glUseProgram;
 
 public abstract class AbstractShaderPipeline implements ShaderPipeline {
   protected int vertexShaderId = 0;
@@ -57,28 +78,28 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
     return programId > 0;
   }
 
-  public void setColor(GL2ES2 gl, float[] rgba) {
+  public void setColor(GL2ES2 gl, FloatBuffer rgba) {
     if (colorLocation >= 0) {
-      gl.glUniform4fv(colorLocation, 1, rgba, 0);
+     glUniform4(colorLocation, rgba);
     }
   }
 
-  public void setTransform(GL2ES2 gl, float[] glMatrixData) {
+  public void setTransform(GL2ES2 gl, FloatBuffer glMatrixData) {
     if (transformLocation >= 0) {
-      gl.glUniformMatrix4fv(transformLocation, 1, false, glMatrixData, 0);
+     glUniformMatrix4(transformLocation, false, glMatrixData);
     }
   }
 
   protected void createProgramAndAttach(GL2ES2 gl) {
-    if (gl.glIsProgram(programId)) {
+    if( glIsProgram(programId)) {
       delete(gl);
     }
 
-    programId = gl.glCreateProgram();
+    programId =glCreateProgram();
 
     attachShaders(gl);
 
-    gl.glLinkProgram(programId);
+   glLinkProgram(programId);
     checkProgramThrowException(gl, programId, GL2ES2.GL_LINK_STATUS);
   }
 
@@ -89,44 +110,44 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
   protected void attachShaders(GL2ES2 gl) {
     if (vertexShaderFileName != null) {
       vertexShaderId = compileShader(gl, GL2ES2.GL_VERTEX_SHADER, getClass(), vertexShaderFileName);
-      gl.glAttachShader(programId, vertexShaderId);
+     glAttachShader(programId, vertexShaderId);
     }
 
     if (geometryShaderFileName != null) {
       geometryShaderId = compileShader(gl, GL3ES3.GL_GEOMETRY_SHADER, getClass(), geometryShaderFileName);
-      gl.glAttachShader(programId, geometryShaderId);
+     glAttachShader(programId, geometryShaderId);
     }
 
     if (fragmentShaderFileName != null) {
       fragmentShaderId = compileShader(gl, GL2ES2.GL_FRAGMENT_SHADER, getClass(), fragmentShaderFileName);
-      gl.glAttachShader(programId, fragmentShaderId);
+     glAttachShader(programId, fragmentShaderId);
     }
   }
 
   @Override
   public void use(GL2ES2 gl, boolean use) {
-    gl.glUseProgram(use ? programId : 0);
+   glUseProgram(use ? programId : 0);
   }
 
   @Override
   public void delete(GL2ES2 gl) {
-    gl.glDeleteProgram(programId);
+   glDeleteProgram(programId);
     deleteShaders(gl);
 
     programId = 0;
   }
 
   protected void deleteShaders(GL2ES2 gl) {
-    if (gl.glIsShader(vertexShaderId)) {
-      gl.glDeleteShader(vertexShaderId);
+    if( glIsShader(vertexShaderId)) {
+     glDeleteShader(vertexShaderId);
       vertexShaderId = 0;
     }
-    if (gl.glIsShader(geometryShaderId)) {
-      gl.glDeleteShader(geometryShaderId);
+    if( glIsShader(geometryShaderId)) {
+     glDeleteShader(geometryShaderId);
       geometryShaderId = 0;
     }
-    if (gl.glIsShader(fragmentShaderId)) {
-      gl.glDeleteShader(fragmentShaderId);
+    if( glIsShader(fragmentShaderId)) {
+     glDeleteShader(fragmentShaderId);
       fragmentShaderId = 0;
     }
   }
@@ -139,20 +160,24 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
   }
 
   protected int compileShader(GL2ES2 gl, int type, String[] source) throws ShaderException {
-    int id = gl.glCreateShader(type);
+    int id =glCreateShader(type);
 
+    int size = 0;
     int[] lineLengths = new int[source.length];
     for (int i = 0; i < source.length; i++) {
       lineLengths[i] = source[i].length();
+      size+=source[i].length();
     }
+    
+    ByteBuffer sourceBuffer = Buffers.newDirectByteBuffer(size * Byte.SIZE);
 
-    gl.glShaderSource(id, source.length, source, lineLengths, 0);
-    int err = gl.glGetError();
+    glShaderSource(id, sourceBuffer);
+    int err =glGetError();
     if (err != GL.GL_NO_ERROR) {
       throw new ShaderException("Shader source failed, GL Error: 0x" + Integer.toHexString(err));
     }
 
-    gl.glCompileShader(id);
+   glCompileShader(id);
     if (err != GL.GL_NO_ERROR) {
       throw new ShaderException("Compile failed, GL Error: 0x" + Integer.toHexString(err));
     }
@@ -195,34 +220,34 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
   }
 
   protected void checkShaderThrowException(GL2ES2 gl, int shaderId) {
-    int[] result = new int[1];
-    gl.glGetShaderiv(shaderId, GL2ES2.GL_COMPILE_STATUS, result, 0);
-    if (result[0] == GL.GL_TRUE) {
+    IntBuffer result = Buffers.newDirectIntBuffer(1);
+    glGetShaderi(shaderId, GL2ES2.GL_COMPILE_STATUS);
+    if (result.get(0) == GL.GL_TRUE) {
       return;
     }
 
-    gl.glGetShaderiv(shaderId, GL2ES2.GL_INFO_LOG_LENGTH, result, 0);
-    int size = result[0];
-    byte[] data = new byte[size];
-    gl.glGetShaderInfoLog(shaderId, size, result, 0, data, 0);
+   glGetShaderi(shaderId, GL2ES2.GL_INFO_LOG_LENGTH);
+    int size = result.get(0);
+    ByteBuffer data = Buffers.newDirectByteBuffer(size);
+    glGetShaderInfoLog(shaderId, result, data);
 
-    String error = new String(data, 0, result[0]);
+    String error = new String(data.array(), 0, result.get(0));
     throw new ShaderException(error);
   }
 
   protected void checkProgramThrowException(GL2ES2 gl, int programId, int statusFlag) {
-    int[] result = new int[1];
-    gl.glGetProgramiv(programId, statusFlag, result, 0);
-    if (result[0] == GL.GL_TRUE) {
+    IntBuffer result = Buffers.newDirectIntBuffer(1);
+    glGetProgrami(programId, statusFlag);
+    if (result.get(0) == GL.GL_TRUE) {
       return;
     }
 
-    gl.glGetProgramiv(programId, GL2ES2.GL_INFO_LOG_LENGTH, result, 0);
-    int size = result[0];
-    byte[] data = new byte[size];
-    gl.glGetProgramInfoLog(programId, size, result, 0, data, 0);
+   glGetProgrami(programId, GL2ES2.GL_INFO_LOG_LENGTH);
+    int size = result.get(0);
+    ByteBuffer data = Buffers.newDirectByteBuffer(size);
+    glGetProgramInfoLog(programId, result, data);
 
-    String error = new String(data, 0, result[0]);
+    String error = new String(data.array(), 0, result.get(0));
     throw new ShaderException(error);
   }
 }
