@@ -54,6 +54,7 @@ import javax.swing.RepaintManager;
 
 import java.awt.image.BufferedImage;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
 
@@ -486,6 +487,13 @@ public class GLG2DCanvas extends JComponent {
                         System.out.println("init ok");
                     }
                     g2dglListener.display(canvas);
+
+                    GL11.glBegin(GL11.GL_QUADS);
+                        GL11.glVertex2f(100,100);
+                        GL11.glVertex2f(100+200,100);
+                        GL11.glVertex2f(100+200,100+200);
+                        GL11.glVertex2f(100,100+200);
+                    GL11.glEnd();
                 }
                 Display.update();
             }else{

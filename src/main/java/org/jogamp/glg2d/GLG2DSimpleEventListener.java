@@ -26,6 +26,7 @@ import org.jogamp.glg2d.impl.shader.GL2ES2ShapeDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2TransformHelper;
 import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 import org.jogamp.glg2d.impl.shader.text.GL2ES2TextDrawer;
+import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.glViewport;
 import org.lwjglfx.Gears;
 
