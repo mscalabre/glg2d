@@ -15,7 +15,10 @@
  */
 package org.jogamp.glg2d.impl;
 
-import com.jogamp.opengl.GLContext;
+
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureCoords;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import static org.jogamp.glg2d.GLG2DRenderingHints.KEY_CLEAR_TEXTURES_CACHE;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_DEFAULT;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_EACH_PAINT;
@@ -42,9 +45,9 @@ import org.jogamp.glg2d.GLG2DImageHelper;
 import org.jogamp.glg2d.GLG2DRenderingHints;
 import org.jogamp.glg2d.GLGraphics2D;
 
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+
+
+
 
 public abstract class AbstractImageHelper implements GLG2DImageHelper {
   private static final Logger LOGGER = Logger.getLogger(AbstractImageHelper.class.getName());
@@ -72,11 +75,6 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       imageCache.clear();
     }
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
-    }
   
 
   @Override

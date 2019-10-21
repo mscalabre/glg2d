@@ -15,15 +15,21 @@
  */
 package org.jogamp.glg2d;
 
-import java.awt.Component;
-import java.awt.Graphics;
-
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLCapabilitiesImmutable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
+import java.awt.Component;
+import java.awt.Graphics;
+
+
+
+
+
+
+
 import javax.swing.JComponent;
 
 import org.jogamp.glg2d.event.AWTMouseEventTranslator;

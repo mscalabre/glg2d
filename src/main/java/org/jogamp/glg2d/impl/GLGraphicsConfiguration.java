@@ -15,6 +15,7 @@
  */
 package org.jogamp.glg2d.impl;
 
+import com.jogamp.opengl.GLDrawable;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.Rectangle;
@@ -24,7 +25,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 
-import com.jogamp.opengl.GLDrawable;
+
 
 /**
  * Fulfills the contract of a {@code GraphicsConfiguration}.

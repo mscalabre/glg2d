@@ -15,7 +15,7 @@
  */
 package org.jogamp.glg2d.impl.shader.text;
 
-import com.jogamp.opengl.GL2ES2;
+
 
 import org.jogamp.glg2d.impl.shader.AnyModePipeline;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
@@ -34,7 +34,7 @@ public class TextPipeline extends AnyModePipeline {
     super(vertexShaderFilename, fragmentShaderFilename);
   }
 
-  public void setLocation(GL2ES2 gl, float x, float y) {
+  public void setLocation(float x, float y) {
     if (xOffsetLocation >= 0) {
      glUniform1f(xOffsetLocation, x);
     }
@@ -45,8 +45,8 @@ public class TextPipeline extends AnyModePipeline {
   }
 
   @Override
-  protected void setupUniformsAndAttributes(GL2ES2 gl) {
-    super.setupUniformsAndAttributes(gl);
+  protected void setupUniformsAndAttributes() {
+    super.setupUniformsAndAttributes();
 
     xOffsetLocation =glGetUniformLocation(programId, "u_xoffset");
     yOffsetLocation =glGetUniformLocation(programId, "u_yoffset");

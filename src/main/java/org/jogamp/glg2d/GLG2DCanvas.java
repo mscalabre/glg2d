@@ -15,14 +15,6 @@
  */
 package org.jogamp.glg2d;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.LayoutManager2;
-import java.io.Serializable;
-import java.util.logging.Logger;
-
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLCapabilitiesImmutable;
@@ -34,12 +26,32 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.Threading;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.util.Animator;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.LayoutManager2;
+import java.io.Serializable;
+import java.util.logging.Logger;
+
+
+
+
+
+
+
+
+
+
+
+
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
 import javax.swing.RepaintManager;
 
-import com.jogamp.opengl.util.Animator;
+
 import java.awt.image.BufferedImage;
 import org.lwjgl.opengl.Display;
 import org.lwjglfx.Gears;

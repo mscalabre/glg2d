@@ -15,34 +15,35 @@
  */
 package org.jogamp.glg2d.impl.shader;
 
-import com.jogamp.common.nio.Buffers;
+
 import java.awt.geom.AffineTransform;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLContext;
+
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractMatrixHelper;
 import org.jogamp.glg2d.impl.shader.UniformBufferObject.TransformHook;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 
 public class GL2ES2TransformHelper extends AbstractMatrixHelper implements TransformHook {
   protected FloatBuffer glMatrix;
   protected boolean dirtyMatrix;
 
-  protected IntBuffer viewportDimensions=Buffers.newDirectIntBuffer(4);
+  protected IntBuffer viewportDimensions=BufferUtils.createIntBuffer(4);
 
   @Override
   public void setG2D(GLGraphics2D g2d) {
     super.setG2D(g2d);
 
     dirtyMatrix = true;
-    glMatrix = Buffers.newDirectFloatBuffer(16);
+    glMatrix = BufferUtils.createFloatBuffer(16);
 
-    GL gl = g2d.getGLContext().getGL();
-    glGetInteger(GL.GL_VIEWPORT, viewportDimensions);
+    glGetInteger(GL_VIEWPORT, viewportDimensions);
 
     if (g2d instanceof GLShaderGraphics2D) {
       ((GLShaderGraphics2D) g2d).getUniformsObject().transformHook = this;
@@ -51,11 +52,6 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
           + GLShaderGraphics2D.class.getSimpleName());
     }
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
-    }
 
   @Override
   public FloatBuffer getGLMatrixData() {

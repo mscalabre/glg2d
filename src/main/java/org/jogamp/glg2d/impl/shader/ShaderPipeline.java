@@ -15,14 +15,14 @@
  */
 package org.jogamp.glg2d.impl.shader;
 
-import com.jogamp.opengl.GL2ES2;
+
 
 public interface ShaderPipeline {
-  void setup(GL2ES2 gl);
+  void setup();
 
   boolean isSetup();
 
-  void use(GL2ES2 gl, boolean use);
+  void use(boolean use);
 
-  void delete(GL2ES2 gl);
+  void delete();
 }

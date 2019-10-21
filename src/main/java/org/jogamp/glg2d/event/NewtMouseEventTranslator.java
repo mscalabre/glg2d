@@ -15,12 +15,15 @@
  */
 package org.jogamp.glg2d.event;
 
-import java.awt.Component;
-import java.awt.Point;
-
 import com.jogamp.newt.event.InputEvent;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.newt.event.MouseListener;
+import java.awt.Component;
+import java.awt.Point;
+
+
+
+
 
 public class NewtMouseEventTranslator extends MouseEventTranslator implements MouseListener {
   public NewtMouseEventTranslator(Component target) {

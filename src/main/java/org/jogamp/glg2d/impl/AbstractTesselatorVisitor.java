@@ -16,10 +16,11 @@
 package org.jogamp.glg2d.impl;
 
 
+import com.jogamp.opengl.GLException;
 import java.awt.BasicStroke;
 import java.awt.geom.PathIterator;
 
-import com.jogamp.opengl.GLException;
+
 import org.jogamp.glg2d.VertexBuffer;
 
 import org.lwjgl.util.glu.GLU;

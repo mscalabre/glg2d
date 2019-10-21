@@ -15,19 +15,25 @@
  */
 package org.jogamp.glg2d.impl.gl2;
 
+import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL2ES1;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.Threading;
+
+
+
+
+
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_MODULATE;
+import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV_MODE;
 
-import com.jogamp.opengl.util.texture.Texture;
+
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glTexCoord2f;
@@ -36,37 +42,19 @@ import static org.lwjgl.opengl.GL11.glTexParameterf;
 import static org.lwjgl.opengl.GL11.glVertex2i;
 
 public class GL2ImageDrawer extends AbstractImageHelper {
-  protected GL2 gl;
 
   protected AffineTransform savedTransform;
 
   @Override
   public void setG2D(final GLGraphics2D g2d) {
     super.setG2D(g2d);
-    Runnable work = new Runnable() {
-      @Override
-      public void run() {
-        gl = g2d.getGLContext().getGL().getGL2();
-      }
-    };
-
-    if (Threading.isOpenGLThread()) {
-      work.run();
-    } else {
-      Threading.invokeOnOpenGLThread(false, work);
-    }
   }
 
-    @Override
-    public void setG2D(GLGraphics2D g2d, final GLContext context) {
-    super.setG2D(g2d);
-    }
-  
 
   @Override
   protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {
-   glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
-   glTexParameterf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL.GL_BLEND);
+   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+   glTexParameterf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 
     /*
      * FIXME This is unexpected since we never disable blending, but in some
@@ -75,8 +63,8 @@ public class GL2ImageDrawer extends AbstractImageHelper {
      */
     g2d.setComposite(g2d.getComposite());
 
-    texture.enable(gl);
-    texture.bind(gl);
+    texture.enable(null);//TODO lwjgl
+    texture.bind(null);//TODO lwjgl
 
     savedTransform = null;
     if (xform != null && !xform.isIdentity()) {
@@ -93,13 +81,13 @@ public class GL2ImageDrawer extends AbstractImageHelper {
       g2d.setTransform(savedTransform);
     }
 
-    texture.disable(gl);
+    texture.disable(null);//TODO lwjgl
     g2d.getColorHelper().setColorRespectComposite(g2d.getColor());
   }
 
   @Override
   protected void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2) {
-   glBegin(GL2.GL_QUADS);
+   glBegin(GL_QUADS);
 
     // SW
    glTexCoord2f(sx1, sy2);

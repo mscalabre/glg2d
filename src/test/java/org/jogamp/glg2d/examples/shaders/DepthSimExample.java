@@ -1,13 +1,14 @@
 package org.jogamp.glg2d.examples.shaders;
 
+import com.jogamp.opengl.GLAutoDrawable;
 import java.awt.Dimension;
 import java.awt.RenderingHints.Key;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLContext;
+
+
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -73,8 +74,6 @@ public class DepthSimExample {
 
     double theta = 0;
 
-    GL2 gl;
-
     @Override
     public void dispose() {
     }
@@ -102,13 +101,6 @@ public class DepthSimExample {
       theta += 0.2;
       shiftX = Math.round(Math.sin(theta) * 100) / 100d * 1;
       shiftY = Math.round(Math.cos(theta) * 100) / 100d * 1;
-
-      gl = g2d.getGLContext().getGL().getGL2();
-    }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
     }
 
   }

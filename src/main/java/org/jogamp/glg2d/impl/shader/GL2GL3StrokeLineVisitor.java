@@ -19,8 +19,8 @@ package org.jogamp.glg2d.impl.shader;
 import java.awt.BasicStroke;
 import java.nio.FloatBuffer;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES2;
+
+
 
 import org.jogamp.glg2d.VertexBuffer;
 import org.jogamp.glg2d.impl.SimplePathVisitor;
@@ -32,7 +32,6 @@ public class GL2GL3StrokeLineVisitor extends SimplePathVisitor implements Shader
 
   protected float[] lastV = new float[2];
 
-  protected GL2ES2 gl;
   protected UniformBufferObject uniforms;
 
   protected GeometryShaderStrokePipeline pipeline;
@@ -46,17 +45,7 @@ public class GL2GL3StrokeLineVisitor extends SimplePathVisitor implements Shader
   }
 
   @Override
-  public void setGLContext(GL context) {
-    gl = context.getGL2ES2();
-
-    if (!pipeline.isSetup()) {
-      pipeline.setup(gl);
-    }
-  }
-
-  @Override
-  public void setGLContext(GL glContext, UniformBufferObject uniforms) {
-    setGLContext(glContext);
+  public void setGLContext(UniformBufferObject uniforms) {
     this.uniforms = uniforms;
   }
 
@@ -103,11 +92,11 @@ public class GL2GL3StrokeLineVisitor extends SimplePathVisitor implements Shader
 
   @Override
   public void beginPoly(int windingRule) {
-    pipeline.use(gl, true);
+    pipeline.use(true);
 
-    pipeline.setColor(gl, uniforms.colorHook.getRGBA());
-    pipeline.setTransform(gl, uniforms.transformHook.getGLMatrixData());
-    pipeline.setStroke(gl, stroke);
+    pipeline.setColor(uniforms.colorHook.getRGBA());
+    pipeline.setTransform(uniforms.transformHook.getGLMatrixData());
+    pipeline.setStroke(stroke);
 
     buffer.clear();
   }
@@ -115,7 +104,7 @@ public class GL2GL3StrokeLineVisitor extends SimplePathVisitor implements Shader
   @Override
   public void endPoly() {
     draw(false);
-    pipeline.use(gl, false);
+    pipeline.use(false);
   }
 
   protected void draw(boolean close) {
@@ -125,7 +114,7 @@ public class GL2GL3StrokeLineVisitor extends SimplePathVisitor implements Shader
     }
 
     buf.flip();
-    pipeline.draw(gl, buf, close);
+    pipeline.draw(buf, close);
 
     buffer.clear();
   }

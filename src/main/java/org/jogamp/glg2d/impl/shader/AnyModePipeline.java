@@ -18,11 +18,14 @@ package org.jogamp.glg2d.impl.shader;
 import static org.jogamp.glg2d.GLG2DUtils.ensureIsGLBuffer;
 
 import java.nio.FloatBuffer;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES2;
+
+
 
 import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
@@ -45,38 +48,38 @@ public class AnyModePipeline extends AbstractShaderPipeline {
     super(vertexShaderFileName, null, fragmentShaderFileName);
   }
 
-  public void bindBuffer(GL2ES2 gl) {
+  public void bindBuffer() {
    glEnableVertexAttribArray(vertCoordLocation);
-    vertCoordBuffer = ensureIsGLBuffer(gl, vertCoordBuffer);
+    vertCoordBuffer = ensureIsGLBuffer(vertCoordBuffer);
 
-   glBindBuffer(GL.GL_ARRAY_BUFFER, vertCoordBuffer);
-   glVertexAttribPointer(vertCoordLocation, 2, GL.GL_FLOAT, false, 0, 0);
+   glBindBuffer(GL_ARRAY_BUFFER, vertCoordBuffer);
+   glVertexAttribPointer(vertCoordLocation, 2, GL_FLOAT, false, 0, 0);
   }
 
-  public void bindBufferData(GL2ES2 gl, FloatBuffer vertexBuffer) {
-    bindBuffer(gl);
+  public void bindBufferData(FloatBuffer vertexBuffer) {
+    bindBuffer();
 
     int count = vertexBuffer.limit() - vertexBuffer.position();
-   glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer, GL2ES2.GL_STREAM_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STREAM_DRAW);
   }
 
-  public void unbindBuffer(GL2ES2 gl) {
+  public void unbindBuffer() {
    glDisableVertexAttribArray(vertCoordLocation);
-   glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+   glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
 
-  public void draw(GL2ES2 gl, int mode, FloatBuffer vertexBuffer) {
-    bindBufferData(gl, vertexBuffer);
+  public void draw(int mode, FloatBuffer vertexBuffer) {
+    bindBufferData(vertexBuffer);
 
     int numPts = (vertexBuffer.limit() - vertexBuffer.position()) / 2;
    glDrawArrays(mode, 0, numPts);
 
-    unbindBuffer(gl);
+    unbindBuffer();
   }
 
   @Override
-  protected void setupUniformsAndAttributes(GL2ES2 gl) {
-    super.setupUniformsAndAttributes(gl);
+  protected void setupUniformsAndAttributes() {
+    super.setupUniformsAndAttributes();
 
     transformLocation =glGetUniformLocation(programId, "u_transform");
     colorLocation =glGetUniformLocation(programId, "u_color");
@@ -85,8 +88,8 @@ public class AnyModePipeline extends AbstractShaderPipeline {
   }
 
   @Override
-  public void delete(GL2ES2 gl) {
-    super.delete(gl);
+  public void delete() {
+    super.delete();
 
     if( glIsBuffer(vertCoordBuffer)) {
      glDeleteBuffers(1);

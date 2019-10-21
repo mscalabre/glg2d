@@ -20,8 +20,8 @@ import java.awt.BasicStroke;
 import java.awt.Shape;
 import java.awt.Stroke;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLContext;
+
+
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.PathVisitor;
@@ -46,24 +46,17 @@ public class GL2ES2ShapeDrawer extends AbstractShapeHelper {
     super.setG2D(g2d);
 
     if (g2d instanceof GLShaderGraphics2D) {
-      GL gl = g2d.getGLContext().getGL();
       UniformBufferObject uniforms = ((GLShaderGraphics2D) g2d).getUniformsObject();
 
-      lineVisitor.setGLContext(gl, uniforms);
-      simpleFillVisitor.setGLContext(gl, uniforms);
-      tesselatingVisitor.setGLContext(gl, uniforms);
-      complexFillVisitor.setGLContext(gl);
+      lineVisitor.setGLContext(uniforms);
+      simpleFillVisitor.setGLContext(uniforms);
+      tesselatingVisitor.setGLContext(uniforms);
     } else {
       throw new IllegalArgumentException(GLGraphics2D.class.getName() + " implementation must be instance of "
           + GLShaderGraphics2D.class.getSimpleName());
     }
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
-    }
-
+  
   public void draw(Shape shape) {
     Stroke stroke = getStroke();
     if (stroke instanceof BasicStroke) {

@@ -8,8 +8,11 @@ import javax.swing.JComponent;
 
 import org.jogamp.glg2d.GLG2DPanel;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.Pbuffer;
+import org.lwjgl.opengl.PixelFormat;
 import org.lwjglfx.util.LWJGLUtils;
 
 public class AWTExample {
@@ -51,6 +54,8 @@ public class AWTExample {
 //                      Logger.getLogger(AWTExample.class.getName()).log(Level.SEVERE, null, ex);
 //                  }
                 try {
+                        Pbuffer pbuffer = new Pbuffer(1, 1, new PixelFormat(), null, null, new ContextAttribs().withDebug(true));
+                        pbuffer.makeCurrent();
                       Display.setDisplayMode(new DisplayMode(800,600));
                       Display.create();
                 }catch (LWJGLException ex){

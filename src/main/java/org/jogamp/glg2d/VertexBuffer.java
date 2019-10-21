@@ -16,11 +16,13 @@
 package org.jogamp.glg2d;
 
 import java.nio.FloatBuffer;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_VERTEX_ARRAY;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.fixedfunc.GLPointerFunc;
 
-import com.jogamp.common.nio.Buffers;
+
+
+
 import static org.lwjgl.opengl.GL11.glDisableClientState;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnableClientState;
@@ -65,7 +67,7 @@ public class VertexBuffer {
    *          The size of the buffer in number of vertices
    */
   public VertexBuffer(int capacity) {
-    this(Buffers.newDirectFloatBuffer(capacity * 2));
+    this(BufferUtils.createFloatBuffer(capacity * 2));
   }
 
   /**
@@ -113,7 +115,7 @@ public class VertexBuffer {
 
   protected void ensureCapacity(int numNewFloats) {
     if (buffer.capacity() <= buffer.position() + numNewFloats) {
-      FloatBuffer larger = Buffers.newDirectFloatBuffer(Math.max(buffer.position() * 2, buffer.position() + numNewFloats));
+      FloatBuffer larger = BufferUtils.createFloatBuffer(Math.max(buffer.position() * 2, buffer.position() + numNewFloats));
       deviceBufferId = -deviceBufferId;
       int position = buffer.position();
       buffer.rewind();
@@ -143,7 +145,7 @@ public class VertexBuffer {
    * @param mode
    *          The mode, e.g. {@code GL#GL_LINE_STRIP}
    */
-  public void drawBuffer(GL2 gl, int mode) {
+  public void drawBuffer(int mode) {
     if (buffer.position() == 0) {
       return;
     }
@@ -153,9 +155,9 @@ public class VertexBuffer {
 
     glVertexPointer(2, 0, buffer);
 
-   glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
+   glEnableClientState(GL_VERTEX_ARRAY);
    glDrawArrays(mode, 0, count / 2);
-   glDisableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
+   glDisableClientState(GL_VERTEX_ARRAY);
 
     buffer.position(count);
   }

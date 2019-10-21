@@ -17,7 +17,7 @@ package org.jogamp.glg2d;
 
 import java.awt.BasicStroke;
 
-import com.jogamp.opengl.GL;
+
 
 /**
  * Receives the calls from a {@link java.awt.geom.PathIterator} and draws the
@@ -33,14 +33,6 @@ import com.jogamp.opengl.GL;
  * @see java.awt.geom.PathIterator
  */
 public interface PathVisitor {
-  /**
-   * Sets the GL context to be used for the next drawing session.
-   * 
-   * @param context
-   *          The GL context
-   */
-  void setGLContext(GL context);
-
   /**
    * Sets the stroke to be used when drawing a path. It's not needed for
    * visitors that fill.

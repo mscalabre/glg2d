@@ -16,7 +16,7 @@
 package org.jogamp.glg2d.impl;
 
 
-import com.jogamp.opengl.GLContext;
+
 import java.awt.BasicStroke;
 import java.awt.RenderingHints;
 import java.awt.RenderingHints.Key;
@@ -57,11 +57,6 @@ public abstract class AbstractShapeHelper implements GLG2DShapeHelper {
     strokeStack.clear();
     strokeStack.push(new BasicStroke());
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
-    }
 
   @Override
   public void push(GLGraphics2D newG2d) {

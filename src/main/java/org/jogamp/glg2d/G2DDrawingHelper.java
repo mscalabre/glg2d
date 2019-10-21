@@ -15,7 +15,7 @@
  */
 package org.jogamp.glg2d;
 
-import com.jogamp.opengl.GLContext;
+
 import java.awt.RenderingHints;
 
 /**
@@ -34,7 +34,6 @@ public interface G2DDrawingHelper {
    *          The parent context for subsequent drawing operations.
    */
   void setG2D(GLGraphics2D g2d);
-  void setG2D(GLGraphics2D g2d, GLContext context);
 
   /**
    * Sets the new {@code GLGraphics2D} context in a stack. This is called when

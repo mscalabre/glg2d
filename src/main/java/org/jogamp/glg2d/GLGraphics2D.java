@@ -15,6 +15,9 @@
  */
 package org.jogamp.glg2d;
 
+import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.GLDrawable;
+import com.jogamp.opengl.util.texture.Texture;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -49,10 +52,10 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.GLDrawable;
-import com.jogamp.opengl.util.texture.Texture;
+
+
+
+
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
@@ -61,6 +64,7 @@ import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glScissor;
@@ -204,7 +208,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     glContext = context;
 
     for (G2DDrawingHelper helper : helpers) {
-      helper.setG2D(GLGraphics2D.this, context);
+      helper.setG2D(GLGraphics2D.this);
     }
   }
 
@@ -554,10 +558,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 //    GL gl = getGLContext().getGL();
     if (enable) {
      glScissor(clip.x, canvasHeight - clip.y - clip.height, Math.max(clip.width, 0), Math.max(clip.height, 0));
-     glEnable(GL.GL_SCISSOR_TEST);
+     glEnable(GL_SCISSOR_TEST);
     } else {
       clip = null;
-     glDisable(GL.GL_SCISSOR_TEST);
+     glDisable(GL_SCISSOR_TEST);
     }
   }
 

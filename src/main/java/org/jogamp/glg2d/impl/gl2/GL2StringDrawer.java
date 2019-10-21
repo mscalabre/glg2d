@@ -16,18 +16,20 @@
 package org.jogamp.glg2d.impl.gl2;
 
 
+import com.jogamp.opengl.util.awt.TextRenderer;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.text.AttributedCharacterIterator;
 import java.util.HashMap;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
+
+
 
 import org.jogamp.glg2d.impl.AbstractTextDrawer;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 
-import com.jogamp.opengl.util.awt.TextRenderer;
+
 import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
 import static org.lwjgl.opengl.GL11.glPushMatrix;
@@ -101,8 +103,7 @@ public class GL2StringDrawer extends AbstractTextDrawer {
   protected void begin(TextRenderer renderer) {
     setTextColorRespectComposite(renderer);
 
-    GL2 gl = g2d.getGLContext().getGL().getGL2();
-   glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+   glMatrixMode(GL_MODELVIEW);
    glPushMatrix();
    glScalef(1, -1, 1);
    glTranslatef(0, -g2d.getCanvasHeight(), 0);
@@ -113,7 +114,6 @@ public class GL2StringDrawer extends AbstractTextDrawer {
   protected void end(TextRenderer renderer) {
     renderer.end3DRendering();
 
-    GL2 gl = g2d.getGLContext().getGL().getGL2();
    glPopMatrix();
   }
 

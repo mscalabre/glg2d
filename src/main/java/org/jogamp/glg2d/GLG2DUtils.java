@@ -19,15 +19,15 @@ import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES1;
+
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 
 public class GLG2DUtils {
   private static final Logger LOGGER = Logger.getLogger(GLG2DUtils.class.getName());
 
-  public static void setColor(GL2ES1 gl, Color c, float preMultiplyAlpha) {
+  public static void setColor(Color c, float preMultiplyAlpha) {
     int rgb = c.getRGB();
    glColor4ub((byte) (rgb >> 16 & 0xFF), (byte) (rgb >> 8 & 0xFF), (byte) (rgb & 0xFF), (byte) ((rgb >> 24 & 0xFF) * preMultiplyAlpha));
   }
@@ -38,26 +38,26 @@ public class GLG2DUtils {
 
   public static int getViewportHeight() {
    
-    int canvasHeight = glGetInteger(GL.GL_VIEWPORT);
+    int canvasHeight = glGetInteger(GL_VIEWPORT);
     return canvasHeight;
   }
 
-  public static void logGLError(GL gl) {
+  public static void logGLError() {
     int error =glGetError();
-    if (error != GL.GL_NO_ERROR) {
+    if (error != GL_NO_ERROR) {
       LOGGER.log(Level.SEVERE, "GL Error: code " + error);
     }
   }
 
-  public static int ensureIsGLBuffer(GL gl, int bufferId) {
+  public static int ensureIsGLBuffer(int bufferId) {
     if( glIsBuffer(bufferId)) {
       return bufferId;
     } else {
-      return genBufferId(gl);
+      return genBufferId();
     }
   }
 
-  public static int genBufferId(GL gl) {
+  public static int genBufferId() {
     return glGenBuffers();
   }
 }

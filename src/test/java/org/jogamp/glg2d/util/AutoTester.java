@@ -1,12 +1,16 @@
 package org.jogamp.glg2d.util;
 
+import com.jogamp.opengl.GLDrawableFactory;
+import com.jogamp.opengl.GLOffscreenAutoDrawable;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
-import com.jogamp.opengl.GLDrawableFactory;
-import com.jogamp.opengl.GLOffscreenAutoDrawable;
-import com.jogamp.opengl.GLProfile;
+
+
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,7 +21,7 @@ import org.jogamp.glg2d.GLG2DSimpleEventListener;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.junit.Assert;
 
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+
 
 public class AutoTester implements Tester {
   static final int pixels = 500;

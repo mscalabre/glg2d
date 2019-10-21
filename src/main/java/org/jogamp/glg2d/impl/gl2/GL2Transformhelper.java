@@ -15,18 +15,22 @@
  */
 package org.jogamp.glg2d.impl.gl2;
 
-import com.jogamp.common.nio.Buffers;
+
+import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import java.awt.geom.AffineTransform;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
+
+
+
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractMatrixHelper;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE;
+import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glLoadMatrix;
@@ -34,32 +38,21 @@ import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glOrtho;
 
 public class GL2Transformhelper extends AbstractMatrixHelper {
-  protected GL2 gl;
 
   private float[] matrixBuf = new float[16];
 
   @Override
   public void setG2D(GLGraphics2D g2d) {
     super.setG2D(g2d);
-    gl = g2d.getGLContext().getGL().getGL2();
 
     setupGLView();
     flushTransformToOpenGL();
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        super.setG2D(g2d);
-//        gl = context.getGL().getGL2();
-
-        setupGLView();
-        flushTransformToOpenGL();
-    }
   
 
   protected void setupGLView() {
-    IntBuffer viewportDimensions = Buffers.newDirectIntBuffer(16);
-    glGetInteger(GL.GL_VIEWPORT, viewportDimensions);
+    IntBuffer viewportDimensions = BufferUtils.createIntBuffer(16);
+    glGetInteger(GL_VIEWPORT, viewportDimensions);
     int width = viewportDimensions.get(2);
     int height = viewportDimensions.get(3);
 
@@ -70,7 +63,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
 
     // the MODELVIEW matrix will get adjusted later
 
-   glMatrixMode(GL.GL_TEXTURE);
+   glMatrixMode(GL_TEXTURE);
    glLoadIdentity();
   }
 
@@ -102,7 +95,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
 //    matrixBuf[15] = 1;
 //
 //    return matrixBuf;
-        FloatBuffer matrixBuf = Buffers.newDirectFloatBuffer(16);
+        FloatBuffer matrixBuf = BufferUtils.createFloatBuffer(16);
         matrixBuf.put(0, (float) transform.getScaleX());
         matrixBuf.put(1,  -(float) transform.getShearY());
         matrixBuf.put(4,  (float) transform.getShearX());
