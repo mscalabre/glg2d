@@ -71,21 +71,29 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   public void display(GLAutoDrawable drawable) {
       
         boolean useGears = false;
+//        if(gears!=null){
+//            useGears = true;
+//            gears.getRenderStream().setGL(drawable.getGL());
+//            gears.setupOpenGL();
+//            gears.setupQuad();
+//        }
+//        if(useGears){
+//            gears.getRenderStream().bind();
+//        }
+//        prePaint(drawable);
+//        paintGL(g2d);
+//        postPaint(drawable);
+//        if(useGears){
+//            gears.test();
+//            gears.getRenderStream().swapBuffers();
+//        }
         if(gears!=null){
-            useGears = true;
             gears.getRenderStream().setGL(drawable.getGL());
-            gears.setupOpenGL();
-            gears.setupQuad();
-        }
-        if(useGears){
+            prePaint(drawable);
             gears.getRenderStream().bind();
-        }
-        prePaint(drawable);
-        paintGL(g2d);
-        postPaint(drawable);
-        if(useGears){
-            gears.test();
+            paintGL(g2d);
             gears.getRenderStream().swapBuffers();
+            postPaint(drawable);
         }
   }
   
@@ -134,13 +142,12 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     comp.setDoubleBuffered(wasDoubleBuffered);
   }
 
+  private boolean isInit = false;
   @Override
   public void init(GLAutoDrawable drawable) {
     g2d = createGraphics2D(drawable);
     
-    if(gears!=null){
-        gears.getRenderStream().setGL(drawable.getGL());
-    }
+    isInit=true;
   }
 
   @Override
