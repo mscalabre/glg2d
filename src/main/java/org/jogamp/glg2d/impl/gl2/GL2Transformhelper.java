@@ -98,12 +98,12 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
 //    return matrixBuf;
         FloatBuffer matrixBuf = BufferUtils.createFloatBuffer(16);
         matrixBuf.put(0, (float) transform.getScaleX());
-        matrixBuf.put(1,  -(float) transform.getShearY());
+        matrixBuf.put(1,  (float) transform.getShearY());
         matrixBuf.put(4,  (float) transform.getShearX());
-        matrixBuf.put(5,  -(float) transform.getScaleY());
+        matrixBuf.put(5,  (float) transform.getScaleY());
         matrixBuf.put(10,  1);
         matrixBuf.put(12,  (float) transform.getTranslateX());
-        matrixBuf.put(13,  g2d.getCanvasHeight() - (float) transform.getTranslateY());
+        matrixBuf.put(13,  (float) transform.getTranslateY());
         matrixBuf.put(15,  1);
         return matrixBuf;
   }

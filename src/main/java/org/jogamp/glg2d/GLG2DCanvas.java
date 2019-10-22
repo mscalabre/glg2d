@@ -502,7 +502,7 @@ public class GLG2DCanvas extends JComponent {
                     g2dglListener.display(canvas);
                     renderStream.swapBuffers();
                 }
-                Display.update();
+//                Display.update();
             }else{
                 canvas.display();
             }
