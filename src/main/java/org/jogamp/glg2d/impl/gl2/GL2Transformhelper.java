@@ -47,7 +47,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     super.setG2D(g2d);
 
     setupGLView();
-//    flushTransformToOpenGL();
+    flushTransformToOpenGL();
   }
   
 
@@ -60,7 +60,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     // setup projection
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(0, width, 0, height, -1, 1);
+   glOrtho(0, 1000, 0, 1000, -1, 1);
 
     // the MODELVIEW matrix will get adjusted later
 
@@ -76,7 +76,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     FloatBuffer matrix = getGLMatrix(stack.peek());
 
    glMatrixMode(GL_MODELVIEW);
-//   glLoadMatrix(matrix);
+   glLoadMatrix(matrix);
   }
 
   /**

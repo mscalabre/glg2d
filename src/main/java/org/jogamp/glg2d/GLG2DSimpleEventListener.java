@@ -65,9 +65,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
 
   @Override
   public void display(GLAutoDrawable drawable) {
-//        prePaint(drawable);
+        prePaint(drawable);
         paintGL(g2d);
-//        postPaint(drawable);
+        postPaint(drawable);
   }
   
   /**
@@ -79,15 +79,15 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     g2d.prePaint();
 
     // clip to only the component we're painting
-    g2d.translate(comp.getX(), comp.getY());
-    g2d.clipRect(0, 0, comp.getWidth(), comp.getHeight());
+    g2d.translate(500,500);
+//    g2d.clipRect(0, 0, 1000, 1000);
   }
 
   /**
    * Defines the viewport to paint into.
    */
   protected void setupViewport(GLAutoDrawable drawable) {
-    glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+    glViewport(0, 0, 1000,1000);
   }
 
   /**

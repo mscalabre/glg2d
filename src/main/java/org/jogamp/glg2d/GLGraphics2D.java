@@ -223,7 +223,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * as getting the viewport
    */
   public void prePaint() {
-    canvasHeight = GLG2DUtils.getViewportHeight();
+    canvasHeight = 1000;
     setDefaultState();
   }
 

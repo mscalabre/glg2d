@@ -498,19 +498,9 @@ public class GLG2DCanvas extends JComponent {
 
                     // set the color of the quad (R,G,B,A)
                     
-                    renderStream.bind();
+//                    renderStream.bind();
                     g2dglListener.display(canvas);
-                    
-//                    ((GLG2DSimpleEventListener)g2dglListener).getG2D().setColor(Color.pink);
-                    GL11.glColor3f(0.5f,0.5f,1.0f);
-                    
-                    GL11.glBegin(GL11.GL_QUADS);
-                        GL11.glVertex2f(100,100);
-                        GL11.glVertex2f(100+200,100);
-                        GL11.glVertex2f(100+200,100+200);
-                        GL11.glVertex2f(100,100+200);
-                    GL11.glEnd();
-                    renderStream.swapBuffers();
+//                    renderStream.swapBuffers();
                 }
                 Display.update();
             }else{
