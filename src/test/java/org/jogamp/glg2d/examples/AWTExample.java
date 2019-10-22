@@ -3,7 +3,6 @@ package org.jogamp.glg2d.examples;
 import java.awt.Dimension;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.image.ImageView;
 
 import javax.swing.JComponent;
 
@@ -12,11 +11,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
-import org.lwjglfx.Gears;
 import org.lwjglfx.util.LWJGLUtils;
-import org.lwjglfx.util.stream.RenderStream;
-import org.lwjglfx.util.stream.StreamHandler;
-import org.lwjglfx.util.stream.StreamUtil;
 
 public class AWTExample {
   public static void main(String[] args) {

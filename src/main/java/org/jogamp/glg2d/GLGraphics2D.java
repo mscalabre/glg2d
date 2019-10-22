@@ -200,21 +200,17 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   public void setCanvas(GLContext context) {
-      setCanvas(context.getGLDrawable(), context);
+      setCanvas(context == null ? null : context.getGLDrawable(), context);
   }
 
   public void setCanvas(GLDrawable drawable, final GLContext context) {
-    glDrawable = drawable;
-    glContext = context;
+    if(context != null){
+      glDrawable = drawable;
+      glContext = context;
+    }
 
     for (G2DDrawingHelper helper : helpers) {
-        int index = Arrays.asList(helpers).indexOf(helper);
-//        if(index<4){
-//            if(index == 3){
-//                System.out.println("stop");
-//            }
-            helper.setG2D(GLGraphics2D.this);
-//        }
+        helper.setG2D(GLGraphics2D.this);
     }
   }
 
@@ -224,6 +220,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    */
   public void prePaint() {
     canvasHeight = 1000;
+     setCanvas(null);
     setDefaultState();
   }
 

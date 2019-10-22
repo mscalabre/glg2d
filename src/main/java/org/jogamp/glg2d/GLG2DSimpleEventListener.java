@@ -79,8 +79,8 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     g2d.prePaint();
 
     // clip to only the component we're painting
-    g2d.translate(500,500);
-//    g2d.clipRect(0, 0, 1000, 1000);
+    g2d.translate(0, 0);
+    g2d.clipRect(0, 0,1000,1000);
   }
 
   /**

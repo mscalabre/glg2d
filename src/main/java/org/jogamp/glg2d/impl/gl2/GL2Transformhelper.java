@@ -60,7 +60,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     // setup projection
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(0, 1000, 0, 1000, -1, 1);
+   glOrtho(0, width, 0, height, -1, 1);
 
     // the MODELVIEW matrix will get adjusted later
 
