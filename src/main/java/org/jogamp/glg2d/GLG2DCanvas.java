@@ -173,6 +173,11 @@ public class GLG2DCanvas extends JComponent {
     this();
     setDrawableComponent(drawableComponent);
   }
+  public GLG2DCanvas(JComponent drawableComponent, boolean useGL2ES2) {
+    this();
+    this.useGL2ES2 = useGL2ES2;
+    setDrawableComponent(drawableComponent);
+  }
   public GLG2DCanvas(JComponent drawableComponent, GLAutoDrawable canvas) {
     this(getDefaultCapabalities(), canvas);
     setDrawableComponent(drawableComponent);

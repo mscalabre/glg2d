@@ -178,9 +178,9 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
       size+=source[i].length();
     }
     
-    ByteBuffer sourceBuffer = BufferUtils.createByteBuffer(size * Byte.SIZE);
+    ByteBuffer sourceBuffer = BufferUtils.createByteBuffer(size);
 
-    glShaderSource(id, sourceBuffer);
+    glShaderSource(id, source);
     int err =glGetError();
     if (err != GL_NO_ERROR) {
       throw new ShaderException("Shader source failed, GL Error: 0x" + Integer.toHexString(err));
@@ -229,34 +229,26 @@ public abstract class AbstractShaderPipeline implements ShaderPipeline {
   }
 
   protected void checkShaderThrowException(int shaderId) {
-    IntBuffer result = BufferUtils.createIntBuffer(1);
-    glGetShaderi(shaderId, GL_COMPILE_STATUS);
-    if (result.get(0) == GL_TRUE) {
+    int result = glGetShaderi(shaderId, GL_COMPILE_STATUS);
+    if (result == GL_TRUE) {
       return;
     }
+    
+    String error = glGetShaderInfoLog(shaderId, result);
 
-   glGetShaderi(shaderId, GL_INFO_LOG_LENGTH);
-    int size = result.get(0);
-    ByteBuffer data = BufferUtils.createByteBuffer(size);
-    glGetShaderInfoLog(shaderId, result, data);
-
-    String error = new String(data.array(), 0, result.get(0));
     throw new ShaderException(error);
   }
 
   protected void checkProgramThrowException(int programId, int statusFlag) {
-    IntBuffer result = BufferUtils.createIntBuffer(1);
-    glGetProgrami(programId, statusFlag);
-    if (result.get(0) == GL_TRUE) {
+    int result = glGetProgrami(programId, statusFlag);
+    if (result == GL_TRUE) {
       return;
     }
 
    glGetProgrami(programId, GL_INFO_LOG_LENGTH);
-    int size = result.get(0);
-    ByteBuffer data = BufferUtils.createByteBuffer(size);
-    glGetProgramInfoLog(programId, result, data);
-
-    String error = new String(data.array(), 0, result.get(0));
+   
+    String error = glGetProgramInfoLog(programId, result);
+    
     throw new ShaderException(error);
   }
 }

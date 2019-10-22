@@ -90,6 +90,9 @@ public class GL2ES2TextDrawer extends AbstractTextDrawer {
   }
 
   protected void drawChars(char[] string, float x, float y) {
+    if(true){
+        return;
+    }
     pipeline.use(true);
     pipeline.setColor(g2d.getUniformsObject().colorHook.getRGBA());
     pipeline.setTransform(g2d.getUniformsObject().transformHook.getGLMatrixData());

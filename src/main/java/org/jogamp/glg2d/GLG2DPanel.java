@@ -65,6 +65,9 @@ public class GLG2DPanel extends GLG2DCanvas {
     public GLG2DPanel(JComponent drawableComponent, GLAutoDrawable canvas) {
         super(drawableComponent, canvas);
     }
+    public GLG2DPanel(JComponent drawableComponent, boolean useGL2ES2){
+        super(drawableComponent, useGL2ES2);
+    }
     public GLG2DPanel(JComponent drawableComponent, GLAutoDrawable canvas, boolean useGL2ES2){
         super(drawableComponent, canvas, useGL2ES2);
     }

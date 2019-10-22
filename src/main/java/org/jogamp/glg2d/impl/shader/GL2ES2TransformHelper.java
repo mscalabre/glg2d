@@ -34,7 +34,7 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
   protected FloatBuffer glMatrix;
   protected boolean dirtyMatrix;
 
-  protected IntBuffer viewportDimensions=BufferUtils.createIntBuffer(4);
+  protected IntBuffer viewportDimensions=BufferUtils.createIntBuffer(16);
 
   @Override
   public void setG2D(GLGraphics2D g2d) {
