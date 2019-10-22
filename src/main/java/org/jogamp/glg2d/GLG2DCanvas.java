@@ -498,9 +498,9 @@ public class GLG2DCanvas extends JComponent {
 
                     // set the color of the quad (R,G,B,A)
                     
-//                    renderStream.bind();
+                    renderStream.bind();
                     g2dglListener.display(canvas);
-//                    renderStream.swapBuffers();
+                    renderStream.swapBuffers();
                 }
                 Display.update();
             }else{
