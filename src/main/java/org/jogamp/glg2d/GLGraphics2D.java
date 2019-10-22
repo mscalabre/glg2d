@@ -218,8 +218,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * Sets up the graphics object in preparation for drawing. Initialization such
    * as getting the viewport
    */
-  public void prePaint() {
-    canvasHeight = 1000;
+  public void prePaint(int height) {
+    canvasHeight = height;
      setCanvas(null);
     setDefaultState();
   }
