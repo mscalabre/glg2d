@@ -208,7 +208,13 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     glContext = context;
 
     for (G2DDrawingHelper helper : helpers) {
-      helper.setG2D(GLGraphics2D.this);
+        int index = Arrays.asList(helpers).indexOf(helper);
+//        if(index<4){
+//            if(index == 3){
+//                System.out.println("stop");
+//            }
+            helper.setG2D(GLGraphics2D.this);
+//        }
     }
   }
 

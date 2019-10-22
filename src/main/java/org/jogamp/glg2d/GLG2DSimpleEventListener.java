@@ -65,9 +65,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
 
   @Override
   public void display(GLAutoDrawable drawable) {
-        prePaint(drawable);
+//        prePaint(drawable);
         paintGL(g2d);
-        postPaint(drawable);
+//        postPaint(drawable);
   }
   
   /**

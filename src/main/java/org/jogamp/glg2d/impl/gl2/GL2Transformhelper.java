@@ -16,7 +16,6 @@
 package org.jogamp.glg2d.impl.gl2;
 
 
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import java.awt.geom.AffineTransform;
 
 
@@ -29,6 +28,8 @@ import java.nio.IntBuffer;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractMatrixHelper;
 import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE;
 import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
 import static org.lwjgl.opengl.GL11.glGetInteger;
@@ -46,7 +47,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     super.setG2D(g2d);
 
     setupGLView();
-    flushTransformToOpenGL();
+//    flushTransformToOpenGL();
   }
   
 
@@ -57,7 +58,7 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
     int height = viewportDimensions.get(3);
 
     // setup projection
-   glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+   glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    glOrtho(0, width, 0, height, -1, 1);
 
@@ -74,8 +75,8 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
   protected void flushTransformToOpenGL() {
     FloatBuffer matrix = getGLMatrix(stack.peek());
 
-   glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-   glLoadMatrix(matrix);
+   glMatrixMode(GL_MODELVIEW);
+//   glLoadMatrix(matrix);
   }
 
   /**

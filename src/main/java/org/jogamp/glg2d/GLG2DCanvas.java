@@ -27,6 +27,7 @@ import com.jogamp.opengl.Threading;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.Animator;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -461,7 +462,11 @@ public class GLG2DCanvas extends JComponent {
 
     @Override
     public void repaint() {
-        this.paint(getGraphics());
+        try{
+            this.paint(getGraphics());
+        }catch(Throwable th){
+            th.printStackTrace();
+        }
     }
   
   @Override
@@ -486,14 +491,26 @@ public class GLG2DCanvas extends JComponent {
                         g2dglListener.init(canvas);
                         System.out.println("init ok");
                     }
-                    g2dglListener.display(canvas);
+//                    g2dglListener.display(canvas);
 
+                    // Clear the screen and depth buffer
+                    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);	
+
+                    // set the color of the quad (R,G,B,A)
+                    
+                    renderStream.bind();
+                    g2dglListener.display(canvas);
+                    
+//                    ((GLG2DSimpleEventListener)g2dglListener).getG2D().setColor(Color.pink);
+                    GL11.glColor3f(0.5f,0.5f,1.0f);
+                    
                     GL11.glBegin(GL11.GL_QUADS);
                         GL11.glVertex2f(100,100);
                         GL11.glVertex2f(100+200,100);
                         GL11.glVertex2f(100+200,100+200);
                         GL11.glVertex2f(100,100+200);
                     GL11.glEnd();
+                    renderStream.swapBuffers();
                 }
                 Display.update();
             }else{

@@ -3,6 +3,7 @@ package org.jogamp.glg2d.examples;
 import java.awt.Dimension;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.image.ImageView;
 
 import javax.swing.JComponent;
 
@@ -11,7 +12,11 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjglfx.Gears;
 import org.lwjglfx.util.LWJGLUtils;
+import org.lwjglfx.util.stream.RenderStream;
+import org.lwjglfx.util.stream.StreamHandler;
+import org.lwjglfx.util.stream.StreamUtil;
 
 public class AWTExample {
   public static void main(String[] args) {
@@ -32,6 +37,14 @@ public class AWTExample {
             e.printStackTrace();
             System.exit(0);
         }
+        
+//        ImageView imageView = new ImageView();
+//        imageView.setFitWidth(100);
+//        imageView.setFitHeight(100);
+//        StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
+//        StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
+//        RenderStream renderStream = renderStreamFactory.create(readHandler, 1, 2);
+        
         // init OpenGL
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
@@ -39,11 +52,6 @@ public class AWTExample {
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
 
         while (!Display.isCloseRequested()) {
-            // Clear the screen and depth buffer
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);	
-
-            // set the color of the quad (R,G,B,A)
-            GL11.glColor3f(0.5f,0.5f,1.0f);
 
 
             panel.repaint();
