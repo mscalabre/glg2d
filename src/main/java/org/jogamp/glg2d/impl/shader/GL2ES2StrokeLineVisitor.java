@@ -40,6 +40,10 @@ public class GL2ES2StrokeLineVisitor extends BasicStrokeLineVisitor implements S
 
   @Override
   public void setGLContext(UniformBufferObject uniforms) {
+      
+    if (!pipeline.isSetup()) {
+      pipeline.setup();
+    }
 
     this.uniforms = uniforms;
   }

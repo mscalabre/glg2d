@@ -41,8 +41,14 @@ public class GL2ES2SimpleConvexFillVisitor extends SimplePathVisitor implements 
     this.pipeline = pipeline;
   }
 
+
   @Override
   public void setGLContext(UniformBufferObject uniforms) {
+
+    if (!pipeline.isSetup()) {
+      pipeline.setup();
+    }
+
     this.uniforms = uniforms;
   }
 

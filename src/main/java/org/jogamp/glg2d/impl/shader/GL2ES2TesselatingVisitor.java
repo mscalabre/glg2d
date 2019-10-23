@@ -38,6 +38,11 @@ public class GL2ES2TesselatingVisitor extends AbstractTesselatorVisitor implemen
 
   @Override
   public void setGLContext(UniformBufferObject uniforms) {
+      
+    if (!pipeline.isSetup()) {
+      pipeline.setup();
+    }
+    
     this.uniforms = uniforms;
   }
 
