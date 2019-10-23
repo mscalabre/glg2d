@@ -503,9 +503,13 @@ public class GLG2DCanvas extends JComponent {
 
                     // set the color of the quad (R,G,B,A)
                     
-//                    renderStream.bind();
+                    if(useStream()){
+                        renderStream.bind();
+                    }
                     g2dglListener.display(canvas);
-//                    renderStream.swapBuffers();
+                    if(useStream()){
+                        renderStream.swapBuffers();
+                    }
                 }
 //                Display.update();
             }else{
@@ -597,6 +601,10 @@ public class GLG2DCanvas extends JComponent {
       } catch (InvocationTargetException ex) {
           Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
       }
+    }
+
+    private boolean useStream() {
+        return renderStream != null;
     }
 
   /**

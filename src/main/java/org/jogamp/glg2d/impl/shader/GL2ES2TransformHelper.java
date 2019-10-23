@@ -96,22 +96,22 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
     float invHeight = 1f / (y2 - y1);
     
     glMatrix.put(0, ((float) (2 * xform.getScaleX() * invWidth)));
-    glMatrix.put(1, ((float) (-2 * xform.getShearY() * invHeight)));
+    glMatrix.put(1, ((float) (2 * xform.getShearY() * invHeight)));
     // glMatrix[2] = 0;
     // glMatrix[3] = 0;
 
     glMatrix.put(4, ((float) (2 * xform.getShearX() * invWidth)));
-    glMatrix.put(5, ((float) (-2 * xform.getScaleY() * invHeight)));
+    glMatrix.put(5, ((float) (2 * xform.getScaleY() * invHeight)));
     // glMatrix[6] = 0;
     // glMatrix[7] = 0;
 
     // glMatrix[8] = 0;
     // glMatrix[9] = 0;
-    glMatrix.put(10, -1);
+    glMatrix.put(10, 1);
     // glMatrix[11] = 0;
 
     glMatrix.put(12, ((float) (2 * xform.getTranslateX() * invWidth - 1)));
-    glMatrix.put(13, ((float) (1 - 2 * xform.getTranslateY() * invHeight)));
+    glMatrix.put(13, ((float) (2 * xform.getTranslateY() * invHeight - 1)));
     // glMatrix[14] = 0;
     glMatrix.put(15, 1);
   }
