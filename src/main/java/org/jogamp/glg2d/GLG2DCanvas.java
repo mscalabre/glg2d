@@ -27,10 +27,10 @@ import com.jogamp.opengl.Threading;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.util.Animator;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.LayoutManager2;
 import java.io.Serializable;
@@ -54,8 +54,9 @@ import javax.swing.RepaintManager;
 
 
 import java.awt.image.BufferedImage;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import org.lwjgl.LWJGLException;
 import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
 
@@ -498,14 +499,13 @@ public class GLG2DCanvas extends JComponent {
                     }
 //                    g2dglListener.display(canvas);
 
-                    // Clear the screen and depth buffer
-                    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);	
+                    // Clear the screen and depth buffer	
 
                     // set the color of the quad (R,G,B,A)
                     
-                    renderStream.bind();
+//                    renderStream.bind();
                     g2dglListener.display(canvas);
-                    renderStream.swapBuffers();
+//                    renderStream.swapBuffers();
                 }
 //                Display.update();
             }else{
@@ -578,6 +578,26 @@ public class GLG2DCanvas extends JComponent {
       throw new IllegalArgumentException("Do not add component to this. Add them to the object in getDrawableComponent()");
     }
   }
+
+    public void setLWJGLContext(final Object context) {
+      try {
+          EventQueue.invokeAndWait(new Runnable(){
+              @Override
+              public void run() {
+                  try {
+                      org.lwjgl.opengl.GLContext.useContext(context);
+                  } catch (LWJGLException ex) {
+                      ex.printStackTrace();
+                  }
+              }
+              
+          });
+      } catch (InterruptedException ex) {
+          Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (InvocationTargetException ex) {
+          Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
 
   /**
    * Implements a simple layout where all the components are the same size as

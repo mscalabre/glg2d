@@ -52,7 +52,7 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
           + GLShaderGraphics2D.class.getSimpleName());
     }
   }
-
+  
   @Override
   public FloatBuffer getGLMatrixData() {
     return getGLMatrixData(null);
