@@ -57,6 +57,10 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import org.lwjgl.LWJGLException;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
 import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
 
@@ -480,13 +484,6 @@ public class GLG2DCanvas extends JComponent {
         
     long time = System.currentTimeMillis();
     
-//    boolean useGears = false;
-//    if(gears!=null && this.canvas.getGL()!=null && false){
-//        useGears = true;
-//    }
-//    if(useGears){
-//        gears.getRenderStream().bind();
-//    }
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);
@@ -497,12 +494,6 @@ public class GLG2DCanvas extends JComponent {
                         g2dglListener.init(canvas);
                         System.out.println("init ok");
                     }
-//                    g2dglListener.display(canvas);
-
-                    // Clear the screen and depth buffer	
-
-                    // set the color of the quad (R,G,B,A)
-                    
                     if(useStream()){
                         renderStream.bind();
                     }
@@ -517,11 +508,8 @@ public class GLG2DCanvas extends JComponent {
             }
         }
     } else {
-      super.paint(g);
+        super.paint(g);
     }
-//    if(useGears){
-//        gears.getRenderStream().swapBuffers();
-//    }
     
     if(isShowFPS()){
         System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));

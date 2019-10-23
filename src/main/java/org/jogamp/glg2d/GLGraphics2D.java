@@ -225,8 +225,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected void setDefaultState() {
-    setBackground(Color.PINK);
-    setColor(Color.PINK);
+    setBackground(Color.WHITE);
+    setColor(Color.WHITE);
     setFont(Font.getFont(Font.SANS_SERIF));
     setStroke(new BasicStroke());
     setComposite(AlphaComposite.SrcOver);

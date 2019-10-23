@@ -31,7 +31,7 @@ import java.awt.Paint;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractColorHelper;
 import static org.lwjgl.opengl.GL11.GL_COLOR;
-import static org.lwjgl.opengl.GL11.glColor4ub;
+import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.glCopyPixels;
 import static org.lwjgl.opengl.GL11.glRasterPos2i;
 
@@ -88,8 +88,8 @@ public class GL2ColorHelper extends AbstractColorHelper {
   }
 
   private void setColor(Color c, float preMultiplyAlpha) {
-    int rgb = c.getRGB();
-   glColor4ub((byte) (rgb >> 16 & 0xFF), (byte) (rgb >> 8 & 0xFF), (byte) (rgb & 0xFF), (byte) ((rgb >> 24 & 0xFF) * preMultiplyAlpha));
+//    int rgb = c.getRGB();
+   glColor4f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f, (float) Math.min(1, Math.sqrt((c.getAlpha()/255f * preMultiplyAlpha))));
   }
 
   @Override

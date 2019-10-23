@@ -71,6 +71,13 @@
       <artifactId>LWJGLfx</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+        <groupId>org.slick2d</groupId>
+        <artifactId>slick2d-core</artifactId>
+        <version>1.0.2</version>
+    </dependency>
+
+
   </dependencies>
   <build>
     <plugins>
@@ -83,32 +90,6 @@
           <source>1.6</source>
           <target>1.6</target>
         </configuration>
-      </plugin>
-
-      <!--  check the licenses -->
-      <plugin>
-        <groupId>com.mycila.maven-license-plugin</groupId>
-        <artifactId>maven-license-plugin</artifactId>
-        <configuration>
-          <header>NOTICE.txt</header>
-          <quiet>false</quiet>
-          <failIfMissing>true</failIfMissing>
-          <strictCheck>true</strictCheck>
-          <includes>
-            <include>src/main/java/**/*.java</include>
-          </includes>
-          <mapping>
-            <java>SLASHSTAR_STYLE</java>
-          </mapping>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-               <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <!-- for release -->
