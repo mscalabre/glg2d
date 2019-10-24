@@ -2,7 +2,7 @@ package org.jogamp.glg2d.impl.gl2;
 
 import java.awt.Color;
 import java.awt.Font;
-import org.newdawn.slick.TrueTypeFont;
+import com.digiturtle.ui.GLFont;
 
 /**
  *
@@ -13,16 +13,16 @@ public class GL2TextRenderer {
     private boolean antiAlias;
     private Color color = Color.white;
     
-    private TrueTypeFont trueFont = null;
+    private GLFont glFont = null;
 
     public GL2TextRenderer(Font font, boolean antiAlias) {
         this.font = font;
         this.antiAlias = antiAlias;
-        this.trueFont = new TrueTypeFont(font, antiAlias);
+        this.glFont = new GLFont(font, font.getSize());
     }
 
     void draw3D(String string, int x, int y, int width, int height) {
-        trueFont.drawString(x, y, string, new org.newdawn.slick.Color(color.getRGB()));
+        glFont.drawText(x, y, string, this.color);
    }
 
     void setColor(Color color) {

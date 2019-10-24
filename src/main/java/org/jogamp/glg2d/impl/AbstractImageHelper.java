@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import org.jogamp.glg2d.GLG2DImageHelper;
 import org.jogamp.glg2d.GLG2DRenderingHints;
 import org.jogamp.glg2d.GLGraphics2D;
+import org.lwjgl.opengl.GLContext;
 
 
 
