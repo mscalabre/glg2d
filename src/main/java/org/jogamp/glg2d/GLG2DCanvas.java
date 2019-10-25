@@ -63,6 +63,7 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
+import org.jogamp.glg2d.util.GLG2DThreadable;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -108,6 +109,8 @@ public class GLG2DCanvas extends JComponent {
   private BufferedImage imageRender = null;
   
   private boolean useGL2ES2; 
+  
+  private GLG2DThreadable threadable;
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -152,8 +155,16 @@ public class GLG2DCanvas extends JComponent {
 
     setGLDrawing(true);
 
-    RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
+//    RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
+
+    public GLG2DSimpleEventListener getG2dglListener() {
+        if(g2dglListener!=null){
+            return (GLG2DSimpleEventListener)g2dglListener;
+        }
+        return null;
+    }
+  
   public GLG2DCanvas(GLCapabilities capabilities, GLAutoDrawable canvas) {
     this.canvas = canvas;
 
@@ -166,7 +177,7 @@ public class GLG2DCanvas extends JComponent {
 
     setGLDrawing(true);
 
-    RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
+//    RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
 
   /**
@@ -209,6 +220,14 @@ public class GLG2DCanvas extends JComponent {
   public boolean isGLDrawing() {
     return drawGL;
   }
+
+    public void setThreadable(GLG2DThreadable threadable) {
+        this.threadable = threadable;
+    }
+
+    public GLG2DThreadable getThreadable() {
+        return threadable;
+    }
   
   public void setGears(Gears gears){
       if(canvas.getGL() != null){
@@ -494,6 +513,9 @@ public class GLG2DCanvas extends JComponent {
                         g2dglListener.init(canvas);
                         System.out.println("init ok");
                     }
+                    if(getThreadable()!=((GLG2DSimpleEventListener)g2dglListener).getThreadable()){
+                        ((GLG2DSimpleEventListener)g2dglListener).setThreadable(getThreadable());
+                    }
                     if(useStream()){
                         renderStream.bind();
                     }
@@ -514,6 +536,13 @@ public class GLG2DCanvas extends JComponent {
     if(isShowFPS()){
         System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
     }
+  }
+  
+  public BufferedImage getUnsupportedGLImage(){
+        if(g2dglListener instanceof GLG2DSimpleEventListener){
+            return ((GLG2DSimpleEventListener)g2dglListener).getUnsupportedGLImage();
+        }
+        return null;
   }
 
   public boolean isShowFPS(){

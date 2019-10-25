@@ -55,6 +55,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 
 
@@ -68,6 +69,7 @@ import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
+import org.jogamp.glg2d.util.GLG2DThreadable;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
@@ -131,6 +133,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   protected RenderingHints hints;
   
   private BufferedImage unsupportedGLImage;
+  
+  private GLG2DThreadable threadable = null;
+  
+  private Graphics2D swingGraphics = null;
 
   public GLGraphics2D() {
     hints = new RenderingHints(Collections.<Key, Object> emptyMap());
@@ -151,6 +157,23 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     addG2DDrawingHelper(colorHelper);
   }
 
+    public GLG2DThreadable getThreadable() {
+        if(threadable == null){
+            return GLG2DSimpleEventListener.threadableDEFAULT;
+        }
+        return threadable;
+    }
+
+    public void setThreadable(GLG2DThreadable threadable) {
+        this.threadable = threadable;
+    }
+
+    public void setSwingGraphics(Graphics2D swingGraphics) {
+        this.swingGraphics = swingGraphics;
+    }
+
+    
+    
   protected GLG2DShapeHelper createShapeHelper() {
     return new GL2ShapeDrawer();
   }
@@ -273,22 +296,46 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
   @Override
   public void drawString(String str, int x, int y) {
-      if(unsupportedGLImage!=null){
-          Graphics2D g2 = ((Graphics2D)unsupportedGLImage.getGraphics());
-          g2.setTransform(getTransform());
-          g2.setColor(getColor());
-          g2.drawString(str, (int)(x), (int)(y));
-      }
+//      if(swingGraphics!=null){
+//          final String finalStr = str;
+//          final int finalX = x;
+//          final int finalY = y;
+//          final Color finalColor = getColor();
+//          final Font finalFont = getFont();
+//          getThreadable().run(new Runnable(){
+//              @Override
+//              public void run() {
+//                  System.out.println("drawStr");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.setColor(finalColor);
+//                g2.setFont(finalFont);
+//                g2.drawString(finalStr, Math.round(finalX), Math.round(finalY));
+//              }
+//          });
+//      }
   }
 
   @Override
   public void drawString(String str, float x, float y) {
-      if(unsupportedGLImage!=null){
-          Graphics2D g2 = ((Graphics2D)unsupportedGLImage.getGraphics());
-          g2.setTransform(getTransform());
-          g2.setColor(getColor());
-          g2.drawString(str, (int)(x), (int)(y));
-      }
+//      if(unsupportedGLImage!=null){
+//          final String finalStr = str;
+//          final float finalX = x;
+//          final float finalY = y;
+//          final Color finalColor = getColor();
+//          final Font finalFont = getFont();
+//          getThreadable().run(new Runnable(){
+//              @Override
+//              public void run() {
+//                  System.out.println("drawStr");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.setColor(finalColor);
+//                g2.setFont(finalFont);
+//                g2.drawString(finalStr, (int)(finalX), (int)(finalY));
+//              }
+//          });
+//      }
   }
 
   @Override
@@ -665,13 +712,34 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   @Override
-  public boolean drawImage(Image img, AffineTransform xform, ImageObserver obs) {
-    return imageHelper.drawImage(img, xform, obs);
+  public boolean drawImage(final Image img, final AffineTransform xform, final ImageObserver obs) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, xform, obs);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override
-  public void drawImage(BufferedImage img, BufferedImageOp op, int x, int y) {
-    imageHelper.drawImage(img, op, x, y);
+  public void drawImage(final BufferedImage img, final BufferedImageOp op, final int x, final int y) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, op, x, y);
+//            }
+//          }
+//      });
   }
 
   @Override
@@ -685,34 +753,100 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   @Override
-  public boolean drawImage(Image img, int x, int y, ImageObserver observer) {
-    return imageHelper.drawImage(img, x, y, null, observer);
+  public boolean drawImage(final Image img, final int x, final int y, final ImageObserver observer) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, x, y, observer);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override
-  public boolean drawImage(Image img, int x, int y, Color bgcolor, ImageObserver observer) {
-    return imageHelper.drawImage(img, x, y, bgcolor, observer);
+  public boolean drawImage(final Image img, final int x, final int y, final Color bgcolor, final ImageObserver observer) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, x, y, bgcolor, observer);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override
-  public boolean drawImage(Image img, int x, int y, int width, int height, ImageObserver observer) {
-    return imageHelper.drawImage(img, x, y, width, height, null, observer);
+  public boolean drawImage(final Image img, final int x, final int y, final int width, final int height, final ImageObserver observer) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, x, y, width, height, observer);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override
-  public boolean drawImage(Image img, int x, int y, int width, int height, Color bgcolor, ImageObserver observer) {
-    return imageHelper.drawImage(img, x, y, width, height, bgcolor, observer);
+  public boolean drawImage(final Image img, final int x, final int y, final int width, final int height, final Color bgcolor, final ImageObserver observer) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, x, y, width, height, bgcolor, observer);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override
-  public boolean drawImage(Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2, ImageObserver observer) {
-    return imageHelper.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, null, observer);
+  public boolean drawImage(final Image img, final int dx1, final int dy1, final int dx2, final int dy2, final int sx1, final int sy1, final int sx2, final int sy2, final ImageObserver observer) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, null, observer);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override
-  public boolean drawImage(Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2, Color bgcolor,
-      ImageObserver observer) {
-    return imageHelper.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, bgcolor, observer);
+  public boolean drawImage(final Image img, final int dx1, final int dy1, final int dx2, final int dy2, final int sx1, final int sy1, final int sx2, final int sy2, final Color bgcolor,
+      final ImageObserver observer) {
+//      getThreadable().run(new Runnable(){
+//          @Override          
+//          public void run() {
+//            if(swingGraphics!=null){
+//                  System.out.println("drawImage");
+//                Graphics2D g2 = ((Graphics2D)swingGraphics);
+//                g2.setTransform(getTransform());
+//                g2.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, bgcolor, observer);
+//            }
+//          }
+//      });
+      return true;
   }
 
   @Override

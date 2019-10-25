@@ -17,26 +17,22 @@ package org.jogamp.glg2d;
 
 
 
-import com.digiturtle.ui.Texture;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
+import java.util.concurrent.Future;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import org.jogamp.glg2d.impl.shader.GL2ES2ColorHelper;
 import org.jogamp.glg2d.impl.shader.GL2ES2ImageDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2ShapeDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2TransformHelper;
 import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 import org.jogamp.glg2d.impl.shader.text.GL2ES2TextDrawer;
-import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.glViewport;
 import org.lwjglfx.Gears;
-import org.lwjglfx.util.stream.StreamUtil;
+import org.jogamp.glg2d.util.GLG2DThreadable;
 
 /**
  * Wraps a {@code JComponent} and paints it using a {@code GLGraphics2D}. This
@@ -60,7 +56,40 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   private boolean useGL2ES2;
     private Gears gears;
     
-    BufferedImage unsupportedGLImage = null;
+    private BufferedImage unsupportedGLImage = null;
+    private BufferedImage unsupportedGLImage2 = null;
+    private BufferedImage unsupportedGLImageToReturn = null;
+    
+    private Graphics2D trueGraphics = null;
+    
+    private GLG2DThreadable threadable = null;
+    public static final GLG2DThreadable threadableDEFAULT = new GLG2DThreadable() {
+      @Override
+      public Future<Object> run(Runnable runnable) {
+          SwingUtilities.invokeLater(runnable);
+          return null;
+      }
+
+      @Override
+      public void runOrReplace(String key, Runnable runnable) {
+          runnable.run();
+      }
+
+      @Override
+      public void runAfterLock(String key, Runnable runnable) {
+          runnable.run();
+      }
+
+      @Override
+      public void setRender(boolean b) {
+      }
+
+      @Override
+      public boolean isRender() {
+          return false;
+      }
+      
+  };
 
   public GLG2DSimpleEventListener(JComponent component) {
       this(component, false);
@@ -73,11 +102,24 @@ public class GLG2DSimpleEventListener implements GLEventListener {
     this.comp = component;
   }
 
+    public void setThreadable(GLG2DThreadable threadable) {
+//        this.threadable = threadable;
+    }
+
+    public GLG2DThreadable getThreadable() {
+        if(threadable==null){
+            return threadableDEFAULT;
+        }
+        return threadable;
+    }
+    
   @Override
-  public void display(GLAutoDrawable drawable) {
+  public void display(final GLAutoDrawable drawable) {
         prePaint(drawable);
+//        getThreadable().setRender(true);
         paintGL(g2d);
-        paintUnsupported();
+//        getThreadable().setRender(false);
+//        paintUnsupported();
         postPaint(drawable);
   }
   
@@ -86,6 +128,9 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    * the {@code GLGraphics2D} object to setup any client state.
    */
   protected void prePaint(GLAutoDrawable drawable) {
+    if(g2d.getThreadable()!=getThreadable()){
+        g2d.setThreadable(threadable);
+    }
     setupViewport(drawable);
     g2d.prePaint(comp.getHeight());
 
@@ -99,17 +144,37 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    */
   protected void setupViewport(GLAutoDrawable drawable) {
     glViewport(0, 0, comp.getWidth(), comp.getHeight());
-    if(this.comp.getWidth()>0 && this.comp.getHeight()>0){
-        if(this.unsupportedGLImage == null
-                || (this.unsupportedGLImage.getWidth()!=this.comp.getWidth())
-                || (this.unsupportedGLImage.getHeight()!=this.comp.getHeight())){
-            unsupportedGLImage = new BufferedImage((int)(this.comp.getWidth()), (int)(this.comp.getHeight()), BufferedImage.TYPE_INT_ARGB);
-            unsupportedGLImage.createGraphics();
-            if(g2d!=null){
-                g2d.setUnsupportedGLImage(unsupportedGLImage);
-            }
-        }
-    }
+//    if(this.comp.getWidth()>0 && this.comp.getHeight()>0){
+//        if(this.unsupportedGLImage == null
+//                || (this.unsupportedGLImage.getWidth()!=this.comp.getWidth())
+//                || (this.unsupportedGLImage.getHeight()!=this.comp.getHeight())){
+//            unsupportedGLImage = new BufferedImage((int)(this.comp.getWidth()), (int)(this.comp.getHeight()), BufferedImage.TYPE_INT_ARGB);
+//            unsupportedGLImage.createGraphics();
+//            
+//            unsupportedGLImage2 = new BufferedImage((int)(this.comp.getWidth()), (int)(this.comp.getHeight()), BufferedImage.TYPE_INT_ARGB);
+//            unsupportedGLImage2.createGraphics();
+//            
+//        }
+//        if(g2d!=null){
+//            getThreadable().runAfterLock("paint", new Runnable(){
+//                @Override
+//                public void run() {
+//                    getThreadable().runOrReplace("switchRender", new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            System.out.println("switchImageToRender");
+//                            if(unsupportedGLImageToReturn == unsupportedGLImage){
+//                                g2d.setUnsupportedGLImage(unsupportedGLImage2);
+//                            }else{
+//                                g2d.setUnsupportedGLImage(unsupportedGLImage);
+//                            }
+//                        }
+//                    });
+//                }
+//
+//            });
+//        }
+//    }
   }
 
   /**
@@ -197,41 +262,23 @@ public class GLG2DSimpleEventListener implements GLEventListener {
         this.gears = gears;
     }
 
+    public BufferedImage getUnsupportedGLImage() {
+        return unsupportedGLImageToReturn;
+    }
+
     private void paintUnsupported() {
-        if(unsupportedGLImage!=null){
-//            BufferedImage bf = unsupportedGLImage;
-//            try {
-//                ImageIO.write(bf, "png", new File("testGL.png"));
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(GLG2DSimpleEventListener.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            } catch (IOException ex) {
-//                Logger.getLogger(StreamUtil.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-            Texture texture = Texture.loadTexture("unsupported");
-            texture.reloadTexture(unsupportedGLImage);
-            texture.bind();
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getID());
-            GL11.glBegin(GL11.GL_QUADS);
-            GL11.glTexCoord2f(0, 0);
-            GL11.glVertex2i(0, 0);
-
-            GL11.glTexCoord2f(1, 0);
-            GL11.glVertex2i(this.comp.getWidth(), 0);
-
-            GL11.glTexCoord2f(1, 1);;
-            GL11.glVertex2i(this.comp.getWidth(), this.comp.getHeight());
-
-            GL11.glTexCoord2f(0, 1);
-            GL11.glVertex2i(0, this.comp.getHeight());
-            GL11.glEnd();
-            Texture.unbind();
-        }
+        getThreadable().runOrReplace("switchDisplay", new Runnable() {
+            @Override
+            public void run() {
+                getThreadable().runAfterLock("render", new Runnable(){
+                    @Override
+                    public void run() {
+                        System.out.println("switchImageToDisplay");
+                        unsupportedGLImageToReturn = unsupportedGLImageToReturn == unsupportedGLImage ? unsupportedGLImage2 : unsupportedGLImage;
+                    }
+                });
+            }
+        });
     }
   
 }
