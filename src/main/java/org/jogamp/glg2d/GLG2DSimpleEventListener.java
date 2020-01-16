@@ -103,11 +103,11 @@ public class GLG2DSimpleEventListener implements GLEventListener {
         if(this.unsupportedGLImage == null
                 || (this.unsupportedGLImage.getWidth()!=this.comp.getWidth())
                 || (this.unsupportedGLImage.getHeight()!=this.comp.getHeight())){
-            unsupportedGLImage = new BufferedImage((int)(this.comp.getWidth()), (int)(this.comp.getHeight()), BufferedImage.TYPE_INT_ARGB);
-            unsupportedGLImage.createGraphics();
-            if(g2d!=null){
-                g2d.setUnsupportedGLImage(unsupportedGLImage);
-            }
+//            unsupportedGLImage = new BufferedImage((int)(this.comp.getWidth()), (int)(this.comp.getHeight()), BufferedImage.TYPE_INT_ARGB);
+//            unsupportedGLImage.createGraphics();
+//            if(g2d!=null){
+//                g2d.setUnsupportedGLImage(unsupportedGLImage);
+//            }
         }
     }
   }

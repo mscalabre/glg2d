@@ -44,8 +44,6 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
-import java.io.File;
-import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,8 +51,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.embed.swing.SwingFXUtils;
-import javax.imageio.ImageIO;
 
 
 
@@ -64,15 +60,14 @@ import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
 import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
-import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
+import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer2;
 import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glScissor;
-import org.lwjglfx.util.stream.StreamUtil;
 
 /**
  * Implements the standard {@code Graphics2D} functionality, but instead draws
@@ -160,7 +155,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected GLG2DImageHelper createImageHelper() {
-    return new GL2ImageDrawer();
+    return new GL2ImageDrawer2();
+//    return new GL2ImageDrawer();
   }
 
   protected GLG2DTransformHelper createTransformHelper() {
