@@ -20,6 +20,7 @@ import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.util.texture.Texture;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
@@ -44,13 +45,18 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
+import java.io.File;
+import java.io.IOException;
 import java.text.AttributedCharacterIterator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 
 
@@ -62,7 +68,7 @@ import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
 import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer2;
-import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
+import org.jogamp.glg2d.impl.gl2.GL2StringDrawer2;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -151,7 +157,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected GLG2DTextHelper createTextHelper() {
-    return new GL2StringDrawer();
+    return new GL2StringDrawer2();
   }
 
   protected GLG2DImageHelper createImageHelper() {
@@ -267,6 +273,50 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     shapeHelper.draw(s);
   }
 
+  
+  private List<StoredString> storedStrngs = new ArrayList<StoredString>();
+  
+  private StoredString getStoredString(String str, Font font){
+      StoredString st = new StoredString(str, getFont().getFontName(), null);
+      for(StoredString st2 : storedStrngs){
+          if(st.equals(st2)){
+              return st2;
+          }
+      }
+      //If not contains
+      BufferedImage bf = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+      bf.createGraphics();
+      
+      Graphics2D g2 = (Graphics2D)bf.getGraphics();
+      g2.setFont(font);
+      Rectangle2D bounds = getFont().getStringBounds(str, new Canvas().getFontMetrics(font).getFontRenderContext()).getBounds();
+      double max=Math.max(bounds.getWidth(), bounds.getHeight());
+      g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
+      g2.translate(bounds.getX(), -bounds.getY());
+//      g2.scale(1,2);
+      
+      g2.drawString(str, 0,0);
+      
+      st.setImage(bf);
+      
+      try {
+          if(storedStrngs.size()<15){
+              ImageIO.write(bf, "png", new File(str + ".png"));
+          }
+      } catch (IOException ex) {
+          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
+      }
+      
+      storedStrngs.add(st);
+      
+      return st;
+  }
+
+  public void drawStringImage(String str, float x, float y){
+      Rectangle2D bounds = getFont().getStringBounds(str, new Canvas().getFontMetrics(getFont()).getFontRenderContext()).getBounds();
+      drawImage(getStoredString(str, getFont()).getImage(), (int)x, (int)y, (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+  }
+  
   @Override
   public void drawString(String str, int x, int y) {
       if(unsupportedGLImage!=null){
@@ -275,8 +325,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
           g2.setColor(getColor());
           g2.drawString(str, (int)(x), (int)(y));
       }
+      drawStringImage(str, (float)x, (float)y);
   }
-
+  
   @Override
   public void drawString(String str, float x, float y) {
       if(unsupportedGLImage!=null){
@@ -285,6 +336,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
           g2.setColor(getColor());
           g2.drawString(str, (int)(x), (int)(y));
       }
+      drawStringImage(str, (float)x, (float)y);
   }
 
   @Override
