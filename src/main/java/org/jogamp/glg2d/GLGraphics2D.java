@@ -289,32 +289,54 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       
       Graphics2D g2 = (Graphics2D)bf.getGraphics();
       g2.setFont(font);
-      Rectangle2D bounds = getFont().getStringBounds(str, new Canvas().getFontMetrics(font).getFontRenderContext()).getBounds();
+      Rectangle2D bounds = getStringBounds(str, font);
       double max=Math.max(bounds.getWidth(), bounds.getHeight());
+      g2.translate(0,0);
       g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
-      g2.translate(bounds.getX(), -bounds.getY());
+      g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2);
+      g2.scale(1,1);
 //      g2.scale(1,2);
       
       g2.drawString(str, 0,0);
       
       st.setImage(bf);
       
-      try {
-          if(storedStrngs.size()<15){
-              ImageIO.write(bf, "png", new File(str + ".png"));
-          }
-      } catch (IOException ex) {
-          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
-      }
+//      try {
+//          if(storedStrngs.size()<15){
+//              ImageIO.write(bf, "png", new File(str + ".png"));
+//          }
+//      } catch (IOException ex) {
+//          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
+//      }
       
       storedStrngs.add(st);
       
       return st;
   }
+  
+    public static Rectangle getStringBounds(String strMain, Font font) {
+        String[] strs=strMain.split("\n");
+        int width=0;
+        int height=0;
+        for(String str : strs){
+            Rectangle rectFontSize=font.getStringBounds(str, new Canvas().getFontMetrics(font).getFontRenderContext()).getBounds();
+            if(rectFontSize.width>width){
+                width=rectFontSize.width;
+            }
+            if(rectFontSize.height>height){
+                height=rectFontSize.height;
+            }
+        }
+        if(strs.length>0){
+            Rectangle rect=new Rectangle(0, 0, width, (int)((height*(0.25+0.5*(strs.length-1))-height*0) - (height*(0.25+0.5*(strs.length-1))-height*strs.length-1)));
+            return rect;
+        }
+        return null;
+    }
 
   public void drawStringImage(String str, float x, float y){
-      Rectangle2D bounds = getFont().getStringBounds(str, new Canvas().getFontMetrics(getFont()).getFontRenderContext()).getBounds();
-      drawImage(getStoredString(str, getFont()).getImage(), (int)x, (int)y, (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+      Rectangle2D bounds = getStringBounds(str, getFont());
+      drawImage(getStoredString(str, getFont()).getImage(), (int)x, (int)(y-bounds.getHeight()/2), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
   }
   
   @Override
