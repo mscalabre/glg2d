@@ -89,7 +89,7 @@ public class GL2ColorHelper extends AbstractColorHelper {
 
   private void setColor(Color c, float preMultiplyAlpha) {
 //    int rgb = c.getRGB();
-   glColor4f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f, (float) Math.min(1, Math.sqrt((c.getAlpha()/255f * preMultiplyAlpha))));
+   glColor4f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f, (float) Math.min(1, (c.getAlpha()/255f * preMultiplyAlpha)));
   }
 
   @Override

@@ -37,7 +37,6 @@ import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_ZERO;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glEnable;
-import org.lwjgl.opengl.GLContext;
 
 public abstract class AbstractColorHelper implements GLG2DColorHelper {
   protected GLGraphics2D g2d;
