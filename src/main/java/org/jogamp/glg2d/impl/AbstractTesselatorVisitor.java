@@ -48,6 +48,7 @@ public abstract class AbstractTesselatorVisitor extends SimplePathVisitor {
   protected VertexBuffer vBuffer = new VertexBuffer(1024);
   
   public AbstractTesselatorVisitor() {
+    callback = new TessellatorCallback();
   }
 
   @Override

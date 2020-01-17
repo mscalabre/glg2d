@@ -284,16 +284,15 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
           }
       }
       //If not contains
-      BufferedImage bf = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+      BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
       bf.createGraphics();
       
       Graphics2D g2 = (Graphics2D)bf.getGraphics();
       g2.setFont(font);
       Rectangle2D bounds = getStringBounds(str, font);
-      double max=Math.max(bounds.getWidth(), bounds.getHeight());
       g2.translate(0,0);
       g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
-      g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2);
+      g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2 * 1.5);
       g2.scale(1,1);
 //      g2.scale(1,2);
       
@@ -336,7 +335,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
   public void drawStringImage(String str, float x, float y){
       Rectangle2D bounds = getStringBounds(str, getFont());
-      drawImage(getStoredString(str, getFont()).getImage(), (int)x, (int)(y-bounds.getHeight()/2), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+      drawImage(getStoredString(str, getFont()).getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
   }
   
   @Override
