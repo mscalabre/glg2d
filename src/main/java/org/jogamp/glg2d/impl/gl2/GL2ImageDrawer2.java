@@ -86,7 +86,7 @@ public class GL2ImageDrawer2 extends AbstractImageHelper {
       g2d.transform(xform);
     }
 
-//    g2d.getColorHelper().setColorRespectComposite(bgcolor == null ? Color.white : bgcolor);
+    g2d.getColorHelper().setColorRespectComposite(bgcolor == null ? Color.white : bgcolor);
   }
 
   @Override

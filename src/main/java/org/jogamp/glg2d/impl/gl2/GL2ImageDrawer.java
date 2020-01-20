@@ -17,6 +17,7 @@ package org.jogamp.glg2d.impl.gl2;
 
 import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 
 

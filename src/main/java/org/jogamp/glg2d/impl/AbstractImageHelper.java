@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import org.jogamp.glg2d.GLG2DImageHelper;
 import org.jogamp.glg2d.GLG2DRenderingHints;
 import org.jogamp.glg2d.GLGraphics2D;
+import org.jogamp.glg2d.LWTexture;
 import org.lwjgl.opengl.GLContext;
 
 
@@ -206,7 +207,9 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   }
 
   protected void destroy(Texture texture) {
-    texture.destroy(g2d.getGLContext().getGL());
+      if(!(texture instanceof LWTexture)){
+          texture.destroy(g2d.getGLContext().getGL());
+      }
   }
 
   protected void addToCache(Image image, Texture texture) {
@@ -295,6 +298,11 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       return put(key, texture);
     }
   }
+
+    @Override
+    public void clearCacheImage(Image image) {
+        imageCache.remove(image);
+    }
 
   protected static class WeakKey<T> extends WeakReference<T> {
     private final int hash;

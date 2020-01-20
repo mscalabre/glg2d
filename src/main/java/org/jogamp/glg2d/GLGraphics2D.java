@@ -277,7 +277,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   private List<StoredString> storedStrngs = new ArrayList<StoredString>();
   
   private StoredString getStoredString(String str, Font font){
-      StoredString st = new StoredString(str, getFont().getFontName(), null);
+      StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
       for(StoredString st2 : storedStrngs){
           if(st.equals(st2)){
               return st2;
@@ -289,6 +289,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       
       Graphics2D g2 = (Graphics2D)bf.getGraphics();
       g2.setFont(font);
+      g2.setColor(getColor());
       Rectangle2D bounds = getStringBounds(str, font);
       g2.translate(0,0);
       g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
@@ -368,6 +369,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   @Override
   public void drawString(AttributedCharacterIterator iterator, float x, float y) {
     stringHelper.drawString(iterator, x, y);
+  }
+  
+  public void clearCacheImage(Image image){
+      this.imageHelper.clearCacheImage(image);
   }
 
   @Override

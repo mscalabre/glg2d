@@ -24,11 +24,13 @@ import java.awt.image.BufferedImage;
 public class StoredString {
     private String text;
     private String font;
+    private int rgb;
     private BufferedImage image;
 
-    public StoredString(String text, String font, BufferedImage image) {
+    public StoredString(String text, String font, int rgb, BufferedImage image) {
         this.text = text;
         this.font = font;
+        this.rgb = rgb;
         this.image = image;
     }
 
@@ -37,7 +39,10 @@ public class StoredString {
         
         if(obj instanceof StoredString){
             StoredString st = (StoredString)obj;
-            return st.font.equals(this.font) && st.text.equals(this.text);
+            return 
+                    st.font.equals(this.font) 
+                    && st.text.equals(this.text) 
+                    && st.rgb==this.rgb;
         }
         
         return false;
