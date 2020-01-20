@@ -16,13 +16,26 @@
 package org.jogamp.glg2d;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javax.swing.JComponent;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.ContextAttribs;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 
 
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
+import org.lwjgl.opengl.Pbuffer;
+import org.lwjgl.opengl.PixelFormat;
+import org.lwjglfx.util.stream.RenderStream;
+import org.lwjglfx.util.stream.StreamHandler;
+import org.lwjglfx.util.stream.StreamUtil;
 
 public class GLG2DUtils {
   private static final Logger LOGGER = Logger.getLogger(GLG2DUtils.class.getName());
@@ -59,5 +72,75 @@ public class GLG2DUtils {
 
   public static int genBufferId() {
     return glGenBuffers();
+  }
+  
+  
+  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps){
+      
+        final GLG2DPanel panel;
+        try{
+            
+            panel = new GLG2DPanel(jpanel, false);
+            Dimension size = new Dimension(1000, 1000);
+            panel.setSize(size);
+            
+            new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        Pbuffer pbuffer = null;
+                        try {
+                            pbuffer = new Pbuffer(1, 1, new PixelFormat(), null, null, new ContextAttribs().withDebug(true));
+                            pbuffer.makeCurrent();
+                            Display.setDisplayMode(new DisplayMode(1000,1000));
+                            panel.setPbuffer(pbuffer);
+                        } catch (LWJGLException e) {
+                            e.printStackTrace();
+                            System.exit(0);
+                        }
+
+                        StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
+                        StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
+                        RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 2);
+
+                        panel.setRenderStream(renderStream);
+                        long time = System.currentTimeMillis();
+                        while (panel.isAlive()) {
+                            
+                            if(mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
+                                    || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight()){
+                                Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
+                                jpanel.setSize(size2);
+                                panel.setSize(size2);
+                                ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
+                                
+                            }
+                            
+                            if(panel.needRepaint()){
+                                double acualRepaintNumber = panel.getRepaintRandomNumber();
+                                panel.paint(panel.getGraphics());
+                                if(fixFps>0){
+                                    try {
+                                        Thread.sleep((long)Math.max(0, (1000/fixFps - (System.currentTimeMillis()-time))));
+                                    } catch (InterruptedException ex) {
+                                        ex.printStackTrace();
+                                        break;
+                                    }
+                                }
+                                panel.setRepaintLastNumber(acualRepaintNumber);
+                            }
+                        }
+
+                    }
+
+            }).start();
+            
+        
+            return panel;
+            
+        }catch(Throwable th){
+            th.printStackTrace();
+        }
+        
+        return null;
   }
 }

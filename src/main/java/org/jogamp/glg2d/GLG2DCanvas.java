@@ -57,6 +57,7 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Pbuffer;
 import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
 
@@ -123,6 +124,10 @@ public class GLG2DCanvas extends JComponent {
   }
     private Gears gears;
     private RenderStream renderStream;
+    private Pbuffer pbuffer;
+    protected boolean alive = true;
+    private double repaintRandomNumber;
+    private double repaintLastNumber;
 
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
@@ -165,6 +170,28 @@ public class GLG2DCanvas extends JComponent {
     RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
 
+
+    public void setPbuffer(Pbuffer pbuffer) {
+        this.pbuffer = pbuffer;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+    
+    public boolean needRepaint(){
+        return this.repaintLastNumber!=this.repaintRandomNumber;
+    }
+
+    public void destroy(){
+        this.alive = false;
+        if(renderStream!=null){
+            renderStream.destroy();
+        }
+        if(pbuffer!=null){
+            pbuffer.destroy();
+        }
+    }
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
    * canvas. This uses the default capabilities from
@@ -469,11 +496,25 @@ public class GLG2DCanvas extends JComponent {
     @Override
     public void repaint() {
         try{
-            this.paint(getGraphics());
+            this.repaintRandomNumber = Math.random();
+//            this.paint(getGraphics());
         }catch(Throwable th){
             th.printStackTrace();
         }
     }
+
+    public double getRepaintRandomNumber() {
+        return repaintRandomNumber;
+    }
+
+    public double getRepaintLastNumber() {
+        return repaintLastNumber;
+    }
+
+    public void setRepaintLastNumber(double repaintLastNumber) {
+        this.repaintLastNumber = repaintLastNumber;
+    }
+    
   
   @Override
   public void paint(Graphics g) {
