@@ -103,11 +103,11 @@ public class GLG2DUtils {
                         RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 2);
 
                         panel.setRenderStream(renderStream);
-                        long time = System.currentTimeMillis();
                         while (panel.isAlive()) {
                             
-                            if(mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
-                                    || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight()){
+                            if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
+                                    (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
+                                    || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
                                 Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
                                 jpanel.setSize(size2);
                                 panel.setSize(size2);
@@ -116,8 +116,15 @@ public class GLG2DUtils {
                             }
                             
                             if(panel.needRepaint()){
+                                
+                                long time = System.currentTimeMillis();
+                                
                                 double acualRepaintNumber = panel.getRepaintRandomNumber();
-                                panel.paint(panel.getGraphics());
+                                try{
+                                    panel.paint(panel.getGraphics());
+                                }catch(Throwable th){
+                                    th.printStackTrace();
+                                }
                                 if(fixFps>0){
                                     try {
                                         Thread.sleep((long)Math.max(0, (1000/fixFps - (System.currentTimeMillis()-time))));
@@ -127,6 +134,10 @@ public class GLG2DUtils {
                                     }
                                 }
                                 panel.setRepaintLastNumber(acualRepaintNumber);
+    
+                                if(panel.isShowFPS()){
+                                    System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
+                                }
                             }
                         }
 

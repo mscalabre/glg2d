@@ -518,8 +518,6 @@ public class GLG2DCanvas extends JComponent {
   
   @Override
   public void paint(Graphics g) {
-        
-    long time = System.currentTimeMillis();
     
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
         if(this.canvas instanceof GLJPanel){
@@ -546,10 +544,6 @@ public class GLG2DCanvas extends JComponent {
         }
     } else {
         super.paint(g);
-    }
-    
-    if(isShowFPS()){
-        System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
     }
   }
 
