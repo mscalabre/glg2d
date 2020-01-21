@@ -17,15 +17,9 @@ package org.jogamp.glg2d;
 
 
 
-import com.digiturtle.ui.Texture;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import org.jogamp.glg2d.impl.shader.GL2ES2ColorHelper;
 import org.jogamp.glg2d.impl.shader.GL2ES2ImageDrawer;
@@ -33,10 +27,8 @@ import org.jogamp.glg2d.impl.shader.GL2ES2ShapeDrawer;
 import org.jogamp.glg2d.impl.shader.GL2ES2TransformHelper;
 import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 import org.jogamp.glg2d.impl.shader.text.GL2ES2TextDrawer;
-import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.glViewport;
 import org.lwjglfx.Gears;
-import org.lwjglfx.util.stream.StreamUtil;
 
 /**
  * Wraps a {@code JComponent} and paints it using a {@code GLGraphics2D}. This
@@ -77,7 +69,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   public void display(GLAutoDrawable drawable) {
         prePaint(drawable);
         paintGL(g2d);
-        paintUnsupported();
+//        paintUnsupported();
         postPaint(drawable);
   }
   
@@ -197,41 +189,41 @@ public class GLG2DSimpleEventListener implements GLEventListener {
         this.gears = gears;
     }
 
-    private void paintUnsupported() {
-        if(unsupportedGLImage!=null){
-//            BufferedImage bf = unsupportedGLImage;
-//            try {
-//                ImageIO.write(bf, "png", new File("testGL.png"));
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException ex) {
-//                    Logger.getLogger(GLG2DSimpleEventListener.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            } catch (IOException ex) {
-//                Logger.getLogger(StreamUtil.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-            Texture texture = Texture.loadTexture("unsupported");
-            texture.reloadTexture(unsupportedGLImage);
-            texture.bind();
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getID());
-            GL11.glBegin(GL11.GL_QUADS);
-            GL11.glTexCoord2f(0, 0);
-            GL11.glVertex2i(0, 0);
-
-            GL11.glTexCoord2f(1, 0);
-            GL11.glVertex2i(this.comp.getWidth(), 0);
-
-            GL11.glTexCoord2f(1, 1);;
-            GL11.glVertex2i(this.comp.getWidth(), this.comp.getHeight());
-
-            GL11.glTexCoord2f(0, 1);
-            GL11.glVertex2i(0, this.comp.getHeight());
-            GL11.glEnd();
-            Texture.unbind();
-        }
-    }
+//    private void paintUnsupported() {
+//        if(unsupportedGLImage!=null){
+////            BufferedImage bf = unsupportedGLImage;
+////            try {
+////                ImageIO.write(bf, "png", new File("testGL.png"));
+////                try {
+////                    Thread.sleep(1000);
+////                } catch (InterruptedException ex) {
+////                    Logger.getLogger(GLG2DSimpleEventListener.class.getName()).log(Level.SEVERE, null, ex);
+////                }
+////            } catch (IOException ex) {
+////                Logger.getLogger(StreamUtil.class.getName()).log(Level.SEVERE, null, ex);
+////            }
+//            Texture texture = Texture.loadTexture("unsupported");
+//            texture.reloadTexture(unsupportedGLImage);
+//            texture.bind();
+//            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+//            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+//
+//            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getID());
+//            GL11.glBegin(GL11.GL_QUADS);
+//            GL11.glTexCoord2f(0, 0);
+//            GL11.glVertex2i(0, 0);
+//
+//            GL11.glTexCoord2f(1, 0);
+//            GL11.glVertex2i(this.comp.getWidth(), 0);
+//
+//            GL11.glTexCoord2f(1, 1);;
+//            GL11.glVertex2i(this.comp.getWidth(), this.comp.getHeight());
+//
+//            GL11.glTexCoord2f(0, 1);
+//            GL11.glVertex2i(0, this.comp.getHeight());
+//            GL11.glEnd();
+//            Texture.unbind();
+//        }
+//    }
   
 }
