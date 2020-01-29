@@ -9,6 +9,28 @@
   <description>Java2D to OpenGL bridge</description>
   <inceptionYear>2010</inceptionYear>
   <url>http://brandonborkholder.github.com/glg2d/</url>
+
+    <repositories>
+        <repository>
+            <id>maven2</id>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
   <licenses>
     <license>
       <name>Apache 2</name>
