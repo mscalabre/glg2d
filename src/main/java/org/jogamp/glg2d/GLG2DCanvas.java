@@ -180,7 +180,8 @@ public class GLG2DCanvas extends JComponent {
     }
     
     public boolean needRepaint(){
-        return this.repaintLastNumber!=this.repaintRandomNumber;
+        return true;
+//        return this.repaintLastNumber!=this.repaintRandomNumber;
     }
 
     public void destroy(){
@@ -543,7 +544,8 @@ public class GLG2DCanvas extends JComponent {
             }
         }
     } else {
-        super.paint(g);
+        // Bug with context, I need to comment for the moment
+//        super.paint(g);
     }
   }
 

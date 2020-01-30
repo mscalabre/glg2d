@@ -17,6 +17,7 @@ package org.jogamp.glg2d;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.image.ImageView;
@@ -75,7 +76,7 @@ public class GLG2DUtils {
   }
   
   
-  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps){
+  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps, final Predicate predicatePaint){
       
         final GLG2DPanel panel;
         try{
@@ -115,7 +116,7 @@ public class GLG2DUtils {
                                 
                             }
                             
-                            if(panel.needRepaint()){
+                            if(predicatePaint.test(null)){
                                 
                                 long time = System.currentTimeMillis();
                                 
