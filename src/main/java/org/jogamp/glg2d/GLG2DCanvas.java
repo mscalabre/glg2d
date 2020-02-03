@@ -128,6 +128,7 @@ public class GLG2DCanvas extends JComponent {
     protected boolean alive = true;
     private double repaintRandomNumber;
     private double repaintLastNumber;
+    private boolean destroyInContext;
 
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
@@ -170,6 +171,11 @@ public class GLG2DCanvas extends JComponent {
     RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
 
+    public boolean isDestroyInContext() {
+        return destroyInContext;
+    }
+
+  
 
     public void setPbuffer(Pbuffer pbuffer) {
         this.pbuffer = pbuffer;
@@ -180,11 +186,15 @@ public class GLG2DCanvas extends JComponent {
     }
     
     public boolean needRepaint(){
-        return true;
-//        return this.repaintLastNumber!=this.repaintRandomNumber;
+//        return true;
+        return this.repaintLastNumber!=this.repaintRandomNumber;
     }
 
     public void destroy(){
+        this.destroyInContext = true;
+    }
+    
+    public void realDestroy(){
         this.alive = false;
         if(renderStream!=null){
             renderStream.destroy();

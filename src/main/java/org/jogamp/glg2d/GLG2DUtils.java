@@ -15,14 +15,18 @@
  */
 package org.jogamp.glg2d;
 
+import com.sun.awt.AWTUtilities;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
@@ -37,6 +41,7 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjglfx.util.stream.RenderStream;
 import org.lwjglfx.util.stream.StreamHandler;
 import org.lwjglfx.util.stream.StreamUtil;
+import sun.awt.AppContext;
 
 public class GLG2DUtils {
   private static final Logger LOGGER = Logger.getLogger(GLG2DUtils.class.getName());
@@ -75,7 +80,7 @@ public class GLG2DUtils {
     return glGenBuffers();
   }
   
-  
+            
   public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps, final Predicate predicatePaint){
       
         final GLG2DPanel panel;
@@ -85,68 +90,104 @@ public class GLG2DUtils {
             Dimension size = new Dimension(1000, 1000);
             panel.setSize(size);
             
-            new Thread(new Runnable(){
-                    @Override
-                    public void run() {
-                        Pbuffer pbuffer = null;
-                        try {
-                            pbuffer = new Pbuffer(1, 1, new PixelFormat(), null, null, new ContextAttribs().withDebug(true));
-                            pbuffer.makeCurrent();
-                            Display.setDisplayMode(new DisplayMode(1000,1000));
-                            panel.setPbuffer(pbuffer);
-                        } catch (LWJGLException e) {
-                            e.printStackTrace();
-                            System.exit(0);
-                        }
+            Runnable runnable = new Runnable(){
+                @Override
+                public void run() {
+                    new Thread(Thread.currentThread().getThreadGroup(), new Runnable(){
+                        @Override
+                        public void run() {
 
-                        StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
-                        StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
-                        RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 2);
 
-                        panel.setRenderStream(renderStream);
-                        while (panel.isAlive()) {
-                            
-                            if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
-                                    (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
-                                    || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
-                                Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
-                                jpanel.setSize(size2);
-                                panel.setSize(size2);
-                                ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
-                                
-                            }
-                            
-                            if(predicatePaint.test(null)){
-                                
-                                long time = System.currentTimeMillis();
-                                
-                                double acualRepaintNumber = panel.getRepaintRandomNumber();
-                                try{
-                                    panel.paint(panel.getGraphics());
-                                }catch(Throwable th){
-                                    th.printStackTrace();
+        //                        SwingUtilities.invokeAndWait(new Runnable(){
+        //                            @Override
+        //                            public void run() {
+                                        Pbuffer pbuffer = null;
+                                        while(pbuffer==null){
+                                            try {
+                                                pbuffer = new Pbuffer(1, 1, new PixelFormat(), null, null, new ContextAttribs().withDebug(true));
+                                                pbuffer.makeCurrent();
+                                                Display.setDisplayMode(new DisplayMode(1000,1000));
+                                                panel.setPbuffer(pbuffer);
+                                            } catch (LWJGLException e) {
+                                                e.printStackTrace();
+                                                try {
+                                                    Thread.sleep(1000);
+                                                } catch (InterruptedException ex) {
+                                                    ex.printStackTrace();
+                                                }
+                                            }
+                                        }
+
+                                        StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
+                                        StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
+                                        RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 2);
+
+                                        panel.setRenderStream(renderStream);
+        //                            }
+        //                        });
+
+
+                            while (panel.isAlive()) {
+
+                                if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
+                                        (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
+                                        || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
+                                                Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
+                                                jpanel.setSize(size2);
+                                                panel.setSize(size2);
+                                                ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
+
                                 }
-                                if(fixFps>0){
-                                    try {
-                                        Thread.sleep((long)Math.max(0, (1000/fixFps - (System.currentTimeMillis()-time))));
-                                    } catch (InterruptedException ex) {
-                                        ex.printStackTrace();
-                                        break;
+
+                                if(panel.isDestroyInContext()){
+                                    panel.realDestroy();
+                                    break;
+                                }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
+                                    double acualRepaintNumber = panel.getRepaintRandomNumber();
+                                    long time = System.currentTimeMillis();
+        //                                SwingUtilities.invokeAndWait(new Runnable(){
+        //                                    @Override
+        //                                    public void run() {
+                                                try{
+                                                    panel.paint(panel.getGraphics());
+                                                }catch(Throwable th){
+                                                    th.printStackTrace();
+                                                }
+        //                                    }
+        //                                });
+                                    if(fixFps>0){
+                                        double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
+                                        if(diffTime>0){
+                                            try {
+                                                Thread.sleep((long)Math.max(0, diffTime));
+                                            } catch (InterruptedException ex) {
+                                                ex.printStackTrace();
+                                            }
+                                        }
+                                    }
+
+                                    panel.setRepaintLastNumber(acualRepaintNumber);
+
+                                    if(panel.isShowFPS()){
+                                        System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
                                     }
                                 }
-                                panel.setRepaintLastNumber(acualRepaintNumber);
-    
-                                if(panel.isShowFPS()){
-                                    System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
-                                }
                             }
+                            System.out.println("stop Thread GL");
+
                         }
 
-                    }
-
-            }).start();
+                    }).start();
+                }
+            };
             
-        
+            if(Platform.isFxApplicationThread()){
+                runnable.run();
+            }else{
+                Platform.runLater(runnable);
+            }
+            
+
             return panel;
             
         }catch(Throwable th){
