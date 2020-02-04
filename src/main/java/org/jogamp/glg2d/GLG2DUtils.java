@@ -15,18 +15,16 @@
  */
 package org.jogamp.glg2d;
 
-import com.sun.awt.AWTUtilities;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
@@ -41,7 +39,6 @@ import org.lwjgl.opengl.PixelFormat;
 import org.lwjglfx.util.stream.RenderStream;
 import org.lwjglfx.util.stream.StreamHandler;
 import org.lwjglfx.util.stream.StreamUtil;
-import sun.awt.AppContext;
 
 public class GLG2DUtils {
   private static final Logger LOGGER = Logger.getLogger(GLG2DUtils.class.getName());
@@ -81,7 +78,7 @@ public class GLG2DUtils {
   }
   
             
-  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps, final Predicate predicatePaint){
+  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps, final Predicate predicatePaint, final Runnable runnableDebug){
       
         final GLG2DPanel panel;
         try{
@@ -93,7 +90,9 @@ public class GLG2DUtils {
             Runnable runnable = new Runnable(){
                 @Override
                 public void run() {
-                    new Thread(Thread.currentThread().getThreadGroup(), new Runnable(){
+                    ExecutorService e = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+                    e.execute(new Runnable(){
                         @Override
                         public void run() {
 
@@ -158,6 +157,7 @@ public class GLG2DUtils {
                                     if(fixFps>0){
                                         double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
                                         if(diffTime>0){
+                                            System.out.println("sleep fix fps");
                                             try {
                                                 Thread.sleep((long)Math.max(0, diffTime));
                                             } catch (InterruptedException ex) {
@@ -169,7 +169,18 @@ public class GLG2DUtils {
                                     panel.setRepaintLastNumber(acualRepaintNumber);
 
                                     if(panel.isShowFPS()){
-                                        System.out.println("FPS : " + (1000 / (Math.max(1, (System.currentTimeMillis()-time)))));
+                                        double fps = (1000 / (Math.max(1, (System.currentTimeMillis()-time))));
+                                        if(fps < 3 && runnableDebug!=null){
+                                            runnableDebug.run();
+                                        }
+                                        System.out.println("FPS : " + fps);
+                                    }
+                                }else{
+                                    try {
+                                        Thread.sleep(1000);
+                                        System.out.println("Sleep no predicate");
+                                    } catch (InterruptedException ex) {
+                                        ex.printStackTrace();
                                     }
                                 }
                             }
@@ -177,15 +188,15 @@ public class GLG2DUtils {
 
                         }
 
-                    }).start();
+                    });
                 }
             };
             
-            if(Platform.isFxApplicationThread()){
+//            if(Platform.isFxApplicationThread()){
                 runnable.run();
-            }else{
-                Platform.runLater(runnable);
-            }
+//            }else{
+//                Platform.runLater(runnable);
+//            }
             
 
             return panel;

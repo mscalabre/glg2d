@@ -529,7 +529,7 @@ public class GLG2DCanvas extends JComponent {
   
   @Override
   public void paint(Graphics g) {
-    
+      
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);

@@ -276,42 +276,48 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   
   private List<StoredString> storedStrngs = new ArrayList<StoredString>();
   
-  private StoredString getStoredString(String str, Font font){
-      StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
+  private StoredString getStoredString(final String str, final Font font){
+      final StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
       for(StoredString st2 : storedStrngs){
           if(st.equals(st2)){
               return st2;
           }
       }
       //If not contains
-      BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
-      bf.createGraphics();
+      new Thread(new Runnable(){
+          @Override
+          public void run() {
+            BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
+            bf.createGraphics();
+
+            Graphics2D g2 = (Graphics2D)bf.getGraphics();
+            g2.setFont(font);
+            g2.setColor(getColor());
+            Rectangle2D bounds = getStringBounds(str, font);
+            g2.translate(0,0);
+            g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
+            g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2 * 1.5);
+            g2.scale(1,1);
+      //      g2.scale(1,2);
+
+            g2.drawString(str, 0,0);
+
+            st.setImage(bf);
+
+      //      try {
+      //          if(storedStrngs.size()<15){
+      //              ImageIO.write(bf, "png", new File(str + ".png"));
+      //          }
+      //      } catch (IOException ex) {
+      //          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
+      //      }
+
+            storedStrngs.add(st);
+          }
+          
+      }).start();
       
-      Graphics2D g2 = (Graphics2D)bf.getGraphics();
-      g2.setFont(font);
-      g2.setColor(getColor());
-      Rectangle2D bounds = getStringBounds(str, font);
-      g2.translate(0,0);
-      g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
-      g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2 * 1.5);
-      g2.scale(1,1);
-//      g2.scale(1,2);
-      
-      g2.drawString(str, 0,0);
-      
-      st.setImage(bf);
-      
-//      try {
-//          if(storedStrngs.size()<15){
-//              ImageIO.write(bf, "png", new File(str + ".png"));
-//          }
-//      } catch (IOException ex) {
-//          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
-//      }
-      
-      storedStrngs.add(st);
-      
-      return st;
+      return null;
   }
   
     public static Rectangle getStringBounds(String strMain, Font font) {
@@ -336,7 +342,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
   public void drawStringImage(String str, float x, float y){
       Rectangle2D bounds = getStringBounds(str, getFont());
-      drawImage(getStoredString(str, getFont()).getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+      StoredString storedString = getStoredString(str, getFont());
+      if(storedString!=null){
+          drawImage(storedString.getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+      }
   }
   
   @Override
