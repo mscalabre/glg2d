@@ -273,6 +273,10 @@ public class GLG2DCanvas extends JComponent {
       }
   }
 
+    public RenderStream getRenderStream() {
+        return renderStream;
+    }
+
   /**
    * Sets the drawing path, {@code true} for OpenGL, {@code false} for normal
    * Java2D.
@@ -560,7 +564,7 @@ public class GLG2DCanvas extends JComponent {
   }
 
   public boolean isShowFPS(){
-    return true;
+    return false;
   }
   
     @Override

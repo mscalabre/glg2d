@@ -66,7 +66,7 @@ public class GL2ImageDrawer2 extends AbstractImageHelper {
   @Override
   protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {
    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-   glTexParameterf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+//   glTexParameterf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 
     /*
      * FIXME This is unexpected since we never disable blending, but in some

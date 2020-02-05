@@ -54,6 +54,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -283,8 +285,13 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
               return st2;
           }
       }
+      
+      final Color color = getColor();
       //If not contains
-      new Thread(new Runnable(){
+      
+      ExecutorService e = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+      
+      e.execute(new Runnable(){
           @Override
           public void run() {
             BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
@@ -292,7 +299,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
             Graphics2D g2 = (Graphics2D)bf.getGraphics();
             g2.setFont(font);
-            g2.setColor(getColor());
+            g2.setColor(color);
             Rectangle2D bounds = getStringBounds(str, font);
             g2.translate(0,0);
             g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
@@ -315,7 +322,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
             storedStrngs.add(st);
           }
           
-      }).start();
+      });
       
       return null;
   }

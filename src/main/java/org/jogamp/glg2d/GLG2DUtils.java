@@ -77,6 +77,9 @@ public class GLG2DUtils {
     return glGenBuffers();
   }
   
+  public static class MyBoolean{
+      public boolean bool;
+  }
             
   public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps, final Predicate predicatePaint, final Runnable runnableDebug){
       
@@ -90,7 +93,7 @@ public class GLG2DUtils {
             Runnable runnable = new Runnable(){
                 @Override
                 public void run() {
-                    ExecutorService e = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+                    ExecutorService e = Executors.newFixedThreadPool(/*Runtime.getRuntime().availableProcessors()*/1);
 
                     e.execute(new Runnable(){
                         @Override
@@ -142,6 +145,9 @@ public class GLG2DUtils {
                                     panel.realDestroy();
                                     break;
                                 }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
+                                    
+                                    
+                                    
                                     double acualRepaintNumber = panel.getRepaintRandomNumber();
                                     long time = System.currentTimeMillis();
         //                                SwingUtilities.invokeAndWait(new Runnable(){
