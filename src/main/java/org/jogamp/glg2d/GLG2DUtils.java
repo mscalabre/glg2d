@@ -184,7 +184,7 @@ public class GLG2DUtils {
                                 }else{
                                     try {
                                         Thread.sleep(1000);
-                                        System.out.println("Sleep no predicate");
+//                                        System.out.println("Sleep no predicate");
                                     } catch (InterruptedException ex) {
                                         ex.printStackTrace();
                                     }
