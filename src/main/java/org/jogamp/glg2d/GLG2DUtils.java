@@ -93,7 +93,8 @@ public class GLG2DUtils {
             Runnable runnable = new Runnable(){
                 @Override
                 public void run() {
-                    ExecutorService e = Executors.newFixedThreadPool(/*Runtime.getRuntime().availableProcessors()*/1);
+                    final ExecutorService e = Executors.newFixedThreadPool(/*Runtime.getRuntime().availableProcessors()*/1);
+                    panel.setExecutor(e);
 
                     e.execute(new Runnable(){
                         @Override
@@ -125,73 +126,163 @@ public class GLG2DUtils {
                                         RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 1);
 
                                         panel.setRenderStream(renderStream);
+                                        panel.setPredicate(predicatePaint);
         //                            }
         //                        });
 
 
-                            while (panel.isAlive()) {
+        
+                        new Thread(new Runnable(){
+                                @Override
+                                public void run() {
+                                    while (panel.isAlive()) {
 
-                                if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
-                                        (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
-                                        || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
-                                                Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
-                                                jpanel.setSize(size2);
-                                                panel.setSize(size2);
-                                                ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
+                                        if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
+                                                (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
+                                                || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
+                                                        Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
+                                                        jpanel.setSize(size2);
+                                                        panel.setSize(size2);
+                                                        ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
 
-                                }
+                                        }
 
-                                if(panel.isDestroyInContext()){
-                                    panel.realDestroy();
-                                    break;
-                                }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
-                                    
-                                    
-                                    
-                                    double acualRepaintNumber = panel.getRepaintRandomNumber();
-                                    long time = System.currentTimeMillis();
-        //                                SwingUtilities.invokeAndWait(new Runnable(){
-        //                                    @Override
-        //                                    public void run() {
-                                                try{
-                                                    panel.paint(panel.getGraphics());
-                                                }catch(Throwable th){
-                                                    th.printStackTrace();
+                                        if(panel.isDestroyInContext()){
+                                            e.execute(new Runnable(){
+                                                @Override
+                                                public void run() {
+                                                    try{
+                                                        panel.realDestroy();
+                                                    }catch(RuntimeException ex){
+                                                    }
                                                 }
+                                                
+                                            });
+                                            break;
+                                        }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
+                                            panel.requestFocus();
+        //                                    
+        //                                    
+        //                                    double acualRepaintNumber = panel.getRepaintRandomNumber();
+        //                                    long time = System.currentTimeMillis();
+        //        //                                SwingUtilities.invokeAndWait(new Runnable(){
+        //        //                                    @Override
+        //        //                                    public void run() {
+        //                                                try{
+        //                                                    panel.paint(panel.getGraphics());
+        //                                                }catch(Throwable th){
+        //                                                    th.printStackTrace();
+        //                                                }
+        //        //                                    }
+        //        //                                });
+        //                                    if(fixFps>0){
+        //                                        double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
+        //                                        if(diffTime>0){
+        //                                            System.out.println("sleep fix fps");
+        //                                            try {
+        //                                                Thread.sleep((long)Math.max(0, diffTime));
+        //                                            } catch (InterruptedException ex) {
+        //                                                ex.printStackTrace();
+        //                                            }
+        //                                        }
         //                                    }
-        //                                });
-                                    if(fixFps>0){
-                                        double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
-                                        if(diffTime>0){
-                                            System.out.println("sleep fix fps");
-                                            try {
-                                                Thread.sleep((long)Math.max(0, diffTime));
-                                            } catch (InterruptedException ex) {
-                                                ex.printStackTrace();
-                                            }
+        //
+        //                                    panel.setRepaintLastNumber(acualRepaintNumber);
+        //
+        //                                    if(panel.isShowFPS()){
+        //                                        double fps = (1000 / (Math.max(1, (System.currentTimeMillis()-time))));
+        //                                        if(fps < 3 && runnableDebug!=null){
+        //                                            runnableDebug.run();
+        //                                        }
+        //                                        System.out.println("FPS : " + fps);
+        //                                    }
+        //                                }else{
+        //                                    try {
+        //                                        Thread.sleep(1000);
+        ////                                        System.out.println("Sleep no predicate");
+        //                                    } catch (InterruptedException ex) {
+        //                                        ex.printStackTrace();
+        //                                    }
+                                        }
+                                        try{
+                                            Thread.sleep(1000);
+                                        }catch(InterruptedException ex){
+                                            ex.printStackTrace();
                                         }
                                     }
+                                    System.out.println("stop Thread GL");
 
-                                    panel.setRepaintLastNumber(acualRepaintNumber);
-
-                                    if(panel.isShowFPS()){
-                                        double fps = (1000 / (Math.max(1, (System.currentTimeMillis()-time))));
-                                        if(fps < 3 && runnableDebug!=null){
-                                            runnableDebug.run();
-                                        }
-                                        System.out.println("FPS : " + fps);
-                                    }
-                                }else{
-                                    try {
-                                        Thread.sleep(1000);
-//                                        System.out.println("Sleep no predicate");
-                                    } catch (InterruptedException ex) {
-                                        ex.printStackTrace();
-                                    }
                                 }
-                            }
-                            System.out.println("stop Thread GL");
-
+                            
+                        }).start();
+//                            while (panel.isAlive()) {
+//
+//                                if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
+//                                        (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
+//                                        || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
+//                                                Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
+//                                                jpanel.setSize(size2);
+//                                                panel.setSize(size2);
+//                                                ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
+//
+//                                }
+//
+//                                if(panel.isDestroyInContext()){
+//                                    panel.realDestroy();
+//                                    break;
+//                                }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
+//                                    panel.requestFocus();
+//                                    try{
+//                                        Thread.sleep(1000);
+//                                    }catch(InterruptedException ex){
+//                                        ex.printStackTrace();
+//                                    }
+////                                    
+////                                    
+////                                    double acualRepaintNumber = panel.getRepaintRandomNumber();
+////                                    long time = System.currentTimeMillis();
+////        //                                SwingUtilities.invokeAndWait(new Runnable(){
+////        //                                    @Override
+////        //                                    public void run() {
+////                                                try{
+////                                                    panel.paint(panel.getGraphics());
+////                                                }catch(Throwable th){
+////                                                    th.printStackTrace();
+////                                                }
+////        //                                    }
+////        //                                });
+////                                    if(fixFps>0){
+////                                        double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
+////                                        if(diffTime>0){
+////                                            System.out.println("sleep fix fps");
+////                                            try {
+////                                                Thread.sleep((long)Math.max(0, diffTime));
+////                                            } catch (InterruptedException ex) {
+////                                                ex.printStackTrace();
+////                                            }
+////                                        }
+////                                    }
+////
+////                                    panel.setRepaintLastNumber(acualRepaintNumber);
+////
+////                                    if(panel.isShowFPS()){
+////                                        double fps = (1000 / (Math.max(1, (System.currentTimeMillis()-time))));
+////                                        if(fps < 3 && runnableDebug!=null){
+////                                            runnableDebug.run();
+////                                        }
+////                                        System.out.println("FPS : " + fps);
+////                                    }
+////                                }else{
+////                                    try {
+////                                        Thread.sleep(1000);
+//////                                        System.out.println("Sleep no predicate");
+////                                    } catch (InterruptedException ex) {
+////                                        ex.printStackTrace();
+////                                    }
+//                                }
+//                            }
+//                            System.out.println("stop Thread GL");
+//
                         }
 
                     });

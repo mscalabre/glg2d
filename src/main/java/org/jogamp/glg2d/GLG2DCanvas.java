@@ -55,6 +55,8 @@ import javax.swing.RepaintManager;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Pbuffer;
@@ -105,6 +107,10 @@ public class GLG2DCanvas extends JComponent {
   private BufferedImage imageRender = null;
   
   private boolean useGL2ES2; 
+  
+  private ExecutorService executor;
+  
+  private Predicate predicate;
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -508,14 +514,25 @@ public class GLG2DCanvas extends JComponent {
       return true;
   }
 
+    private int nbPaintStack = 0;
     @Override
     public void repaint() {
-        try{
-            this.repaintRandomNumber = Math.random();
-//            this.paint(getGraphics());
-        }catch(Throwable th){
-            th.printStackTrace();
-        }
+//        try{
+//            this.repaintRandomNumber = Math.random();
+            if(executor!=null && predicate!=null && predicate.test(null) && nbPaintStack<10){ 
+                nbPaintStack++;
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        paint(getGraphics());
+                        nbPaintStack--;
+                    }
+                };
+                executor.execute(runnable);
+            }
+//        }catch(Throwable th){
+//            th.printStackTrace();
+//        }
     }
 
     public double getRepaintRandomNumber() {
@@ -529,6 +546,22 @@ public class GLG2DCanvas extends JComponent {
     public void setRepaintLastNumber(double repaintLastNumber) {
         this.repaintLastNumber = repaintLastNumber;
     }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public void setPredicate(Predicate predicate) {
+        this.predicate = predicate;
+    }
+
+    public Predicate getPredicate() {
+        return predicate;
+    }
     
   
   @Override
@@ -538,7 +571,7 @@ public class GLG2DCanvas extends JComponent {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);
         }else{
-            if(useLWJGL()){
+            if(useLWJGL() && executor!=null){
                 if(g2dglListener instanceof GLG2DSimpleEventListener){
                     if(((GLG2DSimpleEventListener)g2dglListener).getG2D()==null){
                         g2dglListener.init(canvas);
