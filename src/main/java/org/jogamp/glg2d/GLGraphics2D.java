@@ -51,6 +51,7 @@ import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -279,11 +280,18 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   private List<StoredString> storedStrngs = new ArrayList<StoredString>();
   
   private StoredString getStoredString(final String str, final Font font){
+      
       final StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
-      for(StoredString st2 : storedStrngs){
-          if(st.equals(st2)){
-              return st2;
-          }
+      List<StoredString> storedStrngsTmp = new ArrayList<StoredString>();
+      try{
+        storedStrngsTmp.addAll(storedStrngs);
+        for(StoredString st2 : storedStrngsTmp){
+            if(st.equals(st2)){
+                return st2;
+            }
+        }
+      }catch(ConcurrentModificationException ex){
+          ex.printStackTrace();
       }
       
       final Color color = getColor();

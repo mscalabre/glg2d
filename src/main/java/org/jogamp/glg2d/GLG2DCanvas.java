@@ -524,11 +524,19 @@ public class GLG2DCanvas extends JComponent {
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
-                        paint(getGraphics());
+                        try{
+                            paint(getGraphics());
+                        }catch(Throwable th){
+                            th.printStackTrace();
+                        }
                         nbPaintStack--;
                     }
                 };
-                executor.execute(runnable);
+                try{
+                    executor.execute(runnable);
+                }catch(Throwable th){
+                    th.printStackTrace();
+                }
             }
 //        }catch(Throwable th){
 //            th.printStackTrace();
