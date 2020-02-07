@@ -101,200 +101,69 @@ public class GLG2DUtils {
                         public void run() {
 
 
-        //                        SwingUtilities.invokeAndWait(new Runnable(){
-        //                            @Override
-        //                            public void run() {
-                                        Pbuffer pbuffer = null;
-                                        while(pbuffer==null){
-                                            try {
-                                                pbuffer = new Pbuffer(1, 1, new PixelFormat(), null, null, new ContextAttribs().withDebug(true));
-                                                pbuffer.makeCurrent();
-                                                Display.setDisplayMode(new DisplayMode(1000,1000));
-                                                panel.setPbuffer(pbuffer);
-                                            } catch (LWJGLException e) {
-                                                e.printStackTrace();
-                                                try {
-                                                    Thread.sleep(1000);
-                                                } catch (InterruptedException ex) {
-                                                    ex.printStackTrace();
-                                                }
-                                            }
-                                        }
+                            Pbuffer pbuffer = null;
+                            while(pbuffer==null){
+                                try {
+                                    pbuffer = new Pbuffer(1, 1, new PixelFormat(), null, null, new ContextAttribs().withDebug(true));
+                                    pbuffer.makeCurrent();
+                                    Display.setDisplayMode(new DisplayMode(1000,1000));
+                                    panel.setPbuffer(pbuffer);
+                                } catch (LWJGLException e) {
+                                    e.printStackTrace();
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            }
 
-                                        StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
-                                        StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
-                                        RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 1);
+                            StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
+                            StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
+                            RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 1);
 
-                                        panel.setRenderStream(renderStream);
-                                        panel.setPredicate(predicatePaint);
-        //                            }
-        //                        });
-
+                            panel.setRenderStream(renderStream);
+                            panel.setPredicate(predicatePaint);
 
         
-                        new Thread(new Runnable(){
-                                @Override
-                                public void run() {
-                                    while (panel.isAlive()) {
+                            new Thread(new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        while (panel.isAlive()) {
 
-                                        if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
-                                                (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
-                                                || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
-                                                        Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
-                                                        jpanel.setSize(size2);
-                                                        panel.setSize(size2);
-                                                        ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
-
-                                        }
-
-                                        if(panel.isDestroyInContext()){
-                                            e.execute(new Runnable(){
-                                                @Override
-                                                public void run() {
-                                                    try{
-                                                        panel.realDestroy();
-                                                    }catch(RuntimeException ex){
+                                            if(panel.isDestroyInContext()){
+                                                e.execute(new Runnable(){
+                                                    @Override
+                                                    public void run() {
+                                                        try{
+                                                            panel.realDestroy();
+                                                        }catch(RuntimeException ex){
+                                                        }
                                                     }
-                                                }
-                                                
-                                            });
-                                            break;
-                                        }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
-                                            panel.requestFocus();
-        //                                    
-        //                                    
-        //                                    double acualRepaintNumber = panel.getRepaintRandomNumber();
-        //                                    long time = System.currentTimeMillis();
-        //        //                                SwingUtilities.invokeAndWait(new Runnable(){
-        //        //                                    @Override
-        //        //                                    public void run() {
-        //                                                try{
-        //                                                    panel.paint(panel.getGraphics());
-        //                                                }catch(Throwable th){
-        //                                                    th.printStackTrace();
-        //                                                }
-        //        //                                    }
-        //        //                                });
-        //                                    if(fixFps>0){
-        //                                        double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
-        //                                        if(diffTime>0){
-        //                                            System.out.println("sleep fix fps");
-        //                                            try {
-        //                                                Thread.sleep((long)Math.max(0, diffTime));
-        //                                            } catch (InterruptedException ex) {
-        //                                                ex.printStackTrace();
-        //                                            }
-        //                                        }
-        //                                    }
-        //
-        //                                    panel.setRepaintLastNumber(acualRepaintNumber);
-        //
-        //                                    if(panel.isShowFPS()){
-        //                                        double fps = (1000 / (Math.max(1, (System.currentTimeMillis()-time))));
-        //                                        if(fps < 3 && runnableDebug!=null){
-        //                                            runnableDebug.run();
-        //                                        }
-        //                                        System.out.println("FPS : " + fps);
-        //                                    }
-        //                                }else{
-        //                                    try {
-        //                                        Thread.sleep(1000);
-        ////                                        System.out.println("Sleep no predicate");
-        //                                    } catch (InterruptedException ex) {
-        //                                        ex.printStackTrace();
-        //                                    }
-                                        }
-                                        try{
-                                            Thread.sleep(1000);
-                                        }catch(InterruptedException ex){
-                                            ex.printStackTrace();
-                                        }
-                                    }
-                                    System.out.println("stop Thread GL");
 
-                                }
-                            
-                        }).start();
-//                            while (panel.isAlive()) {
-//
-//                                if((mainContainer!=null && mainContainer.getBoundsInLocal()!=null && jpanel!=null) && 
-//                                        (mainContainer.getBoundsInLocal().getWidth()!=jpanel.getWidth()
-//                                        || mainContainer.getBoundsInLocal().getHeight()!=jpanel.getHeight())){
-//                                                Dimension size2 = new Dimension((int)mainContainer.getBoundsInLocal().getWidth(), (int)mainContainer.getBoundsInLocal().getHeight());
-//                                                jpanel.setSize(size2);
-//                                                panel.setSize(size2);
-//                                                ((Pane)mainContainer.getChildren().get(0)).setPrefSize(mainContainer.getBoundsInLocal().getWidth(), mainContainer.getBoundsInLocal().getHeight());
-//
-//                                }
-//
-//                                if(panel.isDestroyInContext()){
-//                                    panel.realDestroy();
-//                                    break;
-//                                }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
-//                                    panel.requestFocus();
-//                                    try{
-//                                        Thread.sleep(1000);
-//                                    }catch(InterruptedException ex){
-//                                        ex.printStackTrace();
-//                                    }
-////                                    
-////                                    
-////                                    double acualRepaintNumber = panel.getRepaintRandomNumber();
-////                                    long time = System.currentTimeMillis();
-////        //                                SwingUtilities.invokeAndWait(new Runnable(){
-////        //                                    @Override
-////        //                                    public void run() {
-////                                                try{
-////                                                    panel.paint(panel.getGraphics());
-////                                                }catch(Throwable th){
-////                                                    th.printStackTrace();
-////                                                }
-////        //                                    }
-////        //                                });
-////                                    if(fixFps>0){
-////                                        double diffTime = (1000/fixFps - (System.currentTimeMillis()-time));
-////                                        if(diffTime>0){
-////                                            System.out.println("sleep fix fps");
-////                                            try {
-////                                                Thread.sleep((long)Math.max(0, diffTime));
-////                                            } catch (InterruptedException ex) {
-////                                                ex.printStackTrace();
-////                                            }
-////                                        }
-////                                    }
-////
-////                                    panel.setRepaintLastNumber(acualRepaintNumber);
-////
-////                                    if(panel.isShowFPS()){
-////                                        double fps = (1000 / (Math.max(1, (System.currentTimeMillis()-time))));
-////                                        if(fps < 3 && runnableDebug!=null){
-////                                            runnableDebug.run();
-////                                        }
-////                                        System.out.println("FPS : " + fps);
-////                                    }
-////                                }else{
-////                                    try {
-////                                        Thread.sleep(1000);
-//////                                        System.out.println("Sleep no predicate");
-////                                    } catch (InterruptedException ex) {
-////                                        ex.printStackTrace();
-////                                    }
-//                                }
-//                            }
-//                            System.out.println("stop Thread GL");
-//
+                                                });
+                                                break;
+                                            }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
+                                                panel.requestFocus();
+                                            }
+                                            try{
+                                                Thread.sleep(1000);
+                                            }catch(InterruptedException ex){
+                                                ex.printStackTrace();
+                                            }
+                                        }
+                                        System.out.println("stop Thread GL");
+
+                                    }
+
+                            }).start();
                         }
 
                     });
                 }
             };
             
-//            if(Platform.isFxApplicationThread()){
-                runnable.run();
-//            }else{
-//                Platform.runLater(runnable);
-//            }
-            
+            runnable.run();
 
             return panel;
             
