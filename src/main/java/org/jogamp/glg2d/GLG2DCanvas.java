@@ -208,6 +208,10 @@ public class GLG2DCanvas extends JComponent {
         if(pbuffer!=null){
             pbuffer.destroy();
         }
+        
+        if(((GLG2DSimpleEventListener)g2dglListener) != null){
+            g2dglListener.dispose(canvas);
+        }
     }
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the

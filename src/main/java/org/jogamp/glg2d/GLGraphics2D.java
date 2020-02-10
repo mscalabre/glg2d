@@ -269,6 +269,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     for (G2DDrawingHelper helper : helpers) {
       helper.dispose();
     }
+    for(StoredString st : storedStrngs){
+        st.setImage(null);
+    }
+    this.storedStrngs = null;
   }
 
   @Override
@@ -278,6 +282,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
   
   private List<StoredString> storedStrngs = new ArrayList<StoredString>();
+
+    public List<StoredString> getStoredStrngs() {
+        return storedStrngs;
+    }
   
   private StoredString getStoredString(final String str, final Font font){
       
