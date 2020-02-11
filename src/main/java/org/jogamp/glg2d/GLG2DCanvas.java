@@ -109,8 +109,6 @@ public class GLG2DCanvas extends JComponent {
   private boolean useGL2ES2; 
   
   private ExecutorService executor;
-  
-  private Predicate predicate;
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -198,20 +196,29 @@ public class GLG2DCanvas extends JComponent {
 
     public void destroy(){
         this.destroyInContext = true;
+        System.out.println("destroy");
+        realDestroy();
     }
     
     public void realDestroy(){
-        this.alive = false;
-        if(renderStream!=null){
-            renderStream.destroy();
-        }
-        if(pbuffer!=null){
-            pbuffer.destroy();
-        }
-        
-        if(((GLG2DSimpleEventListener)g2dglListener) != null){
-            g2dglListener.dispose(canvas);
-        }
+        getExecutor().execute(new Runnable(){
+            @Override
+            public void run() {
+                alive = false;
+                if(renderStream!=null){
+                    renderStream.destroy();
+                }
+                if(pbuffer!=null){
+                    pbuffer.destroy();
+                }
+
+                if(((GLG2DSimpleEventListener)g2dglListener) != null){
+                    g2dglListener.dispose(canvas);
+                }
+                System.out.println("Real destroy ok");
+            }
+            
+        });
     }
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
@@ -523,7 +530,7 @@ public class GLG2DCanvas extends JComponent {
     public void repaint() {
 //        try{
 //            this.repaintRandomNumber = Math.random();
-            if(executor!=null && predicate!=null && predicate.test(null) && nbPaintStack<10){ 
+            if(executor!=null && nbPaintStack<1){ 
                 nbPaintStack++;
                 Runnable runnable = new Runnable() {
                     @Override
@@ -565,14 +572,6 @@ public class GLG2DCanvas extends JComponent {
 
     public ExecutorService getExecutor() {
         return executor;
-    }
-
-    public void setPredicate(Predicate predicate) {
-        this.predicate = predicate;
-    }
-
-    public Predicate getPredicate() {
-        return predicate;
     }
     
   

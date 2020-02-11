@@ -81,7 +81,7 @@ public class GLG2DUtils {
       public boolean bool;
   }
             
-  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int fixFps, final Predicate predicatePaint, final Runnable runnableDebug){
+  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView){
       
         final GLG2DPanel panel;
         try{
@@ -123,40 +123,7 @@ public class GLG2DUtils {
                             RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 1);
 
                             panel.setRenderStream(renderStream);
-                            panel.setPredicate(predicatePaint);
 
-        
-                            new Thread(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        while (panel.isAlive()) {
-
-                                            if(panel.isDestroyInContext()){
-                                                e.execute(new Runnable(){
-                                                    @Override
-                                                    public void run() {
-                                                        try{
-                                                            panel.realDestroy();
-                                                        }catch(RuntimeException ex){
-                                                        }
-                                                    }
-
-                                                });
-                                                break;
-                                            }else if(predicatePaint.test(null)/* && panel.needRepaint()*/){
-                                                panel.requestFocus();
-                                            }
-                                            try{
-                                                Thread.sleep(1000);
-                                            }catch(InterruptedException ex){
-                                                ex.printStackTrace();
-                                            }
-                                        }
-                                        System.out.println("stop Thread GL");
-
-                                    }
-
-                            }).start();
                         }
 
                     });
