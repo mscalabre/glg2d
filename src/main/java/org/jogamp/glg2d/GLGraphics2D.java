@@ -280,6 +280,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     shapeHelper.draw(s);
   }
 
+      
+  private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   
   private List<StoredString> storedStrngs = new ArrayList<StoredString>();
 
@@ -305,9 +307,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       final Color color = getColor();
       //If not contains
       
-      ExecutorService e = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-      
-      e.execute(new Runnable(){
+      executor.execute(new Runnable(){
           @Override
           public void run() {
             BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
