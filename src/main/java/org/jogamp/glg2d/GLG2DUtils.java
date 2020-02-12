@@ -120,7 +120,7 @@ public class GLG2DUtils {
 
                             StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
                             StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
-                            RenderStream renderStream = renderStreamFactory.create(readHandler, 16, 1);
+                            RenderStream renderStream = renderStreamFactory.create(readHandler, 1, 1);
 
                             panel.setRenderStream(renderStream);
 
