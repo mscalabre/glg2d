@@ -530,7 +530,7 @@ public class GLG2DCanvas extends JComponent {
     public void repaint() {
 //        try{
 //            this.repaintRandomNumber = Math.random();
-            if(executor!=null && nbPaintStack<1){ 
+            if(executor!=null && nbPaintStack<2){ 
                 nbPaintStack++;
                 Runnable runnable = new Runnable() {
                     @Override
