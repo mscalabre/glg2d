@@ -689,7 +689,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   protected void scissor(boolean enable) {
 //    GL gl = getGLContext().getGL();
     if (enable) {
-     glScissor(clip.x, canvasHeight - clip.y - clip.height, Math.max(clip.width, 0), Math.max(clip.height, 0));
+     glScissor(clip.x, clip.y, Math.max(clip.width, 0), Math.max(clip.height, 0));
      glEnable(GL_SCISSOR_TEST);
     } else {
       clip = null;
