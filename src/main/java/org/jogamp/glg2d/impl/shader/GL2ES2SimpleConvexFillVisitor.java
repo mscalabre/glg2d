@@ -19,14 +19,14 @@ package org.jogamp.glg2d.impl.shader;
 import java.awt.BasicStroke;
 import java.nio.FloatBuffer;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES2;
+
+
 
 import org.jogamp.glg2d.VertexBuffer;
 import org.jogamp.glg2d.impl.SimplePathVisitor;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLE_FAN;
 
 public class GL2ES2SimpleConvexFillVisitor extends SimplePathVisitor implements ShaderPathVisitor {
-  protected GL2ES2 gl;
   protected UniformBufferObject uniforms;
 
   protected VertexBuffer vBuffer = new VertexBuffer(1024);
@@ -41,21 +41,17 @@ public class GL2ES2SimpleConvexFillVisitor extends SimplePathVisitor implements 
     this.pipeline = pipeline;
   }
 
+
   @Override
-  public void setGLContext(GL glContext, UniformBufferObject uniforms) {
-    setGLContext(glContext);
+  public void setGLContext(UniformBufferObject uniforms) {
+
+    if (!pipeline.isSetup()) {
+      pipeline.setup();
+    }
 
     this.uniforms = uniforms;
   }
 
-  @Override
-  public void setGLContext(GL context) {
-    gl = context.getGL2ES2();
-
-    if (!pipeline.isSetup()) {
-      pipeline.setup(gl);
-    }
-  }
 
   @Override
   public void setStroke(BasicStroke stroke) {
@@ -65,10 +61,10 @@ public class GL2ES2SimpleConvexFillVisitor extends SimplePathVisitor implements 
   @Override
   public void beginPoly(int windingRule) {
     // do we need to care about winding rule?
-    pipeline.use(gl, true);
+    pipeline.use( true);
 
-    pipeline.setColor(gl, uniforms.colorHook.getRGBA());
-    pipeline.setTransform(gl, uniforms.transformHook.getGLMatrixData());
+    pipeline.setColor( uniforms.colorHook.getRGBA());
+    pipeline.setTransform( uniforms.transformHook.getGLMatrixData());
 
     vBuffer.clear();
     vBuffer.addVertex(0, 0);
@@ -97,7 +93,7 @@ public class GL2ES2SimpleConvexFillVisitor extends SimplePathVisitor implements 
   @Override
   public void endPoly() {
     draw();
-    pipeline.use(gl, false);
+    pipeline.use(false);
   }
 
   protected void draw() {
@@ -111,7 +107,7 @@ public class GL2ES2SimpleConvexFillVisitor extends SimplePathVisitor implements 
 
     setupCentroid(buf);
 
-    pipeline.draw(gl, GL.GL_TRIANGLE_FAN, buf);
+    pipeline.draw( GL_TRIANGLE_FAN, buf);
 
     vBuffer.clear();
     vBuffer.addVertex(0, 0);

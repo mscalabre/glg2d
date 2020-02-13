@@ -1,12 +1,16 @@
 package org.jogamp.glg2d.util;
 
+import com.jogamp.opengl.GLDrawableFactory;
+import com.jogamp.opengl.GLOffscreenAutoDrawable;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
-import com.jogamp.opengl.GLDrawableFactory;
-import com.jogamp.opengl.GLOffscreenAutoDrawable;
-import com.jogamp.opengl.GLProfile;
+
+
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,7 +21,7 @@ import org.jogamp.glg2d.GLG2DSimpleEventListener;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.junit.Assert;
 
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+
 
 public class AutoTester implements Tester {
   static final int pixels = 500;
@@ -44,14 +48,14 @@ public class AutoTester implements Tester {
 
   public double getSimilarityScore(Painter painter) {
     BufferedImage gl = drawGL(painter);
-    Raster rasterGl = gl.getData();
+    Raster rasterGl =gl.getData();
     BufferedImage g2d = drawG2D(painter);
     Raster rasterG2d = g2d.getData();
 
     // very naive for now
     for (int band = 0; band < rasterGl.getNumBands(); band++) {
-      for (int row = 0; row < gl.getWidth(); row++) {
-        for (int col = 0; col < gl.getHeight(); col++) {
+      for (int row = 0; row <gl.getWidth(); row++) {
+        for (int col = 0; col <gl.getHeight(); col++) {
           if (rasterGl.getSample(row, col, band) != rasterG2d.getSample(row, col, band)) {
             return 0;
           }

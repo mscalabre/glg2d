@@ -17,8 +17,8 @@ package org.jogamp.glg2d.impl.gl2;
 
 import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 
 
@@ -31,18 +31,23 @@ import org.jogamp.glg2d.impl.AbstractImageHelper;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_MODULATE;
 import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV_MODE;
 
 
 import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glTexCoord2f;
 import static org.lwjgl.opengl.GL11.glTexEnvi;
 import static org.lwjgl.opengl.GL11.glTexParameterf;
 import static org.lwjgl.opengl.GL11.glVertex2i;
+import org.jogamp.glg2d.LWTexture;
 
-public class GL2ImageDrawer extends AbstractImageHelper {
+public class GL2ImageDrawer2 extends AbstractImageHelper {
 
   protected AffineTransform savedTransform;
 
@@ -51,11 +56,17 @@ public class GL2ImageDrawer extends AbstractImageHelper {
     super.setG2D(g2d);
   }
 
+    @Override
+    protected Texture create(BufferedImage image) {
+        LWTexture texture = new LWTexture(image);
+        return texture;
+    }
+
 
   @Override
   protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {
    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-   glTexParameterf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+//   glTexParameterf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 
     /*
      * FIXME This is unexpected since we never disable blending, but in some
@@ -64,8 +75,10 @@ public class GL2ImageDrawer extends AbstractImageHelper {
      */
     g2d.setComposite(g2d.getComposite());
 
-    texture.enable(null);//TODO lwjgl
-    texture.bind(null);//TODO lwjgl
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture instanceof LWTexture ? ((LWTexture)texture).getTextureId() : texture.getTextureObject());
+//    texture.enable(null);//TODO lwjgl
+//    texture.bind(null);//TODO lwjgl
 
     savedTransform = null;
     if (xform != null && !xform.isIdentity()) {
@@ -82,7 +95,8 @@ public class GL2ImageDrawer extends AbstractImageHelper {
       g2d.setTransform(savedTransform);
     }
 
-    texture.disable(null);//TODO lwjgl
+    glDisable(GL_TEXTURE_2D);
+//    texture.disable(null);//TODO lwjgl
     g2d.getColorHelper().setColorRespectComposite(g2d.getColor());
   }
 

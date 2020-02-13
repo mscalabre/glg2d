@@ -15,30 +15,35 @@
  */
 package org.jogamp.glg2d.impl.shader;
 
+
 import java.awt.geom.AffineTransform;
 
-import com.jogamp.opengl.GL;
+
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractMatrixHelper;
 import org.jogamp.glg2d.impl.shader.UniformBufferObject.TransformHook;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 
 public class GL2ES2TransformHelper extends AbstractMatrixHelper implements TransformHook {
-  protected float[] glMatrix;
+  protected FloatBuffer glMatrix;
   protected boolean dirtyMatrix;
 
-  protected int[] viewportDimensions;
+  protected IntBuffer viewportDimensions=BufferUtils.createIntBuffer(16);
 
   @Override
   public void setG2D(GLGraphics2D g2d) {
     super.setG2D(g2d);
 
     dirtyMatrix = true;
-    glMatrix = new float[16];
-    viewportDimensions = new int[4];
+    glMatrix = BufferUtils.createFloatBuffer(16);
 
-    GL gl = g2d.getGLContext().getGL();
-    gl.glGetIntegerv(GL.GL_VIEWPORT, viewportDimensions, 0);
+    glGetInteger(GL_VIEWPORT, viewportDimensions);
 
     if (g2d instanceof GLShaderGraphics2D) {
       ((GLShaderGraphics2D) g2d).getUniformsObject().transformHook = this;
@@ -47,9 +52,9 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
           + GLShaderGraphics2D.class.getSimpleName());
     }
   }
-
+  
   @Override
-  public float[] getGLMatrixData() {
+  public FloatBuffer getGLMatrixData() {
     return getGLMatrixData(null);
   }
 
@@ -60,7 +65,7 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
   }
 
   @Override
-  public float[] getGLMatrixData(AffineTransform concat) {
+  public FloatBuffer getGLMatrixData(AffineTransform concat) {
     if (concat == null || concat.isIdentity()) {
       if (dirtyMatrix) {
         updateGLMatrix(getTransform0());
@@ -82,32 +87,32 @@ public class GL2ES2TransformHelper extends AbstractMatrixHelper implements Trans
     // Note this isn't quite the same as the GL2 implementation because GL2 has
     // an orthographic projection matrix
 
-    float x1 = viewportDimensions[0];
-    float y1 = viewportDimensions[1];
-    float x2 = viewportDimensions[2];
-    float y2 = viewportDimensions[3];
+    float x1 = viewportDimensions.get(0);
+    float y1 = viewportDimensions.get(1);
+    float x2 = viewportDimensions.get(2);
+    float y2 = viewportDimensions.get(3);
 
     float invWidth = 1f / (x2 - x1);
     float invHeight = 1f / (y2 - y1);
     
-    glMatrix[0] = ((float) (2 * xform.getScaleX() * invWidth));
-    glMatrix[1] = ((float) (-2 * xform.getShearY() * invHeight));
+    glMatrix.put(0, ((float) (2 * xform.getScaleX() * invWidth)));
+    glMatrix.put(1, ((float) (2 * xform.getShearY() * invHeight)));
     // glMatrix[2] = 0;
     // glMatrix[3] = 0;
 
-    glMatrix[4] = ((float) (2 * xform.getShearX() * invWidth));
-    glMatrix[5] = ((float) (-2 * xform.getScaleY() * invHeight));
+    glMatrix.put(4, ((float) (2 * xform.getShearX() * invWidth)));
+    glMatrix.put(5, ((float) (2 * xform.getScaleY() * invHeight)));
     // glMatrix[6] = 0;
     // glMatrix[7] = 0;
 
     // glMatrix[8] = 0;
     // glMatrix[9] = 0;
-    glMatrix[10] = -1;
+    glMatrix.put(10, 1);
     // glMatrix[11] = 0;
 
-    glMatrix[12] = ((float) (2 * xform.getTranslateX() * invWidth - 1));
-    glMatrix[13] = ((float) (1 - 2 * xform.getTranslateY() * invHeight));
+    glMatrix.put(12, ((float) (2 * xform.getTranslateX() * invWidth - 1)));
+    glMatrix.put(13, ((float) (2 * xform.getTranslateY() * invHeight - 1)));
     // glMatrix[14] = 0;
-    glMatrix[15] = 1;
+    glMatrix.put(15, 1);
   }
 }

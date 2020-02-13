@@ -15,55 +15,57 @@
  */
 package org.jogamp.glg2d.impl.gl2;
 
+
 import java.awt.geom.AffineTransform;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
+
+
+
+
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.impl.AbstractMatrixHelper;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE;
+import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glLoadMatrix;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
 
 public class GL2Transformhelper extends AbstractMatrixHelper {
-  protected GL2 gl;
 
   private float[] matrixBuf = new float[16];
 
   @Override
   public void setG2D(GLGraphics2D g2d) {
     super.setG2D(g2d);
-    gl = g2d.getGLContext().getGL().getGL2();
 
     setupGLView();
     flushTransformToOpenGL();
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        super.setG2D(g2d);
-        gl = context.getGL().getGL2();
-
-        setupGLView();
-        flushTransformToOpenGL();
-    }
   
 
   protected void setupGLView() {
-    int[] viewportDimensions = new int[4];
-    gl.glGetIntegerv(GL.GL_VIEWPORT, viewportDimensions, 0);
-    int width = viewportDimensions[2];
-    int height = viewportDimensions[3];
+    IntBuffer viewportDimensions = BufferUtils.createIntBuffer(16);
+    glGetInteger(GL_VIEWPORT, viewportDimensions);
+    int width = viewportDimensions.get(2);
+    int height = viewportDimensions.get(3);
 
     // setup projection
-    gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
-    gl.glLoadIdentity();
-    gl.glOrtho(0, width, 0, height, -1, 1);
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glOrtho(0, width, 0, height, -1, 1);
 
     // the MODELVIEW matrix will get adjusted later
 
-    gl.glMatrixMode(GL.GL_TEXTURE);
-    gl.glLoadIdentity();
+   glMatrixMode(GL_TEXTURE);
+   glLoadIdentity();
   }
 
   /**
@@ -71,10 +73,10 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
    * card.
    */
   protected void flushTransformToOpenGL() {
-    float[] matrix = getGLMatrix(stack.peek());
+    FloatBuffer matrix = getGLMatrix(stack.peek());
 
-    gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-    gl.glLoadMatrixf(matrix, 0);
+   glMatrixMode(GL_MODELVIEW);
+   glLoadMatrix(matrix);
   }
 
   /**
@@ -83,16 +85,26 @@ public class GL2Transformhelper extends AbstractMatrixHelper {
    * uses the lower-left as 0,0, we have to pre-multiply the matrix before
    * loading it onto the video card.
    */
-  protected float[] getGLMatrix(AffineTransform transform) {
-    matrixBuf[0] = (float) transform.getScaleX();
-    matrixBuf[1] = -(float) transform.getShearY();
-    matrixBuf[4] = (float) transform.getShearX();
-    matrixBuf[5] = -(float) transform.getScaleY();
-    matrixBuf[10] = 1;
-    matrixBuf[12] = (float) transform.getTranslateX();
-    matrixBuf[13] = g2d.getCanvasHeight() - (float) transform.getTranslateY();
-    matrixBuf[15] = 1;
-
-    return matrixBuf;
+  protected FloatBuffer getGLMatrix(AffineTransform transform) {
+//    matrixBuf[0] = (float) transform.getScaleX();
+//    matrixBuf[1] = -(float) transform.getShearY();
+//    matrixBuf[4] = (float) transform.getShearX();
+//    matrixBuf[5] = -(float) transform.getScaleY();
+//    matrixBuf[10] = 1;
+//    matrixBuf[12] = (float) transform.getTranslateX();
+//    matrixBuf[13] = g2d.getCanvasHeight() - (float) transform.getTranslateY();
+//    matrixBuf[15] = 1;
+//
+//    return matrixBuf;
+        FloatBuffer matrixBuf = BufferUtils.createFloatBuffer(16);
+        matrixBuf.put(0, (float) transform.getScaleX());
+        matrixBuf.put(1,  (float) transform.getShearY());
+        matrixBuf.put(4,  (float) transform.getShearX());
+        matrixBuf.put(5,  (float) transform.getScaleY());
+        matrixBuf.put(10,  1);
+        matrixBuf.put(12,  (float) transform.getTranslateX());
+        matrixBuf.put(13,  (float) transform.getTranslateY());
+        matrixBuf.put(15,  1);
+        return matrixBuf;
   }
 }

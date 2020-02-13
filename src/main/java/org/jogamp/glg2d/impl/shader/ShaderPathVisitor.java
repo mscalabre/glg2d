@@ -16,10 +16,10 @@
 package org.jogamp.glg2d.impl.shader;
 
 
-import com.jogamp.opengl.GL;
+
 
 import org.jogamp.glg2d.PathVisitor;
 
 public interface ShaderPathVisitor extends PathVisitor {
-  void setGLContext(GL glContext, UniformBufferObject uniforms);
+  void setGLContext(UniformBufferObject uniforms);
 }

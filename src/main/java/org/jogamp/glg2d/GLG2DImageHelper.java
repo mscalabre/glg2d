@@ -38,4 +38,6 @@ public interface GLG2DImageHelper extends G2DDrawingHelper {
   void drawImage(RenderedImage img, AffineTransform xform);
 
   void drawImage(RenderableImage img, AffineTransform xform);
+
+    public void clearCacheImage(Image image);
 }

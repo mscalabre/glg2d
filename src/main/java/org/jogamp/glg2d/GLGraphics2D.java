@@ -15,8 +15,12 @@
  */
 package org.jogamp.glg2d;
 
+import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.GLDrawable;
+import com.jogamp.opengl.util.texture.Texture;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
@@ -42,25 +46,34 @@ import java.awt.image.ImageObserver;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
 import java.text.AttributedCharacterIterator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.GLDrawable;
-import com.jogamp.opengl.util.texture.Texture;
+
+
+
+
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 
 import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
 import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
-import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
+import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer2;
 import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glScissor;
 
 /**
  * Implements the standard {@code Graphics2D} functionality, but instead draws
@@ -146,7 +159,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected GLG2DImageHelper createImageHelper() {
-    return new GL2ImageDrawer();
+    return new GL2ImageDrawer2();
+//    return new GL2ImageDrawer();
   }
 
   protected GLG2DTransformHelper createTransformHelper() {
@@ -193,15 +207,17 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   public void setCanvas(GLContext context) {
-      setCanvas(context.getGLDrawable(), context);
+      setCanvas(context == null ? null : context.getGLDrawable(), context);
   }
 
   public void setCanvas(GLDrawable drawable, final GLContext context) {
-    glDrawable = drawable;
-    glContext = context;
+    if(context != null){
+      glDrawable = drawable;
+      glContext = context;
+    }
 
     for (G2DDrawingHelper helper : helpers) {
-      helper.setG2D(GLGraphics2D.this, context);
+        helper.setG2D(GLGraphics2D.this);
     }
   }
 
@@ -209,15 +225,15 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * Sets up the graphics object in preparation for drawing. Initialization such
    * as getting the viewport
    */
-  public void prePaint(GLContext context) {
-    canvasHeight = GLG2DUtils.getViewportHeight(context.getGL());
-    setCanvas(context);
+  public void prePaint(int height) {
+    canvasHeight = height;
+     setCanvas(null);
     setDefaultState();
   }
 
   protected void setDefaultState() {
     setBackground(Color.WHITE);
-    setColor(Color.BLACK);
+    setColor(Color.WHITE);
     setFont(Font.getFont(Font.SANS_SERIF));
     setStroke(new BasicStroke());
     setComposite(AlphaComposite.SrcOver);
@@ -242,6 +258,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     for (G2DDrawingHelper helper : helpers) {
       helper.dispose();
     }
+    for(StoredString st : storedStrngs){
+        st.setImage(null);
+    }
+    this.storedStrngs = null;
   }
 
   @Override
@@ -249,14 +269,105 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     shapeHelper.draw(s);
   }
 
+      
+  private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  
+  private List<StoredString> storedStrngs = new ArrayList<StoredString>();
+
+    public List<StoredString> getStoredStrngs() {
+        return storedStrngs;
+    }
+  
+  private StoredString getStoredString(final String str, final Font font){
+      
+      final StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
+      List<StoredString> storedStrngsTmp = new ArrayList<StoredString>();
+      try{
+        storedStrngsTmp.addAll(storedStrngs);
+        for(StoredString st2 : storedStrngsTmp){
+            if(st.equals(st2)){
+                return st2;
+            }
+        }
+      }catch(ConcurrentModificationException ex){
+          ex.printStackTrace();
+      }
+      
+      final Color color = getColor();
+      //If not contains
+      
+      executor.execute(new Runnable(){
+          @Override
+          public void run() {
+            BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
+            bf.createGraphics();
+
+            Graphics2D g2 = (Graphics2D)bf.getGraphics();
+            g2.setFont(font);
+            g2.setColor(color);
+            Rectangle2D bounds = getStringBounds(str, font);
+            g2.translate(0,0);
+            g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
+            g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2 * 1.5);
+            g2.scale(1,1);
+      //      g2.scale(1,2);
+
+            g2.drawString(str, 0,0);
+
+            st.setImage(bf);
+
+      //      try {
+      //          if(storedStrngs.size()<15){
+      //              ImageIO.write(bf, "png", new File(str + ".png"));
+      //          }
+      //      } catch (IOException ex) {
+      //          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
+      //      }
+
+            storedStrngs.add(st);
+          }
+          
+      });
+      
+      return null;
+  }
+  
+    public static Rectangle getStringBounds(String strMain, Font font) {
+        String[] strs=strMain.split("\n");
+        int width=0;
+        int height=0;
+        for(String str : strs){
+            Rectangle rectFontSize=font.getStringBounds(str, new Canvas().getFontMetrics(font).getFontRenderContext()).getBounds();
+            if(rectFontSize.width>width){
+                width=rectFontSize.width;
+            }
+            if(rectFontSize.height>height){
+                height=rectFontSize.height;
+            }
+        }
+        if(strs.length>0){
+            Rectangle rect=new Rectangle(0, 0, width, (int)((height*(0.25+0.5*(strs.length-1))-height*0) - (height*(0.25+0.5*(strs.length-1))-height*strs.length-1)));
+            return rect;
+        }
+        return null;
+    }
+
+  public void drawStringImage(String str, float x, float y){
+      Rectangle2D bounds = getStringBounds(str, getFont());
+      StoredString storedString = getStoredString(str, getFont());
+      if(storedString!=null){
+          drawImage(storedString.getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+      }
+  }
+  
   @Override
   public void drawString(String str, int x, int y) {
-    stringHelper.drawString(str, x, y);
+      drawStringImage(str, (float)x, (float)y);
   }
-
+  
   @Override
   public void drawString(String str, float x, float y) {
-    stringHelper.drawString(str, x, y);
+      drawStringImage(str, (float)x, (float)y);
   }
 
   @Override
@@ -267,6 +378,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   @Override
   public void drawString(AttributedCharacterIterator iterator, float x, float y) {
     stringHelper.drawString(iterator, x, y);
+  }
+  
+  public void clearCacheImage(Image image){
+      this.imageHelper.clearCacheImage(image);
   }
 
   @Override
@@ -549,13 +664,13 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected void scissor(boolean enable) {
-    GL gl = getGLContext().getGL();
+//    GL gl = getGLContext().getGL();
     if (enable) {
-      gl.glScissor(clip.x, canvasHeight - clip.y - clip.height, Math.max(clip.width, 0), Math.max(clip.height, 0));
-      gl.glEnable(GL.GL_SCISSOR_TEST);
+     glScissor(clip.x, clip.y, Math.max(clip.width, 0), Math.max(clip.height, 0));
+     glEnable(GL_SCISSOR_TEST);
     } else {
       clip = null;
-      gl.glDisable(GL.GL_SCISSOR_TEST);
+     glDisable(GL_SCISSOR_TEST);
     }
   }
 
@@ -735,4 +850,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
         }
         return null;
     }
+    
+    
 }

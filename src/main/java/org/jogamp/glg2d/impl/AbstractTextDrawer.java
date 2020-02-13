@@ -16,7 +16,7 @@
 package org.jogamp.glg2d.impl;
 
 
-import com.jogamp.opengl.GLContext;
+
 import static java.lang.Math.ceil;
 
 import java.awt.Font;
@@ -43,14 +43,6 @@ public abstract class AbstractTextDrawer implements GLG2DTextHelper {
     stack.clear();
     stack.push(new FontState());
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        this.g2d = g2d;
-
-        stack.clear();
-        stack.push(new FontState());
-    }
   
 
   @Override

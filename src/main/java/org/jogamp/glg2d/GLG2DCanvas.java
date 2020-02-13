@@ -15,14 +15,6 @@
  */
 package org.jogamp.glg2d;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.LayoutManager2;
-import java.io.Serializable;
-import java.util.logging.Logger;
-
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLCapabilitiesImmutable;
@@ -34,12 +26,40 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.Threading;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.util.Animator;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.LayoutManager2;
+import java.io.Serializable;
+import java.util.logging.Logger;
+
+
+
+
+
+
+
+
+
+
+
+
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
 import javax.swing.RepaintManager;
 
-import com.jogamp.opengl.util.Animator;
+
+import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Pbuffer;
+import org.lwjglfx.util.stream.RenderStream;
 
 /**
  * This canvas redirects all paints to an OpenGL canvas. The drawable component
@@ -81,6 +101,14 @@ public class GLG2DCanvas extends JComponent {
   private JComponent drawableComponent;
 
   private boolean drawGL;
+
+  private BufferedImage imageRender = null;
+  
+  private boolean useGL2ES2; 
+  
+  private ExecutorService executor;
+    private RenderStream renderStream;
+    private Pbuffer pbuffer;
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -140,6 +168,34 @@ public class GLG2DCanvas extends JComponent {
     RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
 
+    public void setPbuffer(Pbuffer pbuffer) {
+        this.pbuffer = pbuffer;
+    }
+
+    public void destroy(){
+        System.out.println("destroy");
+        realDestroy();
+    }
+    
+    public void realDestroy(){
+        getExecutor().execute(new Runnable(){
+            @Override
+            public void run() {
+                if(renderStream!=null){
+                    renderStream.destroy();
+                }
+                if(pbuffer!=null){
+                    pbuffer.destroy();
+                }
+
+                if(((GLG2DSimpleEventListener)g2dglListener) != null){
+                    g2dglListener.dispose(canvas);
+                }
+                System.out.println("Real destroy ok");
+            }
+            
+        });
+    }
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
    * canvas. This uses the default capabilities from
@@ -149,9 +205,19 @@ public class GLG2DCanvas extends JComponent {
     this();
     setDrawableComponent(drawableComponent);
   }
+  public GLG2DCanvas(JComponent drawableComponent, boolean useGL2ES2) {
+    this();
+    this.useGL2ES2 = useGL2ES2;
+    setDrawableComponent(drawableComponent);
+  }
   public GLG2DCanvas(JComponent drawableComponent, GLAutoDrawable canvas) {
     this(getDefaultCapabalities(), canvas);
     setDrawableComponent(drawableComponent);
+  }
+  public GLG2DCanvas(JComponent drawableComponent, GLAutoDrawable canvas, boolean useGL2ES2) {
+    this(getDefaultCapabalities(), canvas);
+    setDrawableComponent(drawableComponent);
+    this.useGL2ES2 = useGL2ES2;
   }
 
   /**
@@ -170,6 +236,21 @@ public class GLG2DCanvas extends JComponent {
   public boolean isGLDrawing() {
     return drawGL;
   }
+  
+  public void setRenderStream(RenderStream renderStream){
+      this.renderStream = renderStream;
+      if(getCanvas().getGL()!=null){
+            int error = canvas.getGL().glGetError();
+            System.out.println("setRenderStream error0 : " + error);
+            renderStream.setGL(getCanvas().getGL());
+            error = canvas.getGL().glGetError();
+            System.out.println("setRenderStream error1 : " + error);
+      }
+  }
+
+    public RenderStream getRenderStream() {
+        return renderStream;
+    }
 
   /**
    * Sets the drawing path, {@code true} for OpenGL, {@code false} for normal
@@ -340,7 +421,7 @@ public class GLG2DCanvas extends JComponent {
    * canvas.
    */
   protected GLEventListener createG2DListener(JComponent drawingComponent) {
-    return new GLG2DSimpleEventListener(drawingComponent);
+    return new GLG2DSimpleEventListener(drawingComponent, this.useGL2ES2);
   }
 
   /**
@@ -397,20 +478,81 @@ public class GLG2DCanvas extends JComponent {
       Threading.invokeOnOpenGLThread(false, work);
     }
   }
+  
+  public boolean isUseUpscale(){
+      return true;
+  }
 
+    private int nbPaintStack = 0;
+    @Override
+    public void repaint() {
+//        try{
+//            this.repaintRandomNumber = Math.random();
+            if(executor!=null && nbPaintStack<1){ 
+                nbPaintStack++;
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            paint(getGraphics());
+                        }catch(Throwable th){
+                            th.printStackTrace();
+                        }
+                        nbPaintStack--;
+                    }
+                };
+                try{
+                    executor.execute(runnable);
+                }catch(Throwable th){
+                    th.printStackTrace();
+                }
+            }
+//        }catch(Throwable th){
+//            th.printStackTrace();
+//        }
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+    
+  
   @Override
   public void paint(Graphics g) {
+      
     if (isGLDrawing() && drawableComponent != null && canvas != null) {
         if(this.canvas instanceof GLJPanel){
             ((GLJPanel)canvas).paint(g);
         }else{
-            canvas.display();
+            if(useLWJGL() && executor!=null){
+                if(g2dglListener instanceof GLG2DSimpleEventListener){
+                    if(((GLG2DSimpleEventListener)g2dglListener).getG2D()==null){
+                        g2dglListener.init(canvas);
+                        System.out.println("init ok");
+                    }
+                    if(useStream()){
+                        renderStream.bind();
+                    }
+                    g2dglListener.display(canvas);
+                    if(useStream()){
+                        renderStream.swapBuffers();
+                    }
+                }
+//                Display.update();
+            }else{
+                canvas.display();
+            }
         }
     } else {
-      super.paint(g);
+        // Bug with context, I need to comment for the moment
+//        super.paint(g);
     }
   }
-
+  
     @Override
     public void setSize(Dimension d) {
         super.setSize(d); 
@@ -429,6 +571,10 @@ public class GLG2DCanvas extends JComponent {
     }
   }
 
+  private boolean useLWJGL(){
+      return true;
+  }
+  
     public GLAutoDrawable getCanvas() {
         return canvas;
     }
@@ -457,6 +603,30 @@ public class GLG2DCanvas extends JComponent {
       throw new IllegalArgumentException("Do not add component to this. Add them to the object in getDrawableComponent()");
     }
   }
+
+    public void setLWJGLContext(final Object context) {
+      try {
+          EventQueue.invokeAndWait(new Runnable(){
+              @Override
+              public void run() {
+                  try {
+                      org.lwjgl.opengl.GLContext.useContext(context);
+                  } catch (LWJGLException ex) {
+                      ex.printStackTrace();
+                  }
+              }
+              
+          });
+      } catch (InterruptedException ex) {
+          Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
+      } catch (InvocationTargetException ex) {
+          Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+
+    private boolean useStream() {
+        return renderStream != null;
+    }
 
   /**
    * Implements a simple layout where all the components are the same size as

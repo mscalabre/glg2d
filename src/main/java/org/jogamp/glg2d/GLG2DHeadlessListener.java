@@ -15,6 +15,8 @@
  */
 package org.jogamp.glg2d;
 
+
+
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import javax.swing.JComponent;

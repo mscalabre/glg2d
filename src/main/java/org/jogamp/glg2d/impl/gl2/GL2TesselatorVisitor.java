@@ -16,21 +16,16 @@
 package org.jogamp.glg2d.impl.gl2;
 
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+
+
 
 import org.jogamp.glg2d.impl.AbstractTesselatorVisitor;
 
 public class GL2TesselatorVisitor extends AbstractTesselatorVisitor {
-  protected GL2 gl;
 
-  @Override
-  public void setGLContext(GL context) {
-    gl = context.getGL2();
-  }
 
   @Override
   protected void endTess() {
-    vBuffer.drawBuffer(gl, drawMode);
+    vBuffer.drawBuffer(drawMode);
   }
 }

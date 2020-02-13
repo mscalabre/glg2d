@@ -1,10 +1,13 @@
 package org.jogamp.glg2d.examples;
 
-import static com.jogamp.opengl.GLDrawableFactory.getFactory;
-
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
+import static com.jogamp.opengl.GLDrawableFactory.getFactory;
 import com.jogamp.opengl.GLProfile;
+
+
+
+
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
 

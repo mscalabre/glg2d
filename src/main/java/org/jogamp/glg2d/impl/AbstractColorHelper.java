@@ -25,11 +25,18 @@ import java.awt.RenderingHints.Key;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLContext;
+
+
 
 import org.jogamp.glg2d.GLG2DColorHelper;
 import org.jogamp.glg2d.GLGraphics2D;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_ONE;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_ZERO;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glEnable;
 
 public abstract class AbstractColorHelper implements GLG2DColorHelper {
   protected GLGraphics2D g2d;
@@ -43,11 +50,6 @@ public abstract class AbstractColorHelper implements GLG2DColorHelper {
     stack.clear();
     stack.push(new ColorState());
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
-    }
   
 
   @Override
@@ -81,8 +83,8 @@ public abstract class AbstractColorHelper implements GLG2DColorHelper {
 
   @Override
   public void setComposite(Composite comp) {
-    GL gl = g2d.getGLContext().getGL();
-    gl.glEnable(GL.GL_BLEND);
+//    GL gl = g2d.getGLContext().getGL();
+   glEnable(GL_BLEND);
     if (comp instanceof AlphaComposite) {
       switch (((AlphaComposite) comp).getRule()) {
       /*
@@ -93,32 +95,32 @@ public abstract class AbstractColorHelper implements GLG2DColorHelper {
        */
       case AlphaComposite.SRC:
       case AlphaComposite.SRC_IN:
-        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ZERO);
+       glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
         break;
 
       case AlphaComposite.SRC_OVER:
       case AlphaComposite.SRC_ATOP:
-        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
 
       case AlphaComposite.SRC_OUT:
       case AlphaComposite.CLEAR:
-        gl.glBlendFunc(GL.GL_ZERO, GL.GL_ZERO);
+       glBlendFunc(GL_ZERO, GL_ZERO);
         break;
 
       case AlphaComposite.DST:
       case AlphaComposite.DST_OVER:
-        gl.glBlendFunc(GL.GL_ZERO, GL.GL_ONE);
+       glBlendFunc(GL_ZERO, GL_ONE);
         break;
 
       case AlphaComposite.DST_IN:
       case AlphaComposite.DST_ATOP:
-        gl.glBlendFunc(GL.GL_ZERO, GL.GL_SRC_ALPHA);
+       glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
         break;
 
       case AlphaComposite.DST_OUT:
       case AlphaComposite.XOR:
-        gl.glBlendFunc(GL.GL_ZERO, GL.GL_ONE_MINUS_SRC_ALPHA);
+       glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
         break;
       }
 

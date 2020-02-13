@@ -15,7 +15,10 @@
  */
 package org.jogamp.glg2d.impl;
 
-import com.jogamp.opengl.GLContext;
+
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureCoords;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import static org.jogamp.glg2d.GLG2DRenderingHints.KEY_CLEAR_TEXTURES_CACHE;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_DEFAULT;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_EACH_PAINT;
@@ -41,10 +44,12 @@ import java.util.logging.Logger;
 import org.jogamp.glg2d.GLG2DImageHelper;
 import org.jogamp.glg2d.GLG2DRenderingHints;
 import org.jogamp.glg2d.GLGraphics2D;
+import org.jogamp.glg2d.LWTexture;
+import org.lwjgl.opengl.GLContext;
 
-import com.jogamp.opengl.util.texture.Texture;
-import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+
+
+
 
 public abstract class AbstractImageHelper implements GLG2DImageHelper {
   private static final Logger LOGGER = Logger.getLogger(AbstractImageHelper.class.getName());
@@ -72,11 +77,6 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       imageCache.clear();
     }
   }
-
-    @Override
-    public void setG2D(GLGraphics2D g2d, GLContext context) {
-        setG2D(g2d);
-    }
   
 
   @Override
@@ -197,7 +197,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
         addToCache(image, texture);
       }
     }
-
+    
     return texture;
   }
 
@@ -207,7 +207,9 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   }
 
   protected void destroy(Texture texture) {
-    texture.destroy(g2d.getGLContext().getGL());
+      if(!(texture instanceof LWTexture)){
+          texture.destroy(g2d.getGLContext().getGL());
+      }
   }
 
   protected void addToCache(Image image, Texture texture) {
@@ -296,6 +298,11 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       return put(key, texture);
     }
   }
+
+    @Override
+    public void clearCacheImage(Image image) {
+        imageCache.remove(image);
+    }
 
   protected static class WeakKey<T> extends WeakReference<T> {
     private final int hash;

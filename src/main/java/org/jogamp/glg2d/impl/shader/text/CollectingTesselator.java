@@ -18,19 +18,21 @@ package org.jogamp.glg2d.impl.shader.text;
 
 import java.nio.FloatBuffer;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.glu.GLU;
+
+
 
 import org.jogamp.glg2d.impl.AbstractTesselatorVisitor;
+import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 
-import com.jogamp.common.nio.Buffers;
+
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import org.lwjgl.util.glu.GLU;
 
 public class CollectingTesselator extends AbstractTesselatorVisitor {
-  @Override
-  public void setGLContext(GL context) {
-    // nop
-  }
 
   @Override
   public void beginPoly(int windingRule) {
@@ -43,7 +45,7 @@ public class CollectingTesselator extends AbstractTesselatorVisitor {
   protected void configureTesselator(int windingRule) {
     super.configureTesselator(windingRule);
 
-    GLU.gluTessCallback(tesselator, GLU.GLU_TESS_EDGE_FLAG_DATA, callback);
+    tesselator.gluTessCallback(GLU.GLU_TESS_EDGE_FLAG_DATA, callback);
   }
 
   @Override
@@ -68,16 +70,16 @@ public class CollectingTesselator extends AbstractTesselatorVisitor {
     public Triangles(FloatBuffer vertexBuffer) {
       int numVertices = vertexBuffer.limit() - vertexBuffer.position();
 
-      triangles = Buffers.newDirectFloatBuffer(numVertices);
+      triangles = BufferUtils.createFloatBuffer(numVertices);
       triangles.put(vertexBuffer);
 
       triangles.flip();
     }
 
-    public void draw(GL2ES2 gl) {
+    public void draw() {
       int numFloats = triangles.limit();
-      gl.glBufferData(GL.GL_ARRAY_BUFFER, Buffers.SIZEOF_FLOAT * numFloats, triangles, GL2ES2.GL_STREAM_DRAW);
-      gl.glDrawArrays(GL.GL_TRIANGLES, 0, numFloats / 2);
+     glBufferData(GL_ARRAY_BUFFER, triangles, GL_STREAM_DRAW);
+     glDrawArrays(GL_TRIANGLES, 0, numFloats / 2);
     }
   }
 }

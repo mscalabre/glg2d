@@ -1,5 +1,12 @@
 package org.jogamp.glg2d;
 
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLDrawableFactory;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
 import static java.lang.Math.max;
 
 import java.awt.BorderLayout;
@@ -10,11 +17,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLDrawableFactory;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLProfile;
+
+
+
+
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,8 +38,8 @@ import javax.swing.Timer;
 
 import org.jogamp.glg2d.event.AWTMouseEventTranslator;
 
-import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.awt.AWTGLReadBufferUtil;
+
+
 
 public class ImageTest {
   static JLabel icon;
