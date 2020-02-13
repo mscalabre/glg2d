@@ -33,7 +33,6 @@ import java.awt.Graphics;
 import javax.swing.JComponent;
 
 import org.jogamp.glg2d.event.AWTMouseEventTranslator;
-import org.lwjglfx.Gears;
 
 /**
  * This wraps an AWT component hierarchy and paints it using OpenGL. The
@@ -70,11 +69,6 @@ public class GLG2DPanel extends GLG2DCanvas {
     }
     public GLG2DPanel(JComponent drawableComponent, GLAutoDrawable canvas, boolean useGL2ES2){
         super(drawableComponent, canvas, useGL2ES2);
-    }
-
-    @Override
-    public void setGears(Gears gears) {
-        super.setGears(gears);
     }
 
     @Override

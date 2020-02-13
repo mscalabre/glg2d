@@ -56,11 +56,9 @@ import javax.swing.RepaintManager;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Pbuffer;
-import org.lwjglfx.Gears;
 import org.lwjglfx.util.stream.RenderStream;
 
 /**
@@ -109,6 +107,8 @@ public class GLG2DCanvas extends JComponent {
   private boolean useGL2ES2; 
   
   private ExecutorService executor;
+    private RenderStream renderStream;
+    private Pbuffer pbuffer;
 
   /**
    * Returns the default, desired OpenGL capabilities needed for this component.
@@ -126,13 +126,6 @@ public class GLG2DCanvas extends JComponent {
     caps.setSampleBuffers(true);
     return caps;
   }
-    private Gears gears;
-    private RenderStream renderStream;
-    private Pbuffer pbuffer;
-    protected boolean alive = true;
-    private double repaintRandomNumber;
-    private double repaintLastNumber;
-    private boolean destroyInContext;
 
   /**
    * Creates a new, blank {@code G2DGLCanvas} using the default capabilities
@@ -175,27 +168,11 @@ public class GLG2DCanvas extends JComponent {
     RepaintManager.setCurrentManager(GLAwareRepaintManager.INSTANCE);
   }
 
-    public boolean isDestroyInContext() {
-        return destroyInContext;
-    }
-
-  
-
     public void setPbuffer(Pbuffer pbuffer) {
         this.pbuffer = pbuffer;
     }
 
-    public boolean isAlive() {
-        return alive;
-    }
-    
-    public boolean needRepaint(){
-//        return true;
-        return this.repaintLastNumber!=this.repaintRandomNumber;
-    }
-
     public void destroy(){
-        this.destroyInContext = true;
         System.out.println("destroy");
         realDestroy();
     }
@@ -204,7 +181,6 @@ public class GLG2DCanvas extends JComponent {
         getExecutor().execute(new Runnable(){
             @Override
             public void run() {
-                alive = false;
                 if(renderStream!=null){
                     renderStream.destroy();
                 }
@@ -259,24 +235,6 @@ public class GLG2DCanvas extends JComponent {
    */
   public boolean isGLDrawing() {
     return drawGL;
-  }
-  
-  public void setGears(Gears gears){
-      if(canvas.getGL() != null){
-        int error = canvas.getGL().glGetError();
-        System.out.println("setGears error0 : " + error);
-      }
-      if(this.g2dglListener!=null && this.g2dglListener instanceof GLG2DSimpleEventListener){
-          ((GLG2DSimpleEventListener)this.g2dglListener).setGears(gears);
-      }else{
-          System.out.println("No listener, can't set gear");
-      }
-      if(canvas.getGL() != null){
-        int error = canvas.getGL().glGetError();
-        System.out.println("setGears error1 : " + error);
-      }
-      gears.getRenderStream().setGL(canvas.getGL());
-      this.gears = gears;
   }
   
   public void setRenderStream(RenderStream renderStream){
@@ -554,18 +512,6 @@ public class GLG2DCanvas extends JComponent {
 //        }
     }
 
-    public double getRepaintRandomNumber() {
-        return repaintRandomNumber;
-    }
-
-    public double getRepaintLastNumber() {
-        return repaintLastNumber;
-    }
-
-    public void setRepaintLastNumber(double repaintLastNumber) {
-        this.repaintLastNumber = repaintLastNumber;
-    }
-
     public void setExecutor(ExecutorService executor) {
         this.executor = executor;
     }
@@ -605,10 +551,6 @@ public class GLG2DCanvas extends JComponent {
         // Bug with context, I need to comment for the moment
 //        super.paint(g);
     }
-  }
-
-  public boolean isShowFPS(){
-    return false;
   }
   
     @Override

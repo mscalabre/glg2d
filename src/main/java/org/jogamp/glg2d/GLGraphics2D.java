@@ -45,8 +45,6 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
-import java.io.File;
-import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +57,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 
 
@@ -71,7 +68,7 @@ import org.jogamp.glg2d.impl.GLGraphicsConfiguration;
 import org.jogamp.glg2d.impl.gl2.GL2ColorHelper;
 import org.jogamp.glg2d.impl.gl2.GL2ShapeDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2ImageDrawer2;
-import org.jogamp.glg2d.impl.gl2.GL2StringDrawer2;
+import org.jogamp.glg2d.impl.gl2.GL2StringDrawer;
 import org.jogamp.glg2d.impl.gl2.GL2Transformhelper;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -133,8 +130,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * The set of cached hints for this graphics object.
    */
   protected RenderingHints hints;
-  
-  private BufferedImage unsupportedGLImage;
 
   public GLGraphics2D() {
     hints = new RenderingHints(Collections.<Key, Object> emptyMap());
@@ -160,7 +155,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   protected GLG2DTextHelper createTextHelper() {
-    return new GL2StringDrawer2();
+    return new GL2StringDrawer();
   }
 
   protected GLG2DImageHelper createImageHelper() {
@@ -234,12 +229,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     canvasHeight = height;
      setCanvas(null);
     setDefaultState();
-    if(this.unsupportedGLImage != null){
-          Graphics2D g2 = ((Graphics2D)unsupportedGLImage.getGraphics());
-          g2.setComposite(AlphaComposite.Clear);
-          g2.fillRect(0, 0, unsupportedGLImage.getWidth(), unsupportedGLImage.getHeight());
-          g2.setComposite(AlphaComposite.SrcOver);
-    }
   }
 
   protected void setDefaultState() {
@@ -373,23 +362,11 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   
   @Override
   public void drawString(String str, int x, int y) {
-      if(unsupportedGLImage!=null){
-          Graphics2D g2 = ((Graphics2D)unsupportedGLImage.getGraphics());
-          g2.setTransform(getTransform());
-          g2.setColor(getColor());
-          g2.drawString(str, (int)(x), (int)(y));
-      }
       drawStringImage(str, (float)x, (float)y);
   }
   
   @Override
   public void drawString(String str, float x, float y) {
-      if(unsupportedGLImage!=null){
-          Graphics2D g2 = ((Graphics2D)unsupportedGLImage.getGraphics());
-          g2.setTransform(getTransform());
-          g2.setColor(getColor());
-          g2.drawString(str, (int)(x), (int)(y));
-      }
       drawStringImage(str, (float)x, (float)y);
   }
 
@@ -872,14 +849,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
             }
         }
         return null;
-    }
-
-    public void setUnsupportedGLImage(BufferedImage unsupportedGLImage) {
-        this.unsupportedGLImage = unsupportedGLImage;
-    }
-
-    public BufferedImage getUnsupportedGLImage() {
-        return unsupportedGLImage;
     }
     
     

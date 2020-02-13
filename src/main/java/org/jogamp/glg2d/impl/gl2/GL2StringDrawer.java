@@ -16,6 +16,7 @@
 package org.jogamp.glg2d.impl.gl2;
 
 
+import com.jogamp.opengl.util.awt.TextRenderer;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -71,14 +72,14 @@ public class GL2StringDrawer extends AbstractTextDrawer {
       if(true){
           return;
       }
-    GL2TextRenderer renderer = getRenderer(getFont());
+    TextRenderer renderer = getRenderer(getFont());
 
     begin(renderer);
-    renderer.draw3D(string, x, y, 0, 1);
+    renderer.draw3D(string, x, g2d.getCanvasHeight() - y, 0, 1);
     end(renderer);
   }
 
-  protected GL2TextRenderer getRenderer(Font font) {
+  protected TextRenderer getRenderer(Font font) {
     return cache.getRenderer(font, stack.peek().antiAlias);
   }
 
@@ -86,7 +87,7 @@ public class GL2StringDrawer extends AbstractTextDrawer {
    * Sets the font color, respecting the AlphaComposite if it wants to
    * pre-multiply an alpha.
    */
-  protected void setTextColorRespectComposite(GL2TextRenderer renderer) {
+  protected void setTextColorRespectComposite(TextRenderer renderer) {
     Color color = g2d.getColor();
     if (g2d.getComposite() instanceof AlphaComposite) {
       float alpha = ((AlphaComposite) g2d.getComposite()).getAlpha();
@@ -99,37 +100,36 @@ public class GL2StringDrawer extends AbstractTextDrawer {
     renderer.setColor(color);
   }
 
-  protected void begin(GL2TextRenderer renderer) {
+  protected void begin(TextRenderer renderer) {
     setTextColorRespectComposite(renderer);
 
    glMatrixMode(GL_MODELVIEW);
    glPushMatrix();
-   glScalef(1, 1, 1);
-//   glTranslatef(0, g2d.getCanvasHeight(), 0);
-//   glScalef(1, 1, 1);
+   glScalef(1, -1, 1);
+   glTranslatef(0, -g2d.getCanvasHeight(), 0);
 
     renderer.begin3DRendering();
   }
 
-  protected void end(GL2TextRenderer renderer) {
+  protected void end(TextRenderer renderer) {
     renderer.end3DRendering();
 
    glPopMatrix();
   }
 
   @SuppressWarnings("serial")
-  public static class FontRenderCache extends HashMap<Font, GL2TextRenderer[]> {
-    public GL2TextRenderer getRenderer(Font font, boolean antiAlias) {
-      GL2TextRenderer[] renderers = get(font);
+  public static class FontRenderCache extends HashMap<Font, TextRenderer[]> {
+    public TextRenderer getRenderer(Font font, boolean antiAlias) {
+      TextRenderer[] renderers = get(font);
       if (renderers == null) {
-        renderers = new GL2TextRenderer[2];
+        renderers = new TextRenderer[2];
         put(font, renderers);
       }
 
-      GL2TextRenderer renderer = renderers[antiAlias ? 1 : 0];
+      TextRenderer renderer = renderers[antiAlias ? 1 : 0];
 
       if (renderer == null) {
-        renderer = new GL2TextRenderer(font, antiAlias);
+        renderer = new TextRenderer(font, antiAlias, false);
         renderers[antiAlias ? 1 : 0] = renderer;
       }
 
@@ -137,7 +137,7 @@ public class GL2StringDrawer extends AbstractTextDrawer {
     }
 
     public void dispose() {
-      for (GL2TextRenderer[] value : values()) {
+      for (TextRenderer[] value : values()) {
         if (value[0] != null) {
           value[0].dispose();
         }
