@@ -53,6 +53,7 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -137,7 +138,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   
   private List<StoredString> storedStrngs = new ArrayList<StoredString>();
   
-  private boolean needRepaint;
+  private Runnable runnablePaint = null;
 
   public GLGraphics2D() {
     hints = new RenderingHints(Collections.<Key, Object> emptyMap());
@@ -157,6 +158,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     addG2DDrawingHelper(matrixHelper);
     addG2DDrawingHelper(colorHelper);
   }
+
+    public void setCallbackPaint(Runnable runnable) {
+        this.runnablePaint = runnable;
+    }
 
   protected GLG2DShapeHelper createShapeHelper() {
     return new GL2ShapeDrawer();
@@ -178,14 +183,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   protected GLG2DColorHelper createColorHelper() {
     return new GL2ColorHelper();
   }
-
-    public void setNeedRepaint(boolean needRepaint) {
-        this.needRepaint = needRepaint;
-    }
-
-    public boolean isNeedRepaint() {
-        return needRepaint;
-    }
 
   public void addG2DDrawingHelper(G2DDrawingHelper helper) {
     /*
@@ -328,6 +325,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
             st.setImage(bf);
 
             storedStrngs.add(st);
+            
+            if(runnablePaint!=null){
+                runnablePaint.run();
+            }
           }
           
       });
@@ -360,8 +361,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       StoredString storedString = getStoredString(str, getFont());
       if(storedString!=null){
           drawImage(storedString.getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
-      }else{
-          needRepaint=true;
       }
   }
   

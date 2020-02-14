@@ -488,7 +488,7 @@ public class GLG2DCanvas extends JComponent {
     public void repaint() {
 //        try{
 //            this.repaintRandomNumber = Math.random();
-            if(executor!=null && nbPaintStack<1){ 
+            if(executor!=null && nbPaintStack<5){ 
                 nbPaintStack++;
                 Runnable runnable = new Runnable() {
                     @Override
@@ -530,10 +530,12 @@ public class GLG2DCanvas extends JComponent {
         }else{
             if(useLWJGL() && executor!=null){
                 if(g2dglListener instanceof GLG2DSimpleEventListener){
+                    
                     if(((GLG2DSimpleEventListener)g2dglListener).getG2D()==null){
                         g2dglListener.init(canvas);
                         System.out.println("init ok");
                     }
+                    ((GLG2DSimpleEventListener)g2dglListener).setCallbackPaint(getRepaintCallable());
                     if(useStream()){
                         renderStream.bind();
                     }
@@ -626,6 +628,18 @@ public class GLG2DCanvas extends JComponent {
 
     private boolean useStream() {
         return renderStream != null;
+    }
+
+    private final Runnable repaintCallable = new Runnable(){
+      @Override
+      public void run() {
+          repaint();
+      }
+        
+    };
+    
+    private Runnable getRepaintCallable() {
+        return this.repaintCallable;
     }
 
   /**

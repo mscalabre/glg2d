@@ -19,7 +19,7 @@ package org.jogamp.glg2d;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
-import java.awt.image.BufferedImage;
+import java.util.concurrent.Executor;
 import javax.swing.JComponent;
 import org.jogamp.glg2d.impl.shader.GL2ES2ColorHelper;
 import org.jogamp.glg2d.impl.shader.GL2ES2ImageDrawer;
@@ -28,7 +28,6 @@ import org.jogamp.glg2d.impl.shader.GL2ES2TransformHelper;
 import org.jogamp.glg2d.impl.shader.GLShaderGraphics2D;
 import org.jogamp.glg2d.impl.shader.text.GL2ES2TextDrawer;
 import static org.lwjgl.opengl.GL11.glViewport;
-import org.lwjglfx.Gears;
 
 /**
  * Wraps a {@code JComponent} and paints it using a {@code GLGraphics2D}. This
@@ -50,7 +49,6 @@ public class GLG2DSimpleEventListener implements GLEventListener {
    */
   protected JComponent comp;
   private boolean useGL2ES2;
-    
 
   public GLG2DSimpleEventListener(JComponent component) {
       this(component, false);
@@ -65,15 +63,16 @@ public class GLG2DSimpleEventListener implements GLEventListener {
 
   @Override
   public void display(GLAutoDrawable drawable) {
-        int ite=0;
-        final int limit=5;
-        do {//We paint while g2d need (if a new stored string is created, with a limit of 5 paint
-            g2d.setNeedRepaint(false);
-            prePaint(drawable);
-            paintGL(g2d);
-            postPaint(drawable);
-        } while (g2d.isNeedRepaint() && ite++<limit);
+        prePaint(drawable);
+        paintGL(g2d);
+        postPaint(drawable);
   }
+
+    public void setCallbackPaint(Runnable runnablePaint) {
+        if(getG2D()!=null){
+            getG2D().setCallbackPaint(runnablePaint);
+        }
+    }
   
   /**
    * Called before any painting is done. This should setup the matrices and ask
