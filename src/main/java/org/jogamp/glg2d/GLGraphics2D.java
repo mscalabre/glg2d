@@ -130,6 +130,14 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * The set of cached hints for this graphics object.
    */
   protected RenderingHints hints;
+  
+  
+      
+  private ExecutorService executorStoredStrings = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  
+  private List<StoredString> storedStrngs = new ArrayList<StoredString>();
+  
+  private boolean needRepaint;
 
   public GLGraphics2D() {
     hints = new RenderingHints(Collections.<Key, Object> emptyMap());
@@ -170,6 +178,14 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   protected GLG2DColorHelper createColorHelper() {
     return new GL2ColorHelper();
   }
+
+    public void setNeedRepaint(boolean needRepaint) {
+        this.needRepaint = needRepaint;
+    }
+
+    public boolean isNeedRepaint() {
+        return needRepaint;
+    }
 
   public void addG2DDrawingHelper(G2DDrawingHelper helper) {
     /*
@@ -269,10 +285,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     shapeHelper.draw(s);
   }
 
-      
-  private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-  
-  private List<StoredString> storedStrngs = new ArrayList<StoredString>();
 
     public List<StoredString> getStoredStrngs() {
         return storedStrngs;
@@ -294,9 +306,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       }
       
       final Color color = getColor();
-      //If not contains
       
-      executor.execute(new Runnable(){
+      //If not contains
+      executorStoredStrings.execute(new Runnable(){
           @Override
           public void run() {
             BufferedImage bf = new BufferedImage(256, 128, BufferedImage.TYPE_INT_ARGB);
@@ -310,19 +322,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
             g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
             g2.translate(bounds.getX(), -bounds.getY() + bounds.getHeight()/2 * 1.5);
             g2.scale(1,1);
-      //      g2.scale(1,2);
 
             g2.drawString(str, 0,0);
 
             st.setImage(bf);
-
-      //      try {
-      //          if(storedStrngs.size()<15){
-      //              ImageIO.write(bf, "png", new File(str + ".png"));
-      //          }
-      //      } catch (IOException ex) {
-      //          Logger.getLogger(GLGraphics2D.class.getName()).log(Level.SEVERE, null, ex);
-      //      }
 
             storedStrngs.add(st);
           }
@@ -357,6 +360,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       StoredString storedString = getStoredString(str, getFont());
       if(storedString!=null){
           drawImage(storedString.getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+      }else{
+          needRepaint=true;
       }
   }
   

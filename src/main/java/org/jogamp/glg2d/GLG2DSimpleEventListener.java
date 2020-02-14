@@ -65,9 +65,14 @@ public class GLG2DSimpleEventListener implements GLEventListener {
 
   @Override
   public void display(GLAutoDrawable drawable) {
-        prePaint(drawable);
-        paintGL(g2d);
-        postPaint(drawable);
+        int ite=0;
+        final int limit=5;
+        do {//We paint while g2d need (if a new stored string is created, with a limit of 5 paint
+            g2d.setNeedRepaint(false);
+            prePaint(drawable);
+            paintGL(g2d);
+            postPaint(drawable);
+        } while (g2d.isNeedRepaint() && ite++<limit);
   }
   
   /**
