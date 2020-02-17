@@ -81,7 +81,7 @@ public class GLG2DUtils {
       public boolean bool;
   }
             
-  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView){
+  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int sampleMSAA, final int nbBuffer){
       
         final GLG2DPanel panel;
         try{
@@ -120,7 +120,7 @@ public class GLG2DUtils {
 
                             StreamHandler readHandler = StreamUtil.getReadHandler(imageView);
                             StreamUtil.RenderStreamFactory renderStreamFactory = StreamUtil.getRenderStreamImplementation();
-                            RenderStream renderStream = renderStreamFactory.create(readHandler, 1, 1);
+                            RenderStream renderStream = renderStreamFactory.create(readHandler, sampleMSAA, nbBuffer);
 
                             panel.setRenderStream(renderStream);
 
