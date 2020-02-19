@@ -136,7 +136,8 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       
   private ExecutorService executorStoredStrings = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   
-  private List<StoredString> storedStrngs = new ArrayList<StoredString>();
+  private List<StoredString> storedStrings = new ArrayList<StoredString>();
+  private List<StoredString> storedStringsUsed = new ArrayList<StoredString>();
   
   private Runnable runnablePaint = null;
 
@@ -239,6 +240,14 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * as getting the viewport
    */
   public void prePaint(int height) {
+      executorStoredStrings.execute(new Runnable(){
+          @Override
+          public void run() {
+              List<StoredString> newStoredStringsUsed = new ArrayList<StoredString>();
+              storedStrings = storedStringsUsed;
+              storedStringsUsed = newStoredStringsUsed;
+          }
+      });
     canvasHeight = height;
      setCanvas(null);
     setDefaultState();
@@ -271,10 +280,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     for (G2DDrawingHelper helper : helpers) {
       helper.dispose();
     }
-    for(StoredString st : storedStrngs){
+    for(StoredString st : storedStrings){
         st.setImage(null);
     }
-    this.storedStrngs = null;
+    this.storedStrings = null;
   }
 
   @Override
@@ -284,7 +293,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
 
     public List<StoredString> getStoredStrngs() {
-        return storedStrngs;
+        return storedStrings;
     }
   
   private StoredString getStoredString(final String str, final Font font){
@@ -292,9 +301,10 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       final StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
       List<StoredString> storedStrngsTmp = new ArrayList<StoredString>();
       try{
-        storedStrngsTmp.addAll(storedStrngs);
+        storedStrngsTmp.addAll(storedStrings);
         for(StoredString st2 : storedStrngsTmp){
             if(st.equals(st2)){
+                storedStringsUsed.add(st2);
                 return st2;
             }
         }
@@ -324,7 +334,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
             st.setImage(bf);
 
-            storedStrngs.add(st);
+            storedStringsUsed.add(st);
+            
+            storedStrings.add(st);
             
             if(runnablePaint!=null){
                 runnablePaint.run();
