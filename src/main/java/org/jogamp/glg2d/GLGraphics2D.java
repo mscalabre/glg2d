@@ -298,7 +298,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   
   private StoredString getStoredString(final String str, final Font font){
       
-      final StoredString st = new StoredString(str, getFont().getFontName(), getColor().getRGB(), null);
+      final Color color = getColor();
+      final Color colorOpaque = new Color(color.getRed(), color.getGreen(), color.getBlue());
+      final StoredString st = new StoredString(str, getFont().getFontName(), colorOpaque.getRGB(), null);
       List<StoredString> storedStrngsTmp = new ArrayList<StoredString>();
       try{
         storedStrngsTmp.addAll(storedStrings);
@@ -312,8 +314,6 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
           ex.printStackTrace();
       }
       
-      final Color color = getColor();
-      
       //If not contains
       executorStoredStrings.execute(new Runnable(){
           @Override
@@ -323,7 +323,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
             Graphics2D g2 = (Graphics2D)bf.getGraphics();
             g2.setFont(font);
-            g2.setColor(color);
+            g2.setColor(colorOpaque);
             Rectangle2D bounds = getStringBounds(str, font);
             g2.translate(0,0);
             g2.scale(bf.getWidth()/bounds.getWidth(), bf.getHeight()/bounds.getHeight());
@@ -372,7 +372,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
       Rectangle2D bounds = getStringBounds(str, getFont());
       StoredString storedString = getStoredString(str, getFont());
       if(storedString!=null){
+          setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, getColor().getAlpha()/255f));
           drawImage(storedString.getImage(), (int)x, (int)(y-bounds.getHeight()/2*1.5), (int)bounds.getWidth(), (int)bounds.getHeight(), null);
+          setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
       }
   }
   
