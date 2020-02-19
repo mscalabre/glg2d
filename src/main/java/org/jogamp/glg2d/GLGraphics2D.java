@@ -139,6 +139,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   private List<StoredString> storedStrings = new ArrayList<StoredString>();
   private List<StoredString> storedStringsUsed = new ArrayList<StoredString>();
   
+  private int indexStoredStrings = 0;
+  private int clearStoredStringsEach = 5;
+  
   private Runnable runnablePaint = null;
 
   public GLGraphics2D() {
@@ -240,14 +243,17 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
    * as getting the viewport
    */
   public void prePaint(int height) {
-      executorStoredStrings.execute(new Runnable(){
-          @Override
-          public void run() {
-              List<StoredString> newStoredStringsUsed = new ArrayList<StoredString>();
-              storedStrings = storedStringsUsed;
-              storedStringsUsed = newStoredStringsUsed;
-          }
-      });
+      if(indexStoredStrings++ >= clearStoredStringsEach){
+        executorStoredStrings.execute(new Runnable(){
+            @Override
+            public void run() {
+                List<StoredString> newStoredStringsUsed = new ArrayList<StoredString>();
+                storedStrings = storedStringsUsed;
+                storedStringsUsed = newStoredStringsUsed;
+            }
+        });
+        indexStoredStrings = 0;
+      }
     canvasHeight = height;
      setCanvas(null);
     setDefaultState();
