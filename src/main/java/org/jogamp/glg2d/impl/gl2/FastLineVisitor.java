@@ -127,23 +127,29 @@ public class FastLineVisitor extends SimplePathVisitor {
       return false;
     }
 
-    glGetFloat(GL_MODELVIEW_MATRIX, testMatrix);
-
-    float scaleX = Math.abs(testMatrix.get(0));
-    float scaleY = Math.abs(testMatrix.get(5));
-
-    // scales are different, we can't get a good line width
-    if (Math.abs(scaleX - scaleY) > 1e-6) {
-      return false;
-    }
+//    glGetFloat(GL_MODELVIEW_MATRIX, testMatrix);
+//
+//    float scaleX = Math.abs(testMatrix.get(0));
+//    float scaleY = Math.abs(testMatrix.get(5));
+//
+//    // scales are different, we can't get a good line width
+//    if (Math.abs(scaleX - scaleY) > 1e-6) {
+//      return false;
+//    }
 
     float strokeWidth = stroke.getLineWidth();
 
     // gl line width is in pixels, convert to pixel width
-    glLineWidth = strokeWidth * scaleX;
+    glLineWidth = strokeWidth;
 
+    if(glLineWidth<0.1f){
+        System.out.println("stop");
+    }
+    
     // we'll only try if it's a thin line
-    return glLineWidth <= 2;
+    //EDIT : I don't understand why :s. When false there is artefact of stroke. I always return true then -- MS
+//    return glLineWidth <= 2;
+        return true;
   }
 
   @Override
@@ -173,10 +179,15 @@ public class FastLineVisitor extends SimplePathVisitor {
      * a point there. Since our line should be very thin, pixel-wise, it
      * shouldn't be noticeable.
      */
-    if (stroke.getDashArray() == null) {
-      buf.position(p);
-      buffer.drawBuffer(GL_POINTS);
-    }
+    
+    //EDIT : Create a too strong stroke, i comment -- MS
+    
+//    if (stroke.getDashArray() == null) {
+//      buf.position(p);
+//      buffer.drawBuffer(GL_POINTS);
+//    }else{
+//        System.out.println("stop");
+//    }
     
     buffer.clear();
   }
