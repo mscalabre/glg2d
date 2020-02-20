@@ -141,10 +141,6 @@ public class FastLineVisitor extends SimplePathVisitor {
 
     // gl line width is in pixels, convert to pixel width
     glLineWidth = strokeWidth;
-
-    if(glLineWidth<0.1f){
-        System.out.println("stop");
-    }
     
     // we'll only try if it's a thin line
     //EDIT : I don't understand why :s. When false there is artefact of stroke. I always return true then -- MS
