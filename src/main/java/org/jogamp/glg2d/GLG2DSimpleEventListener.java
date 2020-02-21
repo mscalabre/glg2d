@@ -20,6 +20,7 @@ package org.jogamp.glg2d;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import javax.swing.JComponent;
 import org.jogamp.glg2d.impl.shader.GL2ES2ColorHelper;
 import org.jogamp.glg2d.impl.shader.GL2ES2ImageDrawer;
@@ -167,9 +168,17 @@ public class GLG2DSimpleEventListener implements GLEventListener {
   @Override
   public void dispose(GLAutoDrawable arg0) {
     if (g2d != null) {
-      g2d.glDispose();
+      try{
+          g2d.glDispose();
+      }catch(Throwable th){
+          th.printStackTrace();
+      }
       g2d = null;
     } 
   }
+
+    public void setExecutor(ExecutorService executor) {
+        this.g2d.setExecutor(executor);
+    }
   
 }

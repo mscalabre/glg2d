@@ -103,6 +103,13 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
 
   @Override
   public void dispose() {
+    for(Texture t : imageCache.values()){
+        try{
+            destroy(t, false);   
+        }catch (Throwable th){
+            th.printStackTrace();
+        }
+    }
     imageCache.clear();
   }
 
@@ -206,9 +213,22 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
     return AWTTextureIO.newTexture(g2d.getGLContext().getGL().getGLProfile(), image, false);
   }
 
-  protected void destroy(Texture texture) {
-      if(!(texture instanceof LWTexture)){
-          texture.destroy(g2d.getGLContext().getGL());
+  protected void destroy(final Texture texture, boolean onExecutor) {
+      Runnable runnable = new Runnable(){
+          @Override
+          public void run() {
+            if(!(texture instanceof LWTexture)){
+                texture.destroy(g2d.getGLContext().getGL());
+            }else{
+                texture.destroy(null);
+            }
+          }
+          
+      };
+      if(onExecutor){
+          g2d.getExecutor().execute(runnable);
+      }else{
+          runnable.run();
       }
   }
 
@@ -273,7 +293,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
       while (ref != null) {
         Texture texture = remove(ref);
         if (texture != null) {
-          destroy(texture);
+          destroy(texture, true);
         }
 
         ref = queue.poll();

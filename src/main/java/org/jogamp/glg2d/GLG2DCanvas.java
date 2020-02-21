@@ -56,6 +56,7 @@ import javax.swing.RepaintManager;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Pbuffer;
@@ -181,20 +182,40 @@ public class GLG2DCanvas extends JComponent {
         getExecutor().execute(new Runnable(){
             @Override
             public void run() {
-                if(renderStream!=null){
-                    renderStream.destroy();
-                }
-                if(pbuffer!=null){
-                    pbuffer.destroy();
-                }
-
                 if(((GLG2DSimpleEventListener)g2dglListener) != null){
                     g2dglListener.dispose(canvas);
+                }
+                
+                if(renderStream!=null){
+                    try{
+                        renderStream.destroy();
+                    }catch(Throwable th){
+                        th.printStackTrace();
+                    }
+                }
+                if(pbuffer!=null){
+                    try{
+                        pbuffer.destroy();
+                    }catch(Throwable th){
+                        th.printStackTrace();
+                    }
                 }
                 System.out.println("Real destroy ok");
             }
             
         });
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    getExecutor().awaitTermination(5, TimeUnit.SECONDS);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                getExecutor().shutdown();
+            }
+            
+        }).start();
     }
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
@@ -535,6 +556,7 @@ public class GLG2DCanvas extends JComponent {
                         g2dglListener.init(canvas);
                         System.out.println("init ok");
                     }
+                    ((GLG2DSimpleEventListener)g2dglListener).setExecutor(getExecutor());
                     ((GLG2DSimpleEventListener)g2dglListener).setCallbackPaint(getRepaintCallable());
                     if(useStream()){
                         renderStream.bind();

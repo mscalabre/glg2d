@@ -143,6 +143,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   private int clearStoredStringsEach = 5;
   
   private Runnable runnablePaint = null;
+    private ExecutorService executor;
 
   public GLGraphics2D() {
     hints = new RenderingHints(Collections.<Key, Object> emptyMap());
@@ -284,10 +285,18 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
 
   public void glDispose() {
     for (G2DDrawingHelper helper : helpers) {
-      helper.dispose();
+        try{
+            helper.dispose();
+        }catch (Throwable th){
+            th.printStackTrace();
+        }
     }
     for(StoredString st : storedStrings){
-        st.setImage(null);
+        try{
+            st.setImage(null);
+        }catch (Throwable th){
+            th.printStackTrace();
+        }
     }
     this.storedStrings = null;
   }
@@ -873,6 +882,14 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
             }
         }
         return null;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
     }
     
     

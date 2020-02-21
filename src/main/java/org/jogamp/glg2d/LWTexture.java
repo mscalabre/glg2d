@@ -30,6 +30,7 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import org.lwjgl.opengl.GL12;
@@ -42,7 +43,7 @@ public class LWTexture extends Texture{
     private int textureId;
     private int width;
     private int height;
-
+    
     public LWTexture() {
         super(0);
     }
@@ -73,17 +74,19 @@ public class LWTexture extends Texture{
     public LWTexture(BufferedImage image){
         super(0);
         
-        
-        ByteBuffer textureBuffer = BufferUtils.createByteBuffer(image.getWidth()*image.getHeight()*4);
+        int width = image.getWidth();
+        int height = image.getHeight();
         
         int textureID = GL11.glGenTextures();
         
-        int[] pixels = new int[image.getWidth() * image.getHeight()];
-        image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
+        ByteBuffer textureBuffer = BufferUtils.createByteBuffer(width*height*4);
         
-        for(int y = 0; y < image.getHeight(); y++){
-            for(int x = 0; x < image.getWidth(); x++){
-                int pixel = pixels[y * image.getWidth() + x];
+        int[] pixels = new int[width * height];
+        image.getRGB(0, 0, width, height, pixels, 0, width);
+        
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                int pixel = pixels[y * width + x];
                 textureBuffer.put((byte) ((pixel >> 16) & 0xFF));     // Red component
                 textureBuffer.put((byte) ((pixel >> 8) & 0xFF));      // Green component
                 textureBuffer.put((byte) (pixel & 0xFF));               // Blue component
@@ -102,11 +105,11 @@ public class LWTexture extends Texture{
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         
-        glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, image.getWidth(), image.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, textureBuffer);
+        glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, textureBuffer);
         
         this.textureId = textureID;
-        this.width = image.getWidth();
-        this.height = image.getHeight();
+        this.width = width;
+        this.height = height;
     }
 
     @Override
@@ -122,5 +125,10 @@ public class LWTexture extends Texture{
     @Override
     public TextureCoords getImageTexCoords() {
         return new TextureCoords(0,1,1,0);
+    }
+
+    @Override
+    public void destroy(GL gl) throws GLException {
+        glDeleteTextures(this.textureId);
     }
 }
