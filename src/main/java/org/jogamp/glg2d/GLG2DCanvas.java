@@ -173,12 +173,12 @@ public class GLG2DCanvas extends JComponent {
         this.pbuffer = pbuffer;
     }
 
-    public void destroy(){
+    public void destroy(Runnable callback){
         System.out.println("destroy");
-        realDestroy();
+        realDestroy(callback);
     }
     
-    public void realDestroy(){
+    public void realDestroy(final Runnable callback){
         getExecutor().execute(new Runnable(){
             @Override
             public void run() {
@@ -201,21 +201,12 @@ public class GLG2DCanvas extends JComponent {
                     }
                 }
                 System.out.println("Real destroy ok");
+                
+                getExecutor().shutdown();
+                callback.run();
             }
             
         });
-        new Thread(new Runnable(){
-            @Override
-            public void run() {
-                try {
-                    getExecutor().awaitTermination(5, TimeUnit.SECONDS);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                getExecutor().shutdown();
-            }
-            
-        }).start();
     }
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the

@@ -15,9 +15,7 @@
  */
 package org.jogamp.glg2d.impl.gl2;
 
-import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.geom.AffineTransform;
 
 
@@ -27,6 +25,7 @@ import java.awt.geom.AffineTransform;
 
 
 import org.jogamp.glg2d.GLGraphics2D;
+import org.jogamp.glg2d.Texturable;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_MODULATE;
@@ -53,7 +52,7 @@ public class GL2ImageDrawer extends AbstractImageHelper {
 
 
   @Override
-  protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {
+  protected void begin(Texturable texture, AffineTransform xform, Color bgcolor) {
    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
    glTexParameterf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 
@@ -77,7 +76,7 @@ public class GL2ImageDrawer extends AbstractImageHelper {
   }
 
   @Override
-  protected void end(Texture texture) {
+  protected void end(Texturable texture) {
     if (savedTransform != null) {
       g2d.setTransform(savedTransform);
     }
@@ -87,7 +86,7 @@ public class GL2ImageDrawer extends AbstractImageHelper {
   }
 
   @Override
-  protected void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2) {
+  protected void applyTexture(Texturable texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2) {
    glBegin(GL_QUADS);
 
     // SW

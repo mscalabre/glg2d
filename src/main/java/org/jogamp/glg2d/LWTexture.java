@@ -39,27 +39,23 @@ import org.lwjgl.opengl.GL12;
  *
  * @author mscalabre
  */
-public class LWTexture extends Texture{
+public class LWTexture implements Texturable{
     private int textureId;
     private int width;
     private int height;
     
     public LWTexture() {
-        super(0);
     }
 
     public LWTexture(int textureId, int i) {
-        super(i);
         this.textureId = textureId;
     }
 
     public LWTexture(int textureId, GL gl, TextureData td) throws GLException {
-        super(gl, td);
         this.textureId = textureId;
     }
 
     public LWTexture(int textureId, int i, int i1, int i2, int i3, int i4, int i5, boolean bln) {
-        super(i, i1, i2, i3, i4, i5, bln);
         this.textureId = textureId;
     }
 
@@ -67,13 +63,16 @@ public class LWTexture extends Texture{
         return textureId;
     }
 
+    @Override
+    public int getTextureObject() {
+        return getTextureId();
+    }
+
     public void setTextureId(int textureId) {
         this.textureId = textureId;
     }
     
     public LWTexture(BufferedImage image){
-        super(0);
-        
         int width = image.getWidth();
         int height = image.getHeight();
         
@@ -131,4 +130,17 @@ public class LWTexture extends Texture{
     public void destroy(GL gl) throws GLException {
         glDeleteTextures(this.textureId);
     }
+
+    @Override
+    public void enable(GL gl) {
+    }
+
+    @Override
+    public void disable(GL gl) {
+    }
+
+    @Override
+    public void bind(GL gl) {
+    }
+    
 }

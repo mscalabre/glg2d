@@ -875,7 +875,7 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     }
   }
 
-    public Texture invalidateImage(BufferedImage image) {
+    public Texturable invalidateImage(BufferedImage image) {
         for(G2DDrawingHelper helper : helpers){
             if(helper instanceof AbstractImageHelper){
                 return ((AbstractImageHelper)helper).invalidateImage(image);
