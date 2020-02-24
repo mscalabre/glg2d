@@ -175,6 +175,7 @@ public class GLG2DSimpleEventListener implements GLEventListener {
       }
       g2d = null;
     } 
+    comp = null;
   }
 
     public void setExecutor(ExecutorService executor) {

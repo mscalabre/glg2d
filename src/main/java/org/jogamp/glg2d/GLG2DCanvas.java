@@ -178,7 +178,12 @@ public class GLG2DCanvas extends JComponent {
         realDestroy(callback);
     }
     
+    private Runnable callbackDestroy = null;
+    
     public void realDestroy(final Runnable callback){
+        
+        callbackDestroy = callback;
+        
         getExecutor().execute(new Runnable(){
             @Override
             public void run() {
@@ -200,14 +205,27 @@ public class GLG2DCanvas extends JComponent {
                         th.printStackTrace();
                     }
                 }
+                if(canvas instanceof Component){
+                    remove((Component)canvas);
+                }
+                canvas = null;
+                remove(drawableComponent);
+                drawableComponent = null;
                 System.out.println("Real destroy ok");
                 
                 getExecutor().shutdown();
-                callback.run();
             }
             
         });
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); 
+        callbackDestroy.run();
+    }
+    
+    
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
    * canvas. This uses the default capabilities from
