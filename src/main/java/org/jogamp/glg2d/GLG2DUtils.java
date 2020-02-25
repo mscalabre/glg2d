@@ -99,8 +99,7 @@ public class GLG2DUtils {
                     e.execute(new Runnable(){
                         @Override
                         public void run() {
-
-
+                            
                             Pbuffer pbuffer = null;
                             while(pbuffer==null){
                                 try {
@@ -124,6 +123,9 @@ public class GLG2DUtils {
 
                             panel.setRenderStream(renderStream);
 
+                            synchronized(panel){
+                                panel.notify();
+                            }
                         }
 
                     });
