@@ -16,9 +16,7 @@
 package org.jogamp.glg2d.impl;
 
 
-import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import static org.jogamp.glg2d.GLG2DRenderingHints.KEY_CLEAR_TEXTURES_CACHE;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_DEFAULT;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_EACH_PAINT;
@@ -37,7 +35,9 @@ import java.awt.image.renderable.RenderableImage;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,14 +103,23 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
 
   @Override
   public void dispose() {
-    for(Texturable t : imageCache.values()){
-        try{
-            destroy(t, false);   
-        }catch (Throwable th){
-            th.printStackTrace();
+    while(!imageCache.isEmpty()){
+        List<WeakKey<Image>> images = new ArrayList<WeakKey<Image>>();
+        for(WeakKey<Image> weakKey : imageCache.keySet()){
+            images.add(weakKey);
         }
+        for(WeakKey<Image> image : images){
+            if(image!=null){
+                imageCache.remove(image, false);
+                if(imageCache.get(image)!=null){
+                    destroy(imageCache.get(image), false);
+                }
+            }
+        }
+        imageCache.clear();
     }
-    imageCache.clear();
+    System.out.println("imageCache length " + imageCache.size()); 
+    imageCache = null;
   }
 
   @Override
@@ -291,11 +300,14 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
     private ReferenceQueue<Image> queue = new ReferenceQueue<Image>();
 
     public void expungeStaleEntries() {
+        expungeStaleEntries(true);
+    }
+    public void expungeStaleEntries(boolean onExecutor) {
       Reference<? extends Image> ref = queue.poll();
       while (ref != null) {
         Texturable texture = remove(ref);
         if (texture != null) {
-          destroy(texture, true);
+          destroy(texture, onExecutor);
         }
 
         ref = queue.poll();
@@ -309,7 +321,11 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
     }
     
     public Texturable remove(Image image) {
-      expungeStaleEntries();
+        return remove(image, true);
+    }
+    
+    public Texturable remove(Image image, boolean onExecutor) {
+      expungeStaleEntries(onExecutor);
       WeakKey<Image> key = new WeakKey<Image>(image, null);
       return super.remove(key);
     }

@@ -17,7 +17,6 @@ package org.jogamp.glg2d;
 
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLDrawable;
-import com.jogamp.opengl.util.texture.Texture;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
@@ -53,9 +52,9 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -134,7 +133,15 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   
   
       
-  private ExecutorService executorStoredStrings = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  private ExecutorService executorStoredStrings = Executors.newFixedThreadPool(1, new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            ThreadFactory tf = Executors.defaultThreadFactory();
+            Thread thread = tf.newThread(r);
+            thread.setName(GLGraphics2D.this.getClass().getSimpleName() + "_" + thread.getName());
+            return thread;
+        }
+    });
   
   private List<StoredString> storedStrings = new ArrayList<StoredString>();
   private List<StoredString> storedStringsUsed = new ArrayList<StoredString>();
@@ -284,6 +291,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
   }
 
   public void glDispose() {
+    if(this.executorStoredStrings!=null){
+        this.executorStoredStrings.shutdown();
+    }
     for (G2DDrawingHelper helper : helpers) {
         try{
             helper.dispose();
@@ -293,7 +303,9 @@ public class GLGraphics2D extends Graphics2D implements Cloneable {
     }
     for(StoredString st : storedStrings){
         try{
-            st.setImage(null);
+            if(st!=null){
+                st.setImage(null);
+            }
         }catch (Throwable th){
             th.printStackTrace();
         }

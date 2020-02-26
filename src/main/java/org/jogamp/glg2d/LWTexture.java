@@ -17,7 +17,6 @@ package org.jogamp.glg2d;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureCoords;
 import com.jogamp.opengl.util.texture.TextureData;
 import java.awt.image.BufferedImage;
@@ -43,6 +42,7 @@ public class LWTexture implements Texturable{
     private int textureId;
     private int width;
     private int height;
+    private ByteBuffer byteBuffer;
     
     public LWTexture() {
     }
@@ -73,12 +73,15 @@ public class LWTexture implements Texturable{
     }
     
     public LWTexture(BufferedImage image){
+        
         int width = image.getWidth();
         int height = image.getHeight();
         
         int textureID = GL11.glGenTextures();
         
         ByteBuffer textureBuffer = BufferUtils.createByteBuffer(width*height*4);
+        
+        this.byteBuffer = textureBuffer;
         
         int[] pixels = new int[width * height];
         image.getRGB(0, 0, width, height, pixels, 0, width);
@@ -129,6 +132,8 @@ public class LWTexture implements Texturable{
     @Override
     public void destroy(GL gl) throws GLException {
         glDeleteTextures(this.textureId);
+        BufferUtils.zeroBuffer(byteBuffer);
+//        this.byteBuffer = null;
     }
 
     @Override
