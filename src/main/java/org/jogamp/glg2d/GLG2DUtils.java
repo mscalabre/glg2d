@@ -19,7 +19,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.image.ImageView;
@@ -81,7 +81,7 @@ public class GLG2DUtils {
       public boolean bool;
   }
             
-  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int sampleMSAA, final int nbBuffer){
+  public static GLG2DPanel streamAWTfromGLtoFX(final JComponent jpanel, final Pane mainContainer, final ImageView imageView, final int sampleMSAA, final int nbBuffer, final String name){
       
         final GLG2DPanel panel;
         try{
@@ -93,14 +93,21 @@ public class GLG2DUtils {
             Runnable runnable = new Runnable(){
                 @Override
                 public void run() {
-                    final ExecutorService e = Executors.newFixedThreadPool(/*Runtime.getRuntime().availableProcessors()*/1);
+                final ExecutorService e = Executors.newFixedThreadPool(1, new ThreadFactory() {
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        ThreadFactory tf = Executors.defaultThreadFactory();
+                        Thread thread = tf.newThread(r);
+                        thread.setName(name + "_" + thread.getName());
+                        return thread;
+                    }
+                });
                     panel.setExecutor(e);
 
                     e.execute(new Runnable(){
                         @Override
                         public void run() {
-
-
+                            
                             Pbuffer pbuffer = null;
                             while(pbuffer==null){
                                 try {
@@ -124,6 +131,9 @@ public class GLG2DUtils {
 
                             panel.setRenderStream(renderStream);
 
+                            synchronized(panel){
+                                panel.notify();
+                            }
                         }
 
                     });

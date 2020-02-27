@@ -16,9 +16,7 @@
 package org.jogamp.glg2d.impl;
 
 
-import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import static org.jogamp.glg2d.GLG2DRenderingHints.KEY_CLEAR_TEXTURES_CACHE;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_DEFAULT;
 import static org.jogamp.glg2d.GLG2DRenderingHints.VALUE_CLEAR_TEXTURES_CACHE_EACH_PAINT;
@@ -37,7 +35,9 @@ import java.awt.image.renderable.RenderableImage;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +45,7 @@ import org.jogamp.glg2d.GLG2DImageHelper;
 import org.jogamp.glg2d.GLG2DRenderingHints;
 import org.jogamp.glg2d.GLGraphics2D;
 import org.jogamp.glg2d.LWTexture;
-import org.lwjgl.opengl.GLContext;
+import org.jogamp.glg2d.Texturable;
 
 
 
@@ -62,12 +62,12 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
 
   protected GLGraphics2D g2d;
 
-  protected abstract void begin(Texture texture, AffineTransform xform, Color bgcolor);
+  protected abstract void begin(Texturable texture, AffineTransform xform, Color bgcolor);
 
-  protected abstract void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2,
+  protected abstract void applyTexture(Texturable texture, int dx1, int dy1, int dx2, int dy2,
       float sx1, float sy1, float sx2, float sy2);
 
-  protected abstract void end(Texture texture);
+  protected abstract void end(Texturable texture);
   
   @Override
   public void setG2D(GLGraphics2D g2d) {
@@ -103,7 +103,23 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
 
   @Override
   public void dispose() {
-    imageCache.clear();
+    while(!imageCache.isEmpty()){
+        List<WeakKey<Image>> images = new ArrayList<WeakKey<Image>>();
+        for(WeakKey<Image> weakKey : imageCache.keySet()){
+            images.add(weakKey);
+        }
+        for(WeakKey<Image> image : images){
+            if(image!=null){
+                imageCache.remove(image, false);
+                if(imageCache.get(image)!=null){
+                    destroy(imageCache.get(image), false);
+                }
+            }
+        }
+        imageCache.clear();
+    }
+    System.out.println("imageCache length " + imageCache.size()); 
+    imageCache = null;
   }
 
   @Override
@@ -133,7 +149,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   @Override
   public boolean drawImage(Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2,
       int sy2, Color bgcolor, ImageObserver observer) {
-    Texture texture = getTexture(img, observer);
+    Texturable texture = getTexture(img, observer);
     if (texture == null) {
       return false;
     }
@@ -148,7 +164,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   }
 
   protected boolean drawImage(Image img, AffineTransform xform, Color color, ImageObserver observer) {
-    Texture texture = getTexture(img, observer);
+    Texturable texture = getTexture(img, observer);
     if (texture == null) {
       return false;
     }
@@ -160,7 +176,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
     return true;
   }
 
-  protected void applyTexture(Texture texture) {
+  protected void applyTexture(Texturable texture) {
     int width = texture.getWidth();
     int height = texture.getHeight();
     TextureCoords coords = texture.getImageTexCoords();
@@ -169,21 +185,21 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   }
 
   /**
-   * Cache the texture if possible. I have a feeling this will run into issues
+   * Cache the Texturable if possible. I have a feeling this will run into issues
    * later as images change. Just not sure how to handle it if they do. I
    * suspect I should be using the ImageConsumer class and dumping pixels to the
    * screen as I receive them.
    * 
    * <p>
-   * If an image is a BufferedImage, turn it into a texture and cache it. If
+   * If an image is a BufferedImage, turn it into a Texturable and cache it. If
    * it's not, draw it to a BufferedImage and see if all the image data is
    * available. If it is, cache it. If it's not, don't cache it. But if not all
    * the image data is available, we will draw it what we have, since we draw
    * anything in the image to a BufferedImage.
    * </p>
    */
-  protected Texture getTexture(Image image, ImageObserver observer) {
-    Texture texture = imageCache.get(image);
+  protected Texturable getTexture(Image image, ImageObserver observer) {
+    Texturable texture = imageCache.get(image);
     if (texture == null) {
       BufferedImage bufferedImage;
       if (image instanceof BufferedImage && ((BufferedImage) image).getType() != BufferedImage.TYPE_CUSTOM) {
@@ -201,23 +217,38 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
     return texture;
   }
 
-  protected Texture create(BufferedImage image) {
+  protected Texturable create(BufferedImage image) {
     // we'll assume the image is complete and can be rendered
-    return AWTTextureIO.newTexture(g2d.getGLContext().getGL().getGLProfile(), image, false);
+    return null;
+    //Cannot work with the new system
+//    return AWTTextureIO.newTexture(g2d.getGLContext().getGL().getGLProfile(), image, false);
   }
 
-  protected void destroy(Texture texture) {
-      if(!(texture instanceof LWTexture)){
-          texture.destroy(g2d.getGLContext().getGL());
+  protected void destroy(final Texturable texture, boolean onExecutor) {
+      Runnable runnable = new Runnable(){
+          @Override
+          public void run() {
+            if(!(texture instanceof LWTexture)){
+                texture.destroy(g2d.getGLContext().getGL());
+            }else{
+                texture.destroy(null);
+            }
+          }
+          
+      };
+      if(onExecutor){
+          g2d.getExecutor().execute(runnable);
+      }else{
+          runnable.run();
       }
   }
 
-  protected void addToCache(Image image, Texture texture) {
+  protected void addToCache(Image image, Texturable texture) {
     if (clearCachePolicy instanceof Number) {
       int maxSize = ((Number) clearCachePolicy).intValue();
       if (imageCache.size() > maxSize) {
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine("Clearing texture cache with size " + imageCache.size());
+          LOGGER.fine("Clearing Texturable cache with size " + imageCache.size());
         }
 
         imageCache.clear();
@@ -257,7 +288,7 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
   public void drawImage(RenderableImage img, AffineTransform xform) {
     notImplemented("drawImage(RenderableImage, AffineTransform)");
   }
-    public Texture invalidateImage(BufferedImage image){
+    public Texturable invalidateImage(BufferedImage image){
         return this.imageCache.remove(image);
     }
   /**
@@ -265,34 +296,41 @@ public abstract class AbstractImageHelper implements GLG2DImageHelper {
    * so we can dispose the Textures when the Image is no longer referenced.
    */
   @SuppressWarnings("serial")
-  protected class TextureCache extends HashMap<WeakKey<Image>, Texture> {
+  protected class TextureCache extends HashMap<WeakKey<Image>, Texturable> {
     private ReferenceQueue<Image> queue = new ReferenceQueue<Image>();
 
     public void expungeStaleEntries() {
+        expungeStaleEntries(true);
+    }
+    public void expungeStaleEntries(boolean onExecutor) {
       Reference<? extends Image> ref = queue.poll();
       while (ref != null) {
-        Texture texture = remove(ref);
+        Texturable texture = remove(ref);
         if (texture != null) {
-          destroy(texture);
+          destroy(texture, onExecutor);
         }
 
         ref = queue.poll();
       }
     }
 
-    public Texture get(Image image) {
+    public Texturable get(Image image) {
       expungeStaleEntries();
       WeakKey<Image> key = new WeakKey<Image>(image, null);
       return get(key);
     }
     
-    public Texture remove(Image image) {
-      expungeStaleEntries();
+    public Texturable remove(Image image) {
+        return remove(image, true);
+    }
+    
+    public Texturable remove(Image image, boolean onExecutor) {
+      expungeStaleEntries(onExecutor);
       WeakKey<Image> key = new WeakKey<Image>(image, null);
       return super.remove(key);
     }
 
-    public Texture put(Image image, Texture texture) {
+    public Texturable put(Image image, Texturable texture) {
       expungeStaleEntries();
       WeakKey<Image> key = new WeakKey<Image>(image, queue);
       return put(key, texture);

@@ -145,7 +145,7 @@ public class GL2ES2ColorHelper extends AbstractColorHelper implements ColorHook 
 //    glX += dx;
 //    glY -= dy;
 //
-//    // interleave vertex and texture coordinates
+//    // interleave vertex and Texturable coordinates
 //    data.put(glX);
 //    data.put(glY);
 //    data.put(0);

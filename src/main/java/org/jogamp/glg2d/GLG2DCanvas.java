@@ -119,7 +119,7 @@ public class GLG2DCanvas extends JComponent {
     caps.setGreenBits(8);
     caps.setBlueBits(8);
     caps.setAlphaBits(8);
-    caps.setDoubleBuffered(true);
+    caps.setDoubleBuffered(true);//TODO test with false
     caps.setHardwareAccelerated(true);
     caps.setNumSamples(4);
     caps.setBackgroundOpaque(false);
@@ -172,30 +172,74 @@ public class GLG2DCanvas extends JComponent {
         this.pbuffer = pbuffer;
     }
 
-    public void destroy(){
+    public void destroy(Runnable callback){
         System.out.println("destroy");
-        realDestroy();
+        realDestroy(callback);
     }
     
-    public void realDestroy(){
-        getExecutor().execute(new Runnable(){
+    private Runnable callbackDestroy = null;
+    
+    public void realDestroy(final Runnable callback){
+        
+        callbackDestroy = callback;
+        Runnable runnable = new Runnable(){
             @Override
             public void run() {
-                if(renderStream!=null){
-                    renderStream.destroy();
+                while(pbuffer==null){//Be sure all is initialized before destroy
+                    synchronized(GLG2DCanvas.this){
+                        try {
+                            GLG2DCanvas.this.wait(5000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(GLG2DCanvas.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                 }
-                if(pbuffer!=null){
-                    pbuffer.destroy();
-                }
+                getExecutor().execute(new Runnable(){
+                    @Override
+                    public void run() {
+                        
+                        if(((GLG2DSimpleEventListener)g2dglListener) != null){
+                            g2dglListener.dispose(canvas);
+                        }
 
-                if(((GLG2DSimpleEventListener)g2dglListener) != null){
-                    g2dglListener.dispose(canvas);
-                }
-                System.out.println("Real destroy ok");
+                        if(renderStream!=null){
+                            try{
+                                renderStream.destroy();
+                            }catch(Throwable th){
+                                th.printStackTrace();
+                            }
+                        }
+                        if(pbuffer!=null){
+                            try{
+                                pbuffer.destroy();
+                            }catch(Throwable th){
+                                th.printStackTrace();
+                            }
+                        }
+                        if(canvas instanceof Component){
+                            remove((Component)canvas);
+                        }
+                        canvas = null;
+                        remove(drawableComponent);
+                        drawableComponent = null;
+                        System.out.println("Real destroy ok");
+
+                        getExecutor().shutdown();
+                    }
+
+                });
             }
-            
-        });
+        };
+        new Thread(runnable).start();
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize(); 
+        callbackDestroy.run();
+    }
+    
+    
   /**
    * Creates a new {@code G2DGLCanvas} where {@code drawableComponent} fills the
    * canvas. This uses the default capabilities from
@@ -266,7 +310,7 @@ public class GLG2DCanvas extends JComponent {
 
       firePropertyChange("gldrawing", !drawGL, drawGL);
 
-      repaint();
+//      repaint();
     }
   }
 
@@ -488,11 +532,14 @@ public class GLG2DCanvas extends JComponent {
     public void repaint() {
 //        try{
 //            this.repaintRandomNumber = Math.random();
-            if(executor!=null && nbPaintStack<5){ 
+            if(executor!=null && nbPaintStack<5 && callbackDestroy==null){ 
                 nbPaintStack++;
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
+                        if(callbackDestroy!=null){
+                            return;
+                        }
                         try{
                             paint(getGraphics());
                         }catch(Throwable th){
@@ -535,6 +582,7 @@ public class GLG2DCanvas extends JComponent {
                         g2dglListener.init(canvas);
                         System.out.println("init ok");
                     }
+                    ((GLG2DSimpleEventListener)g2dglListener).setExecutor(getExecutor());
                     ((GLG2DSimpleEventListener)g2dglListener).setCallbackPaint(getRepaintCallable());
                     if(useStream()){
                         renderStream.bind();

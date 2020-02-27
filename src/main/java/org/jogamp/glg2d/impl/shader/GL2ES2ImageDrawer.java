@@ -16,7 +16,6 @@
 package org.jogamp.glg2d.impl.shader;
 
 
-import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.nio.FloatBuffer;
@@ -25,6 +24,7 @@ import java.nio.FloatBuffer;
 
 
 import org.jogamp.glg2d.GLGraphics2D;
+import org.jogamp.glg2d.Texturable;
 import org.jogamp.glg2d.impl.AbstractImageHelper;
 import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
@@ -77,7 +77,7 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
   }
 
   @Override
-  protected void begin(Texture texture, AffineTransform xform, Color bgcolor) {
+  protected void begin(Texturable texture, AffineTransform xform, Color bgcolor) {
     /*
      * FIXME This is unexpected since we never disable blending, but in some
      * cases it interacts poorly with multiple split panes, scroll panes and the
@@ -112,10 +112,10 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
   }
 
   @Override
-  protected void applyTexture(Texture texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2) {
+  protected void applyTexture(Texturable texture, int dx1, int dy1, int dx2, int dy2, float sx1, float sy1, float sx2, float sy2) {
     vertTexCoords.rewind();
 
-    // interleave vertex and texture coordinates
+    // interleave vertex and Texturable coordinates
     vertTexCoords.put(dx1);
     vertTexCoords.put(dy1);
     vertTexCoords.put(sx1);
@@ -141,7 +141,7 @@ public class GL2ES2ImageDrawer extends AbstractImageHelper {
   }
 
   @Override
-  protected void end(Texture texture) {
+  protected void end(Texturable texture) {
     shader.use(false);
     texture.disable(null);//TODO lwjgl
   }

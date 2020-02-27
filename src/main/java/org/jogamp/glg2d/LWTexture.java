@@ -17,7 +17,6 @@ package org.jogamp.glg2d;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureCoords;
 import com.jogamp.opengl.util.texture.TextureData;
 import java.awt.image.BufferedImage;
@@ -30,6 +29,7 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import org.lwjgl.opengl.GL12;
@@ -38,27 +38,24 @@ import org.lwjgl.opengl.GL12;
  *
  * @author mscalabre
  */
-public class LWTexture extends Texture{
+public class LWTexture implements Texturable{
     private int textureId;
     private int width;
     private int height;
-
+    private ByteBuffer byteBuffer;
+    
     public LWTexture() {
-        super(0);
     }
 
     public LWTexture(int textureId, int i) {
-        super(i);
         this.textureId = textureId;
     }
 
     public LWTexture(int textureId, GL gl, TextureData td) throws GLException {
-        super(gl, td);
         this.textureId = textureId;
     }
 
     public LWTexture(int textureId, int i, int i1, int i2, int i3, int i4, int i5, boolean bln) {
-        super(i, i1, i2, i3, i4, i5, bln);
         this.textureId = textureId;
     }
 
@@ -66,24 +63,32 @@ public class LWTexture extends Texture{
         return textureId;
     }
 
+    @Override
+    public int getTextureObject() {
+        return getTextureId();
+    }
+
     public void setTextureId(int textureId) {
         this.textureId = textureId;
     }
     
     public LWTexture(BufferedImage image){
-        super(0);
         
-        
-        ByteBuffer textureBuffer = BufferUtils.createByteBuffer(image.getWidth()*image.getHeight()*4);
+        int width = image.getWidth();
+        int height = image.getHeight();
         
         int textureID = GL11.glGenTextures();
         
-        int[] pixels = new int[image.getWidth() * image.getHeight()];
-        image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
+        ByteBuffer textureBuffer = BufferUtils.createByteBuffer(width*height*4);
         
-        for(int y = 0; y < image.getHeight(); y++){
-            for(int x = 0; x < image.getWidth(); x++){
-                int pixel = pixels[y * image.getWidth() + x];
+        this.byteBuffer = textureBuffer;
+        
+        int[] pixels = new int[width * height];
+        image.getRGB(0, 0, width, height, pixels, 0, width);
+        
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                int pixel = pixels[y * width + x];
                 textureBuffer.put((byte) ((pixel >> 16) & 0xFF));     // Red component
                 textureBuffer.put((byte) ((pixel >> 8) & 0xFF));      // Green component
                 textureBuffer.put((byte) (pixel & 0xFF));               // Blue component
@@ -102,11 +107,11 @@ public class LWTexture extends Texture{
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         
-        glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, image.getWidth(), image.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, textureBuffer);
+        glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, textureBuffer);
         
         this.textureId = textureID;
-        this.width = image.getWidth();
-        this.height = image.getHeight();
+        this.width = width;
+        this.height = height;
     }
 
     @Override
@@ -123,4 +128,24 @@ public class LWTexture extends Texture{
     public TextureCoords getImageTexCoords() {
         return new TextureCoords(0,1,1,0);
     }
+
+    @Override
+    public void destroy(GL gl) throws GLException {
+        glDeleteTextures(this.textureId);
+        BufferUtils.zeroBuffer(byteBuffer);
+//        this.byteBuffer = null;
+    }
+
+    @Override
+    public void enable(GL gl) {
+    }
+
+    @Override
+    public void disable(GL gl) {
+    }
+
+    @Override
+    public void bind(GL gl) {
+    }
+    
 }
