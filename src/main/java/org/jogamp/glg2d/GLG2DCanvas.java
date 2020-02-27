@@ -56,7 +56,6 @@ import javax.swing.RepaintManager;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Pbuffer;
@@ -311,7 +310,7 @@ public class GLG2DCanvas extends JComponent {
 
       firePropertyChange("gldrawing", !drawGL, drawGL);
 
-      repaint();
+//      repaint();
     }
   }
 
